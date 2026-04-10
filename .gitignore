@@ -1,0 +1,19 @@
+node_modules/
+dist/
+
+# iOS
+ios/Pods/
+ios/build/
+*.xcuserdata
+
+# Android
+android/.gradle/
+android/build/
+android/app/build/
+
+# Metro
+.metro-health-check*
+
+# Misc
+.DS_Store
+*.log
