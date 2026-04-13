@@ -10,6 +10,8 @@ overrides:
   '@module-federation/runtime-core': file:./tarballs/module-federation-runtime-core.tgz
   '@module-federation/runtime': file:./tarballs/module-federation-runtime.tgz
 
+pnpmfileChecksum: sha256-o6jQdR40XMU5Fu5d/n1gYJTxykRjpLNYhHNauNQNlCo=
+
 importers:
 
   .:
@@ -1134,21 +1136,21 @@ packages:
         optional: true
 
   '@module-federation/error-codes@file:tarballs/module-federation-error-codes.tgz':
-    resolution: {integrity: sha512-rBg031isB89rY/mutzgvpey0DnHtaTx2x0m+J1F6Hvfd4JXN8HCQA8LO8S5FL079Z/OrAzOnIOye7uiuBW+blw==, tarball: file:tarballs/module-federation-error-codes.tgz}
+    resolution: {tarball: file:tarballs/module-federation-error-codes.tgz}
     version: 2.3.1
 
   '@module-federation/managers@2.3.1':
     resolution: {integrity: sha512-kK/4FkoaIxbJbN+R6+cq+igv095hPox8oheZOKkrYA9P6Xv5FiHza+gHlCntiWTMrU8bzqJHH4VYm6gq1RB+dQ==}
 
   '@module-federation/metro-plugin-rnef@file:tarballs/module-federation-metro-plugin-rnef.tgz':
-    resolution: {integrity: sha512-eRzBbnVzvemjmiw2JYVaqQNkyQqAwEmSdLfnezj7aQQRAsnxdwkR9PqpNro1dtBq9V8OurtR/DqllHP6IvTeNg==, tarball: file:tarballs/module-federation-metro-plugin-rnef.tgz}
+    resolution: {tarball: file:tarballs/module-federation-metro-plugin-rnef.tgz}
     version: 2.3.1
     peerDependencies:
       '@module-federation/metro': 2.3.1
       '@rnef/tools': ^0.7.18
 
   '@module-federation/metro@file:tarballs/module-federation-metro.tgz':
-    resolution: {integrity: sha512-E5hY34KOhTyo2kfhbXEoK/c7Ne9y+RX7B68PTxLeCjaAoU+NE40HnL3plRVvSmX3C4IdoY2swZ6nT8Dj/hRhjw==, tarball: file:tarballs/module-federation-metro.tgz}
+    resolution: {tarball: file:tarballs/module-federation-metro.tgz}
     version: 2.3.1
     peerDependencies:
       '@babel/types': ^7.25.0
@@ -1166,15 +1168,15 @@ packages:
         optional: true
 
   '@module-federation/runtime-core@file:tarballs/module-federation-runtime-core.tgz':
-    resolution: {integrity: sha512-WEikCmlVvWIJJM5vb7np4hl6+pL7P1HuUgIsX/u91f2DAH2LKuJ4Q3kVubcinWxIGxvvAOYC3A3DByGaYBf69w==, tarball: file:tarballs/module-federation-runtime-core.tgz}
+    resolution: {tarball: file:tarballs/module-federation-runtime-core.tgz}
     version: 2.3.1
 
   '@module-federation/runtime@file:tarballs/module-federation-runtime.tgz':
-    resolution: {integrity: sha512-naLtOiyRam1a8ppIwSXmuELlucqgz7+J15dFZzilb3AqSf8N8JAyF1ZlOJFnPElyR8777ufVmn+CUSRnwreyWw==, tarball: file:tarballs/module-federation-runtime.tgz}
+    resolution: {tarball: file:tarballs/module-federation-runtime.tgz}
     version: 2.3.1
 
   '@module-federation/sdk@file:tarballs/module-federation-sdk.tgz':
-    resolution: {integrity: sha512-FaMP39lp63cj+snAo3nDzZHVZCpAr1BWuK42r2sR+k2ly1lv9W/t/oUwbYjs16ud5VpMgGDsmbCF1xbo2Zrbzg==, tarball: file:tarballs/module-federation-sdk.tgz}
+    resolution: {tarball: file:tarballs/module-federation-sdk.tgz}
     version: 2.3.1
     peerDependencies:
       node-fetch: ^3.3.2
@@ -4221,7 +4223,7 @@ packages:
     engines: {node: '>=10'}
 
   zephyr-native-cache@file:tarballs/zephyr-native-cache.tgz:
-    resolution: {integrity: sha512-8RSi176WQzrdN3ZwHmNaj9yGuA1vDZHJ/lzg6uSPeMIGDivjXlbsUVaWZleWG635G9C5tchRK9GE6viAtvel/g==, tarball: file:tarballs/zephyr-native-cache.tgz}
+    resolution: {tarball: file:tarballs/zephyr-native-cache.tgz}
     version: 0.0.1
     peerDependencies:
       react: '>=19.0.0'

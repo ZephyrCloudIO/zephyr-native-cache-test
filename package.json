@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "turbo run dev",
-    "build:mf-core": "bash scripts/build-mf-core.sh",
+"build:mf-core": "bash scripts/build-mf-core.sh",
     "build:native-cache": "bash scripts/build-native-cache.sh",
     "refresh": "pnpm install",
     "run:ios": "cd apps/host && pnpm exec rnef run:ios"

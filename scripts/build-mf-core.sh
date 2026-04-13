@@ -16,17 +16,14 @@ MF_PACKAGES=(
   "@module-federation/metro-plugin-rnef"
 )
 
-declare -A TARBALL_NAMES=(
-  ["@module-federation/error-codes"]="module-federation-error-codes.tgz"
-  ["@module-federation/sdk"]="module-federation-sdk.tgz"
-  ["@module-federation/runtime-core"]="module-federation-runtime-core.tgz"
-  ["@module-federation/runtime"]="module-federation-runtime.tgz"
-  ["@module-federation/metro"]="module-federation-metro.tgz"
-  ["@module-federation/metro-plugin-rnef"]="module-federation-metro-plugin-rnef.tgz"
-)
-
 info() { echo "→ $*"; }
 error() { echo "✗ $*" >&2; exit 1; }
+
+# Derive stable tarball name from scoped package name
+# @module-federation/metro → module-federation-metro.tgz
+stable_name() {
+  echo "$1" | sed 's/@//g; s|/|-|g' | tr -s '-'
+}
 
 [[ -d "$MF_WT" ]] || error "mf-core submodule not found at $MF_WT — run: git submodule update --init"
 
@@ -53,11 +50,11 @@ for pkg in "${MF_PACKAGES[@]}"; do
 done
 
 for pkg in "${MF_PACKAGES[@]}"; do
-  stable_name="${TARBALL_NAMES[$pkg]}"
-  src=$(ls "$STAGING/"*"$(echo "$pkg" | sed 's/@//;s|/|-|')"* 2>/dev/null | head -1)
+  name="$(stable_name "$pkg").tgz"
+  src=$(ls "$STAGING/"*"$(stable_name "$pkg")"* 2>/dev/null | head -1)
   [[ -n "$src" ]] || error "Could not find packed tarball for $pkg"
-  mv "$src" "$TARBALLS_DIR/$stable_name"
-  info "  $pkg → $stable_name"
+  mv "$src" "$TARBALLS_DIR/$name"
+  info "  $pkg → $name"
 done
 
 info "Done."
