@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Build and pack @module-federation/* tarballs from mf-core worktree.
+# Build and pack @module-federation/* tarballs from mf-core submodule.
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 TARBALLS_DIR="$REPO_ROOT/tarballs"
-WORKSPACE_ROOT="$(cd "$REPO_ROOT/.." && pwd)"
-MF_WT="$WORKSPACE_ROOT/.worktrees/mf-core-metro-cache"
+MF_WT="$REPO_ROOT/vendor/mf-core"
 
 MF_PACKAGES=(
   "@module-federation/error-codes"
@@ -29,13 +28,16 @@ declare -A TARBALL_NAMES=(
 info() { echo "→ $*"; }
 error() { echo "✗ $*" >&2; exit 1; }
 
-[[ -d "$MF_WT" ]] || error "mf-core worktree not found at $MF_WT"
+[[ -d "$MF_WT" ]] || error "mf-core submodule not found at $MF_WT — run: git submodule update --init"
 
 STAGING="$(mktemp -d)"
 trap 'rm -rf "$STAGING"' EXIT
 mkdir -p "$STAGING"
 
 cd "$MF_WT"
+
+info "Installing dependencies..."
+pnpm install --frozen-lockfile
 
 FILTER_ARGS=""
 for pkg in "${MF_PACKAGES[@]}"; do

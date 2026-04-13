@@ -5,9 +5,16 @@
     "dev": {
       "cache": false,
       "persistent": true,
-      "dependsOn": ["build:tarballs"]
+      "dependsOn": ["//#refresh"]
     },
-    "build:tarballs": {
+    "//#refresh": {
+      "cache": false,
+      "dependsOn": ["//#build:mf-core", "//#build:native-cache"]
+    },
+    "//#build:mf-core": {
+      "cache": false
+    },
+    "//#build:native-cache": {
       "cache": false
     }
   }

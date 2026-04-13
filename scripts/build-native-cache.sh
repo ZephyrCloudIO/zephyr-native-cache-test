@@ -1,23 +1,25 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Build and pack zephyr-native-cache tarball from zephyr-packages worktree.
+# Build and pack zephyr-native-cache tarball from zephyr-packages submodule.
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 TARBALLS_DIR="$REPO_ROOT/tarballs"
-WORKSPACE_ROOT="$(cd "$REPO_ROOT/.." && pwd)"
-ZP_WT="$WORKSPACE_ROOT/.worktrees/ze-packages-native-cache"
+ZP_WT="$REPO_ROOT/vendor/zephyr-packages"
 
 info() { echo "→ $*"; }
 error() { echo "✗ $*" >&2; exit 1; }
 
-[[ -d "$ZP_WT" ]] || error "zephyr-packages worktree not found at $ZP_WT"
+[[ -d "$ZP_WT" ]] || error "zephyr-packages submodule not found at $ZP_WT — run: git submodule update --init"
 
 STAGING="$(mktemp -d)"
 trap 'rm -rf "$STAGING"' EXIT
 mkdir -p "$STAGING"
 
 cd "$ZP_WT"
+
+info "Installing dependencies..."
+pnpm install
 
 info "Building zephyr-native-cache..."
 pnpm --filter zephyr-native-cache run build

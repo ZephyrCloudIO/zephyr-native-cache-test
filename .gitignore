@@ -11,8 +11,17 @@ android/.gradle/
 android/build/
 android/app/build/
 
+# RNEF
+.rnef/
+
 # Metro
 .metro-health-check*
+
+# Turbo
+.turbo/
+
+# Tarballs (built from vendor submodules)
+tarballs/*.tgz
 
 # Misc
 .DS_Store
