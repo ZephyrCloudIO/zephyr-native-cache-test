@@ -11,6 +11,7 @@ const config = {
   },
   watchFolders: [
     path.resolve(__dirname, '../../node_modules'),
+    path.resolve(__dirname, '../../vendor'),
   ],
 };
 
@@ -43,7 +44,13 @@ module.exports = withModuleFederation(
       },
     },
     shareStrategy: 'loaded-first',
-    runtimePlugins: [path.resolve(__dirname, './runtime-plugin.ts')],
+    runtimePlugins: [
+      path.resolve(__dirname, './runtime-plugin.ts'),
+      path.resolve(
+        __dirname,
+        '../../vendor/zephyr-packages/libs/zephyr-native-cache/src/runtime-plugin.ts',
+      ),
+    ],
   },
   {
     flags: {
