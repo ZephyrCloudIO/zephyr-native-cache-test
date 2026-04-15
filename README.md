@@ -63,11 +63,24 @@ git checkout pr/412-native-cache
 pnpm dev
 ```
 
-This runs the full pipeline via Turbo:
+This is the smart default. It checks vendor submodule state, decides whether a rebuild is needed, and launches all three Metro dev servers. On a cold start or after changing vendor code it runs the full build pipeline and resets Metro's transformer cache. On subsequent runs with unchanged vendors it skips straight to launching Metro with a warm cache.
+
+The full pipeline (when a rebuild is needed):
 
 1. `build:mf-core` + `build:native-cache` — builds and packs tarballs from vendor submodules (parallel)
 2. `refresh` — `pnpm install` to unpack updated tarballs into node_modules
-3. `dev` — starts all three Metro servers
+3. `dev` — starts all three Metro servers with `--reset-cache`
+
+Turbo caches the build tasks based on submodule state (commit SHA + uncommitted changes). When nothing changed, builds resolve instantly from cache and Metro reuses its transformer cache — saving significant startup time.
+
+Two explicit subcommands are also available:
+
+| Command | What it does |
+| --- | --- |
+| `pnpm dev:cached` | Skip builds entirely, launch Metro with warm cache |
+| `pnpm dev:raw` | Force the full build pipeline + Metro cache reset |
+
+If any Metro ports (8081-8083) are already in use, the dev script will show which processes hold them and prompt to kill before continuing.
 
 ### Run on iOS
 
@@ -92,7 +105,7 @@ Edit source directly in the submodules:
 - `vendor/mf-core/` — metro-core plugin, asyncRequire, cache interface
 - `vendor/zephyr-packages/` — BundleCacheLayer, CacheManager, native modules
 
-After editing, restart `pnpm dev` — it rebuilds tarballs and reinstalls automatically.
+After editing, restart `pnpm dev` — it detects the changes, rebuilds tarballs, reinstalls, and resets Metro's cache automatically.
 
 Key files:
 
@@ -112,8 +125,11 @@ zephyr-native-cache-test/
 │   ├── mf-core/              # git submodule → module-federation/core PR #4576
 │   └── zephyr-packages/      # git submodule → ZephyrCloudIO/zephyr-packages PR #412
 ├── scripts/
-│   ├── build-mf-core.sh      # builds + packs 6 @module-federation/* tarballs
-│   └── build-native-cache.sh # builds + packs zephyr-native-cache tarball
+│   ├── dev.sh                 # smart entrypoint — port check, vendor state, mode selection
+│   ├── check-ports.sh         # detects busy Metro ports and prompts to kill
+│   ├── vendor-state.sh        # generates submodule state hashes for turbo cache keys
+│   ├── build-mf-core.sh       # builds + packs 6 @module-federation/* tarballs
+│   └── build-native-cache.sh  # builds + packs zephyr-native-cache tarball
 ├── tarballs/                  # .tgz artifacts (gitignored, built from vendor)
 ├── apps/
 │   ├── host/                  # port 8081
