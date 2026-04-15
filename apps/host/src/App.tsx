@@ -22,6 +22,7 @@ import {Tappable} from './components/Tappable';
 import {Toast, UpdateBar} from './components/Toast';
 import {useCacheStatus, type RemoteCacheEntry} from './hooks/useCacheStatus';
 import {useNetworkStatus} from './hooks/useNetworkStatus';
+import {NativeMFECache} from 'zephyr-native-cache';
 
 // mini remote — StatsCard eager, rest lazy
 // @ts-ignore
@@ -90,6 +91,10 @@ function App(): React.JSX.Element {
     (globalThis as any).__FEDERATION__?.__NATIVE__?.__CACHE_LAYER__?.clearCache?.();
   }, []);
 
+  const handleRestart = useCallback(() => {
+    NativeMFECache?.restart();
+  }, []);
+
   const handleToggleSources = useCallback(() => {
     setShowSources(prev => !prev);
   }, []);
@@ -147,7 +152,7 @@ function App(): React.JSX.Element {
       <SafeAreaView style={styles.safeArea}>
         <UpdateBar
           visible={hasUpdate && !toastExpanded}
-          onRestart={() => {}}
+          onRestart={handleRestart}
           onExpand={() => setToastExpanded(true)}
         />
         <ScrollView
@@ -289,7 +294,7 @@ function App(): React.JSX.Element {
       </SafeAreaView>
       <Toast
         visible={toastExpanded}
-        onRestart={() => {}}
+        onRestart={handleRestart}
         onDismiss={() => setToastExpanded(false)}
       />
     </Animated.View>

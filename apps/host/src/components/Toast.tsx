@@ -1,6 +1,8 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {Animated, Easing, Platform, Pressable, StyleSheet, Text, View} from 'react-native';
 
+import {Button} from './Button';
+
 // --- Mini update bar (inline, sticky at top) ---
 
 interface UpdateBarProps {
@@ -31,13 +33,13 @@ export function UpdateBar({visible, onRestart, onExpand}: UpdateBarProps) {
 
   return (
     <Animated.View style={[barStyles.container, {height, opacity}]}>
-      <Pressable onPress={onExpand} style={barStyles.content}>
+      <Button onPress={onExpand} style={barStyles.content}>
         <View style={barStyles.dot} />
         <Text style={[barStyles.text, barStyles.mono]}>Update available</Text>
-        <Pressable onPress={onRestart} style={barStyles.button}>
+        <Button onPress={onRestart} style={barStyles.button}>
           <Text style={[barStyles.buttonText, barStyles.mono]}>Restart</Text>
-        </Pressable>
-      </Pressable>
+        </Button>
+      </Button>
     </Animated.View>
   );
 }
@@ -153,12 +155,12 @@ export function Toast({visible, onRestart, onDismiss}: ToastProps) {
           </View>
         </View>
         <View style={toastStyles.actions}>
-          <Pressable onPress={onDismiss} style={toastStyles.secondaryButton}>
+          <Button onPress={onDismiss} style={toastStyles.secondaryButton}>
             <Text style={toastStyles.secondaryText}>Later</Text>
-          </Pressable>
-          <Pressable onPress={onRestart} style={toastStyles.primaryButton}>
+          </Button>
+          <Button onPress={onRestart} style={toastStyles.primaryButton}>
             <Text style={toastStyles.primaryText}>Restart</Text>
-          </Pressable>
+          </Button>
         </View>
       </Animated.View>
     </View>
