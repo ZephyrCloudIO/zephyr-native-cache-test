@@ -4,36 +4,26 @@ appId: com.mf.example.host
     clearState: true
 - waitForAnimationToEnd
 
-# Check Host Info
+# Check mini remote components
 - assertVisible:
-    id: 'host-app-info'
-- copyTextFrom:
-    id: 'host-lodash'
-- assertTrue:
-    condition: ${maestro.copiedText === "4.17.23"}
+    id: 'stats-card'
+- assertVisible:
+    id: 'deploy-card'
 
-# Check Mini App Info
-- assertNotVisible:
-    id: 'mini-info'
+# Check nestedMini remote components
 - assertVisible:
-    id: 'load-mini-button'
-- retry:
-    maxRetries: 2
-    commands:
-      - tapOn:
-          id: 'load-mini-button'
-          retryTapIfNoChange: true
-      - assertVisible:
-          id: 'mini-info'
-- copyTextFrom:
-    id: 'mini-lodash'
-- assertTrue:
-    condition: ${maestro.copiedText === "4.17.23"}
+    id: 'activity-feed'
+- assertVisible:
+    id: 'cache-info'
 
-# Check Nested Mini App Info
+# Check host component
 - assertVisible:
-    id: 'nested-mini-info'
-- copyTextFrom:
-    id: 'nested-mini-lodash'
-- assertTrue:
-    condition: ${maestro.copiedText === "4.17.23"}
+    id: 'host-info'
+
+# Verify DevTools panel
+- assertVisible:
+    id: 'devtools-panel-handle'
+- tapOn:
+    id: 'devtools-panel-handle'
+- assertVisible:
+    id: 'devtools-panel-expanded'

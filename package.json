@@ -7,7 +7,8 @@
 "build:mf-core": "bash scripts/build-mf-core.sh",
     "build:native-cache": "bash scripts/build-native-cache.sh",
     "refresh": "pnpm install",
-    "run:ios": "cd apps/host && pnpm exec rnef run:ios"
+    "run:ios": "cd apps/host && pnpm exec rnef run:ios",
+    "e2e": "maestro test apps/host/e2e/flows/core.yaml"
   },
   "devDependencies": {
     "turbo": "^2.8.0"

@@ -20,7 +20,9 @@ module.exports = withModuleFederation(
     name: 'MFExampleMini',
     filename: 'mini.bundle',
     exposes: {
-      './info': './src/info.tsx',
+      './StatsCard': './src/StatsCard.tsx',
+      './DeployCard': './src/DeployCard.tsx',
+      './CalorieCard': './src/CalorieCard.tsx',
     },
     shared: {
       react: {

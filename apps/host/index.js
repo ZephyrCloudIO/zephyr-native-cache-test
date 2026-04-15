@@ -4,7 +4,7 @@ import {AppRegistry} from 'react-native';
 import {name as appName} from './app.json';
 
 // Enable native cache layer in dev mode for debugging
-register({forceCacheInDev: true});
+register({forceCacheInDev: true, pollIntervalMs: 15_000});
 
 AppRegistry.registerComponent(
   appName,

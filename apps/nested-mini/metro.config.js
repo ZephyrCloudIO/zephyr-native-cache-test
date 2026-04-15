@@ -20,10 +20,9 @@ module.exports = withModuleFederation(
     name: 'MFExampleNestedMini',
     filename: 'nestedMini.bundle',
     exposes: {
-      './nestedMiniInfo': './src/nested-mini-info.tsx',
-    },
-    remotes: {
-      mini: 'mini@http://localhost:8082/mf-manifest.json',
+      './ActivityFeed': './src/ActivityFeed.tsx',
+      './CacheInfo': './src/CacheInfo.tsx',
+      './HydrationCard': './src/HydrationCard.tsx',
     },
     shared: {
       react: {
