@@ -3,7 +3,9 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "turbo run dev",
+    "dev": "bash scripts/dev.sh",
+    "dev:cached": "bash scripts/check-ports.sh && turbo run dev:cached",
+    "dev:raw": "bash scripts/check-ports.sh && bash scripts/vendor-state.sh && turbo run dev",
 "build:mf-core": "bash scripts/build-mf-core.sh",
     "build:native-cache": "bash scripts/build-native-cache.sh",
     "refresh": "pnpm install",

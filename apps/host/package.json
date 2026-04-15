@@ -9,6 +9,7 @@
     "ios:release": "rnef run:ios --configuration 'Release' --destination=\"simulator\"",
     "lint": "ESLINT_USE_FLAT_CONFIG=false eslint .",
     "dev": "rnef start --reset-cache --client-logs",
+    "dev:cached": "rnef start --client-logs",
     "start": "rnef start --reset-cache --client-logs",
     "pods": "(cd ios && bundle install && (bundle exec pod install || bundle exec pod update))",
     "test": "jest",

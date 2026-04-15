@@ -11,7 +11,10 @@ const config = {
   },
   watchFolders: [
     path.resolve(__dirname, '../../node_modules'),
-    path.resolve(__dirname, '../../vendor'),
+    path.resolve(
+      __dirname,
+      '../../vendor/zephyr-packages/libs/zephyr-native-cache/src',
+    ),
   ],
 };
 

@@ -7,6 +7,7 @@
     "ios": "rnef run:ios",
     "lint": "ESLINT_USE_FLAT_CONFIG=false eslint .",
     "dev": "rnef start --port 8083 --reset-cache",
+    "dev:cached": "rnef start --port 8083",
     "start": "rnef start --port 8083",
     "test": "jest",
     "pods": "(cd ios && bundle install && (bundle exec pod install || bundle exec pod update))",

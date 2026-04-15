@@ -1,21 +1,43 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
+  "globalDependencies": [".gitmodules"],
   "tasks": {
     "dev": {
       "cache": false,
       "persistent": true,
       "dependsOn": ["//#refresh"]
     },
+    "dev:cached": {
+      "cache": false,
+      "persistent": true
+    },
     "//#refresh": {
       "cache": false,
       "dependsOn": ["//#build:mf-core", "//#build:native-cache"]
     },
     "//#build:mf-core": {
-      "cache": false
+      "inputs": [
+        ".mf-core.state",
+        "scripts/build-mf-core.sh"
+      ],
+      "outputs": [
+        "tarballs/module-federation-error-codes.tgz",
+        "tarballs/module-federation-sdk.tgz",
+        "tarballs/module-federation-runtime-core.tgz",
+        "tarballs/module-federation-runtime.tgz",
+        "tarballs/module-federation-metro.tgz",
+        "tarballs/module-federation-metro-plugin-rnef.tgz"
+      ]
     },
     "//#build:native-cache": {
-      "cache": false
+      "inputs": [
+        ".native-cache.state",
+        "scripts/build-native-cache.sh"
+      ],
+      "outputs": [
+        "tarballs/zephyr-native-cache.tgz"
+      ]
     }
   }
 }
