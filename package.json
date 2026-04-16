@@ -2,17 +2,28 @@
   "name": "zephyr-native-cache-test",
   "version": "0.0.1",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "bash scripts/dev.sh",
     "dev:cached": "bash scripts/check-ports.sh && turbo run dev:cached",
     "dev:raw": "bash scripts/check-ports.sh && bash scripts/vendor-state.sh && turbo run dev",
-"build:mf-core": "bash scripts/build-mf-core.sh",
+    "build:mf-core": "bash scripts/build-mf-core.sh",
     "build:native-cache": "bash scripts/build-native-cache.sh",
     "refresh": "pnpm install",
     "run:ios": "bash scripts/check-native-cache.sh && cd apps/host && pnpm exec rnef run:ios",
-    "e2e": "maestro test apps/host/e2e/flows/core.yaml"
+    "e2e": "node --import tsx scripts/e2e-ota.tsx",
+    "e2e:ci": "node --import tsx scripts/e2e-ota.tsx --ci",
+    "e2e:dev": "node --import tsx scripts/e2e-ota.tsx --dev",
+    "e2e:demo": "node --import tsx scripts/e2e-ota.tsx --interactive",
+    "e2e:build": "bash scripts/build-e2e-versions.sh"
   },
   "devDependencies": {
+    "@types/node": "^25.6.0",
+    "@types/react": "^19.2.14",
+    "execa": "^9.6.1",
+    "ink": "7",
+    "react": "^19.2.5",
+    "tsx": "^4.21.0",
     "turbo": "^2.8.0"
   },
   "packageManager": "pnpm@10.33.0",
@@ -25,6 +36,9 @@
       "@module-federation/sdk": "file:./tarballs/module-federation-sdk.tgz",
       "@module-federation/runtime-core": "file:./tarballs/module-federation-runtime-core.tgz",
       "@module-federation/runtime": "file:./tarballs/module-federation-runtime.tgz"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   }
 }

@@ -27,6 +27,9 @@ tarballs/*.tgz
 .native-cache.state
 .native-build.state
 
+# E2E test fixtures (built by scripts/build-e2e-versions.sh)
+e2e-fixtures/
+
 # Misc
 .DS_Store
 *.log

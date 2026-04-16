@@ -2,10 +2,10 @@ import React from 'react';
 import {Platform, StyleSheet, Text, View} from 'react-native';
 
 const WORKOUTS = [
-  {type: 'Running', duration: '32 min', cal: '280 cal', icon: '🏃'},
-  {type: 'Cycling', duration: '45 min', cal: '410 cal', icon: '🚴'},
-  {type: 'Yoga', duration: '20 min', cal: '95 cal', icon: '🧘'},
-  {type: 'Walking', duration: '18 min', cal: '85 cal', icon: '🚶'},
+  {type: 'Running', duration: '32 min', cal: '280 cal', icon: '🏃', intensity: 'High', intensityColor: '#ef4444'},
+  {type: 'Cycling', duration: '45 min', cal: '410 cal', icon: '🚴', intensity: 'High', intensityColor: '#ef4444'},
+  {type: 'Yoga', duration: '20 min', cal: '95 cal', icon: '🧘', intensity: 'Low', intensityColor: '#22c55e'},
+  {type: 'Walking', duration: '18 min', cal: '85 cal', icon: '🚶', intensity: 'Med', intensityColor: '#f59e0b'},
 ];
 
 export default function ActivityFeed({
@@ -17,7 +17,7 @@ export default function ActivityFeed({
     <View style={styles.card} testID={testID}>
       <View style={styles.labelRow}>
         <Text style={styles.label}>Today's Workouts</Text>
-        <Text testID="activity-feed-version" style={styles.version}>v1</Text>
+        <Text testID="activity-feed-version" style={styles.version}>v2</Text>
       </View>
       {WORKOUTS.map((w, i) => (
         <View
@@ -31,9 +31,17 @@ export default function ActivityFeed({
             <Text style={styles.type}>{w.type}</Text>
             <Text style={styles.meta}>{w.duration}</Text>
           </View>
+          <View style={[styles.badge, {backgroundColor: `${w.intensityColor}22`}]}>
+            <Text style={[styles.badgeText, {color: w.intensityColor}]}>
+              {w.intensity}
+            </Text>
+          </View>
           <Text style={styles.cal}>{w.cal}</Text>
         </View>
       ))}
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>Total: 1h 55m · 870 cal</Text>
+      </View>
     </View>
   );
 }
@@ -45,9 +53,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.06)',
     padding: 14,
-    shadowColor: '#000',
+    shadowColor: 'rgba(0,0,0,0.3)',
     shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.3,
+    shadowOpacity: 1,
     shadowRadius: 8,
     elevation: 4,
   },
@@ -93,8 +101,30 @@ const styles = StyleSheet.create({
     fontSize: 10,
     marginTop: 1,
   },
+  badge: {
+    borderRadius: 10,
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    marginRight: 8,
+  },
+  badgeText: {
+    fontSize: 9,
+    fontWeight: '700',
+    fontFamily: Platform.select({ios: 'Menlo', default: 'monospace'}),
+  },
   cal: {
     color: '#a1a1aa',
     fontSize: 11,
+  },
+  footer: {
+    marginTop: 4,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.06)',
+  },
+  footerText: {
+    color: '#d4d4d8',
+    fontSize: 11,
+    fontFamily: Platform.select({ios: 'Menlo', default: 'monospace'}),
   },
 });

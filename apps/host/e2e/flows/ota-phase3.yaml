@@ -1,0 +1,34 @@
+appId: com.mf.example.host
+---
+# Phase 3: Rollback nested-mini to v1 (mini stays at v2)
+# Only nested-mini CDN changed. App is running from phase 2.
+
+# Wait for update toast (poll detects nested-mini hash change)
+- extendedWaitUntil:
+    visible:
+      id: 'update-toast'
+    timeout: 30000
+
+# Restart via toast
+- tapOn:
+    id: 'update-toast-restart'
+
+# Wait for JS context reload
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: 'stats-card'
+    timeout: 20000
+
+# Mini stays at v2
+- assertVisible:
+    id: 'stats-card-version'
+    text: 'v2'
+
+# Nested-mini rolled back to v1 — CacheInfo works again
+- assertVisible:
+    id: 'cache-info'
+- assertNotVisible:
+    id: 'error-CacheInfo'
+- assertVisible:
+    id: 'activity-feed'

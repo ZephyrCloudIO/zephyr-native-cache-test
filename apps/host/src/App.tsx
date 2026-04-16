@@ -14,6 +14,7 @@ import {
 
 import {Button} from './components/Button';
 import {DevToolsPanel} from './components/DevToolsPanel';
+import {ErrorBoundary} from './components/ErrorBoundary';
 import {Header} from './components/Header';
 import {WeeklyGoals, MoodCard} from './components/HostCards';
 import {Placeholder} from './components/Placeholder';
@@ -162,7 +163,9 @@ function App(): React.JSX.Element {
             {/* Left column */}
             <View style={styles.column}>
               <Tappable>
-                <StatsCard />
+                <ErrorBoundary name="StatsCard">
+                  <StatsCard />
+                </ErrorBoundary>
                 {showSources && (
                   <SourceOverlay
                     name="StatsCard"
@@ -173,9 +176,11 @@ function App(): React.JSX.Element {
                 )}
               </Tappable>
               <Tappable>
-                <React.Suspense fallback={<Placeholder height={200} />}>
-                  <CacheInfo />
-                </React.Suspense>
+                <ErrorBoundary name="CacheInfo">
+                  <React.Suspense fallback={<Placeholder height={200} />}>
+                    <CacheInfo />
+                  </React.Suspense>
+                </ErrorBoundary>
                 {showSources && (
                   <SourceOverlay
                     name="CacheInfo"
@@ -187,9 +192,11 @@ function App(): React.JSX.Element {
               </Tappable>
               <Tappable>
                 {showCalorie ? (
-                  <React.Suspense fallback={<Placeholder height={195} />}>
-                    <CalorieCard />
-                  </React.Suspense>
+                  <ErrorBoundary name="CalorieCard">
+                    <React.Suspense fallback={<Placeholder height={195} />}>
+                      <CalorieCard />
+                    </React.Suspense>
+                  </ErrorBoundary>
                 ) : (
                   <Button
                     style={styles.loadButton}
@@ -217,7 +224,9 @@ function App(): React.JSX.Element {
             {/* Right column */}
             <View style={styles.column}>
               <Tappable>
-                <ActivityFeed />
+                <ErrorBoundary name="ActivityFeed">
+                  <ActivityFeed />
+                </ErrorBoundary>
                 {showSources && (
                   <SourceOverlay
                     name="ActivityFeed"
@@ -228,9 +237,11 @@ function App(): React.JSX.Element {
                 )}
               </Tappable>
               <Tappable>
-                <React.Suspense fallback={<Placeholder height={170} />}>
-                  <DeployCard />
-                </React.Suspense>
+                <ErrorBoundary name="DeployCard">
+                  <React.Suspense fallback={<Placeholder height={170} />}>
+                    <DeployCard />
+                  </React.Suspense>
+                </ErrorBoundary>
                 {showSources && (
                   <SourceOverlay
                     name="DeployCard"
@@ -248,9 +259,11 @@ function App(): React.JSX.Element {
               </Tappable>
               <Tappable>
                 {showHydration ? (
-                  <React.Suspense fallback={<Placeholder height={150} />}>
-                    <HydrationCard />
-                  </React.Suspense>
+                  <ErrorBoundary name="HydrationCard">
+                    <React.Suspense fallback={<Placeholder height={150} />}>
+                      <HydrationCard />
+                    </React.Suspense>
+                  </ErrorBoundary>
                 ) : (
                   <Button
                     style={styles.loadButton}

@@ -2,9 +2,9 @@ import React from 'react';
 import {Platform, StyleSheet, Text, View} from 'react-native';
 
 const MEALS = [
-  {label: 'Breakfast', cal: 420, color: '#f59e0b'},
-  {label: 'Lunch', cal: 680, color: '#22c55e'},
-  {label: 'Snacks', cal: 195, color: '#8b5cf6'},
+  {label: 'Breakfast', cal: 420, color: '#f59e0b', time: '8:30am'},
+  {label: 'Lunch', cal: 680, color: '#22c55e', time: '12:15pm'},
+  {label: 'Snacks', cal: 195, color: '#8b5cf6', time: '3:45pm'},
 ];
 
 const TOTAL = MEALS.reduce((s, m) => s + m.cal, 0);
@@ -19,28 +19,42 @@ export default function CalorieCard({
     <View style={styles.card} testID={testID}>
       <View style={styles.labelRow}>
         <Text style={styles.label}>Nutrition</Text>
-        <Text testID="calorie-card-version" style={styles.version}>v1</Text>
+        <Text testID="calorie-card-version" style={styles.version}>v2</Text>
       </View>
+
       <View style={styles.header}>
         <Text style={styles.value}>{TOTAL}</Text>
         <Text style={styles.unit}> / {GOAL} cal</Text>
       </View>
+
       <View style={styles.bar}>
         {MEALS.map(m => (
           <View
             key={m.label}
-            style={[
-              styles.segment,
-              {flex: m.cal, backgroundColor: m.color},
-            ]}
+            style={[styles.segment, {flex: m.cal, backgroundColor: m.color}]}
           />
         ))}
-        <View style={[styles.segment, {flex: GOAL - TOTAL, backgroundColor: 'rgba(255,255,255,0.04)'}]} />
+        <View
+          style={[
+            styles.segment,
+            {flex: GOAL - TOTAL, backgroundColor: 'rgba(255,255,255,0.04)'},
+          ]}
+        />
       </View>
+
+      <View style={styles.macroRow}>
+        <Text style={styles.macroP}>P 62g</Text>
+        <Text style={styles.macroDot}> · </Text>
+        <Text style={styles.macroC}>C 158g</Text>
+        <Text style={styles.macroDot}> · </Text>
+        <Text style={styles.macroF}>F 48g</Text>
+      </View>
+
       {MEALS.map(m => (
         <View key={m.label} style={styles.row}>
           <View style={[styles.dot, {backgroundColor: m.color}]} />
           <Text style={styles.mealLabel}>{m.label}</Text>
+          <Text style={styles.mealTime}>{m.time}</Text>
           <Text style={styles.mealCal}>{m.cal} cal</Text>
         </View>
       ))}
@@ -55,9 +69,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.06)',
     padding: 14,
-    shadowColor: '#000',
+    shadowColor: 'rgba(0,0,0,0.3)',
     shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.3,
+    shadowOpacity: 1,
     shadowRadius: 8,
     elevation: 4,
   },
@@ -94,14 +108,41 @@ const styles = StyleSheet.create({
   },
   bar: {
     flexDirection: 'row',
-    height: 6,
-    borderRadius: 3,
+    height: 8,
+    borderRadius: 10,
     overflow: 'hidden',
     gap: 2,
-    marginBottom: 10,
+    marginBottom: 8,
   },
   segment: {
-    borderRadius: 2,
+    borderRadius: 10,
+  },
+  macroRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  macroP: {
+    color: '#3b82f6',
+    fontSize: 11,
+    fontWeight: '600',
+    fontFamily: Platform.select({ios: 'Menlo', default: 'monospace'}),
+  },
+  macroC: {
+    color: '#22c55e',
+    fontSize: 11,
+    fontWeight: '600',
+    fontFamily: Platform.select({ios: 'Menlo', default: 'monospace'}),
+  },
+  macroF: {
+    color: '#8b5cf6',
+    fontSize: 11,
+    fontWeight: '600',
+    fontFamily: Platform.select({ios: 'Menlo', default: 'monospace'}),
+  },
+  macroDot: {
+    color: '#4b5563',
+    fontSize: 11,
   },
   row: {
     flexDirection: 'row',
@@ -118,6 +159,12 @@ const styles = StyleSheet.create({
     color: '#a1a1aa',
     fontSize: 11,
     flex: 1,
+  },
+  mealTime: {
+    color: '#4b5563',
+    fontSize: 10,
+    fontFamily: Platform.select({ios: 'Menlo', default: 'monospace'}),
+    marginRight: 8,
   },
   mealCal: {
     color: '#6b7280',

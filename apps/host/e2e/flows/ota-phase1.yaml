@@ -1,0 +1,36 @@
+appId: com.mf.example.host
+---
+# Phase 1: v1 baseline — launch fresh, verify all components loaded
+
+- launchApp:
+    clearState: true
+- waitForAnimationToEnd
+
+# Mini remote components
+- assertVisible:
+    id: 'stats-card'
+- assertVisible:
+    id: 'stats-card-version'
+    text: 'v1'
+- assertVisible:
+    id: 'deploy-card'
+
+# Nested-mini remote components
+- assertVisible:
+    id: 'activity-feed'
+- assertVisible:
+    id: 'cache-info'
+
+# Host component
+- assertVisible:
+    id: 'host-info'
+
+# No crashes, no update toast
+- assertNotVisible:
+    id: 'error-CacheInfo'
+- assertNotVisible:
+    id: 'update-toast'
+
+# DevTools panel accessible
+- assertVisible:
+    id: 'devtools-panel-handle'

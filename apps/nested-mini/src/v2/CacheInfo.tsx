@@ -1,12 +1,17 @@
 import React from 'react';
 import {Platform, StyleSheet, Text, View} from 'react-native';
 
-const SLEEP_PHASES = [
-  {label: 'Deep', hours: '2h 10m', pct: 27, color: '#6366f1'},
-  {label: 'Light', hours: '3h 45m', pct: 47, color: '#818cf8'},
-  {label: 'REM', hours: '1h 30m', pct: 19, color: '#a78bfa'},
-  {label: 'Awake', hours: '35m', pct: 7, color: '#4b5563'},
-];
+const SLEEP_DATA = {
+  duration: '7h 45m',
+  phases: [
+    {label: 'Deep', hours: '2h 10m', pct: 28, color: '#6366f1'},
+    {label: 'Light', hours: '3h 30m', pct: 45, color: '#818cf8'},
+    {label: 'REM', hours: '1h 25m', pct: 18, color: '#a78bfa'},
+    {label: 'Awake', hours: '40m', pct: 9, color: '#4b5563'},
+  ],
+  // Score is fetched from health API — null until loaded
+  score: null as {value: number; label: string} | null,
+};
 
 export default function CacheInfo({
   testID = 'cache-info',
@@ -17,21 +22,21 @@ export default function CacheInfo({
     <View style={styles.card} testID={testID}>
       <View style={styles.labelRow}>
         <Text style={styles.label}>Sleep</Text>
-        <Text testID="cache-info-version" style={styles.version}>v1</Text>
+        <Text testID="cache-info-version" style={styles.version}>v2</Text>
       </View>
       <View style={styles.durationRow}>
-        <Text style={styles.duration}>8h 00m</Text>
-        <Text style={styles.quality}>Good</Text>
+        <Text style={styles.duration}>{SLEEP_DATA.duration}</Text>
+        <Text style={styles.quality}>{SLEEP_DATA.score.label}</Text>
       </View>
       <View style={styles.barRow}>
-        {SLEEP_PHASES.map(p => (
+        {SLEEP_DATA.phases.map(p => (
           <View
             key={p.label}
             style={[styles.barSegment, {flex: p.pct, backgroundColor: p.color}]}
           />
         ))}
       </View>
-      {SLEEP_PHASES.map(p => (
+      {SLEEP_DATA.phases.map(p => (
         <View key={p.label} style={styles.phaseRow}>
           <View style={[styles.phaseDot, {backgroundColor: p.color}]} />
           <Text style={styles.phaseLabel}>{p.label}</Text>
@@ -49,9 +54,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.06)',
     padding: 14,
-    shadowColor: '#000',
+    shadowColor: 'rgba(0,0,0,0.3)',
     shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.3,
+    shadowOpacity: 1,
     shadowRadius: 8,
     elevation: 4,
   },

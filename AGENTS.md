@@ -23,3 +23,12 @@ Changes to these submodules are committed within this repo's context, then synce
 ## Test Apps
 
 Host and remote apps live in `apps/`. Use them to verify cache behavior end-to-end (cache-hit, downloaded, skipped, polling).
+
+## E2E OTA Test
+
+The OTA E2E flow is orchestrated by `scripts/e2e-ota.tsx` with two frontends:
+
+- `pnpm e2e` — ink TUI dashboard (default for interactive terminals)
+- `pnpm e2e:ci` — plain sequential logs, no TUI
+
+**Use CI mode (`pnpm e2e:ci`) when debugging.** The TUI captures and buffers output which makes it harder to see errors in real time. CI mode streams all task and server output directly to stdout — easier to spot failures, copy stack traces, and pipe to files.

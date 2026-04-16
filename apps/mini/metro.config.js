@@ -14,15 +14,18 @@ const config = {
   ],
 };
 
+const version = process.env.REMOTE_VERSION || 'v1';
+const prefix = version === 'v1' ? './src' : `./src/${version}`;
+
 module.exports = withModuleFederation(
   mergeConfig(getDefaultConfig(__dirname), config),
   {
     name: 'MFExampleMini',
     filename: 'mini.bundle',
     exposes: {
-      './StatsCard': './src/StatsCard.tsx',
-      './DeployCard': './src/DeployCard.tsx',
-      './CalorieCard': './src/CalorieCard.tsx',
+      './StatsCard': `${prefix}/StatsCard.tsx`,
+      './DeployCard': `${prefix}/DeployCard.tsx`,
+      './CalorieCard': `${prefix}/CalorieCard.tsx`,
     },
     shared: {
       react: {

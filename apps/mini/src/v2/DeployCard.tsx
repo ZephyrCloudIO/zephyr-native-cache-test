@@ -10,27 +10,40 @@ export default function DeployCard({
     <View style={styles.card} testID={testID}>
       <View style={styles.labelRow}>
         <Text style={styles.label}>Steps</Text>
-        <Text testID="deploy-card-version" style={styles.version}>v1</Text>
+        <Text testID="deploy-card-version" style={styles.version}>v2</Text>
       </View>
+
+      <View style={styles.streakRow}>
+        <Text style={styles.streakText}>🔥 12 day streak</Text>
+      </View>
+
       <View style={styles.valueRow}>
         <Text style={styles.value}>8,432</Text>
         <Text style={styles.goal}>/ 10,000</Text>
       </View>
-      <View style={styles.progressTrack}>
-        <View style={styles.progressFill} />
+
+      <View style={styles.progressGroup}>
+        <View style={styles.progressTrack}>
+          <View style={styles.progressFill} />
+        </View>
+        <Text style={styles.progressPct}>84%</Text>
       </View>
+
       <View style={styles.stats}>
         <View style={styles.stat}>
+          <View style={[styles.statDot, {backgroundColor: '#3b82f6'}]} />
           <Text style={styles.statValue}>3.4</Text>
           <Text style={styles.statLabel}>km</Text>
         </View>
         <View style={styles.statDivider} />
         <View style={styles.stat}>
+          <View style={[styles.statDot, {backgroundColor: '#f97316'}]} />
           <Text style={styles.statValue}>312</Text>
           <Text style={styles.statLabel}>cal</Text>
         </View>
         <View style={styles.statDivider} />
         <View style={styles.stat}>
+          <View style={[styles.statDot, {backgroundColor: '#22c55e'}]} />
           <Text style={styles.statValue}>47</Text>
           <Text style={styles.statLabel}>min</Text>
         </View>
@@ -46,9 +59,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.06)',
     padding: 14,
-    shadowColor: '#000',
+    shadowColor: 'rgba(0,0,0,0.3)',
     shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.3,
+    shadowOpacity: 1,
     shadowRadius: 8,
     elevation: 4,
   },
@@ -68,6 +81,14 @@ const styles = StyleSheet.create({
     fontSize: 9,
     fontFamily: Platform.select({ios: 'Menlo', default: 'monospace'}),
   },
+  streakRow: {
+    marginBottom: 8,
+  },
+  streakText: {
+    color: '#f59e0b',
+    fontSize: 11,
+    fontWeight: '600',
+  },
   valueRow: {
     flexDirection: 'row',
     alignItems: 'baseline',
@@ -84,17 +105,29 @@ const styles = StyleSheet.create({
     color: '#4b5563',
     fontSize: 13,
   },
+  progressGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
+  },
   progressTrack: {
+    flex: 1,
     height: 6,
     backgroundColor: 'rgba(255, 255, 255, 0.06)',
     borderRadius: 3,
-    marginBottom: 12,
   },
   progressFill: {
     width: '84%',
     height: '100%',
     backgroundColor: '#22c55e',
     borderRadius: 3,
+  },
+  progressPct: {
+    color: '#22c55e',
+    fontSize: 11,
+    fontWeight: '600',
+    fontFamily: Platform.select({ios: 'Menlo', default: 'monospace'}),
   },
   stats: {
     flexDirection: 'row',
@@ -103,6 +136,14 @@ const styles = StyleSheet.create({
   stat: {
     flex: 1,
     alignItems: 'center',
+    flexDirection: 'column',
+    gap: 1,
+  },
+  statDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 3,
+    marginBottom: 2,
   },
   statDivider: {
     width: 1,

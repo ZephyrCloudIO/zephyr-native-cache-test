@@ -40,7 +40,7 @@ export function Tappable({children}: {children: React.ReactNode}) {
   });
 
   return (
-    <Pressable onPressIn={onPressIn} onPressOut={onPressOut}>
+    <Pressable accessible={false} onPressIn={onPressIn} onPressOut={onPressOut}>
       <Animated.View style={{transform: [{scale}]}}>
         {children}
         <Animated.View

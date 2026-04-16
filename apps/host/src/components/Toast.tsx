@@ -32,11 +32,11 @@ export function UpdateBar({visible, onRestart, onExpand}: UpdateBarProps) {
   }, [visible, height, opacity]);
 
   return (
-    <Animated.View style={[barStyles.container, {height, opacity}]}>
+    <Animated.View style={[barStyles.container, {height, opacity}]} testID="update-bar">
       <Button onPress={onExpand} style={barStyles.content}>
         <View style={barStyles.dot} />
         <Text style={[barStyles.text, barStyles.mono]}>Update available</Text>
-        <Button onPress={onRestart} style={barStyles.button}>
+        <Button onPress={onRestart} style={barStyles.button} testID="update-bar-restart">
           <Text style={[barStyles.buttonText, barStyles.mono]}>Restart</Text>
         </Button>
       </Button>
@@ -140,7 +140,7 @@ export function Toast({visible, onRestart, onDismiss}: ToastProps) {
         pointerEvents={visible ? 'auto' : 'none'}>
         <Pressable style={StyleSheet.absoluteFill} onPress={onDismiss} />
       </Animated.View>
-      <Animated.View style={[toastStyles.card, {transform: [{translateY}]}]}>
+      <Animated.View style={[toastStyles.card, {transform: [{translateY}]}]} testID="update-toast">
         <View style={toastStyles.content}>
           <View style={toastStyles.iconContainer}>
             <Text style={toastStyles.icon}>↓</Text>
@@ -155,10 +155,10 @@ export function Toast({visible, onRestart, onDismiss}: ToastProps) {
           </View>
         </View>
         <View style={toastStyles.actions}>
-          <Button onPress={onDismiss} style={toastStyles.secondaryButton}>
+          <Button onPress={onDismiss} style={toastStyles.secondaryButton} testID="update-toast-dismiss">
             <Text style={toastStyles.secondaryText}>Later</Text>
           </Button>
-          <Button onPress={onRestart} style={toastStyles.primaryButton}>
+          <Button onPress={onRestart} style={toastStyles.primaryButton} testID="update-toast-restart">
             <Text style={toastStyles.primaryText}>Restart</Text>
           </Button>
         </View>

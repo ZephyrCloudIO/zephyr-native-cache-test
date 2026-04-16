@@ -1,6 +1,15 @@
 import React from 'react';
 import {Platform, StyleSheet, Text, View} from 'react-native';
 
+// Bar values — intensity determines color (green low, yellow mid, red high)
+const BARS = [0.5, 0.6, 0.45, 0.7, 0.65, 0.8, 0.55, 0.6, 0.75, 0.5, 0.65, 0.7];
+
+function barColor(v: number): string {
+  if (v < 0.55) return '#22c55e';
+  if (v < 0.68) return '#eab308';
+  return '#ef4444';
+}
+
 export default function StatsCard({
   testID = 'stats-card',
 }: {
@@ -10,12 +19,16 @@ export default function StatsCard({
     <View style={styles.card} testID={testID}>
       <View style={styles.labelRow}>
         <Text style={styles.label}>Heart Rate</Text>
-        <Text testID="stats-card-version" style={styles.version}>v1</Text>
+        <Text testID="stats-card-version" style={styles.version}>v2</Text>
       </View>
+
       <View style={styles.bpmRow}>
         <Text style={styles.bpm}>72</Text>
         <Text style={styles.unit}>bpm</Text>
       </View>
+
+      <Text style={styles.minMax}>58 low · 112 high</Text>
+
       <View style={styles.zones}>
         <View style={styles.zone}>
           <View style={[styles.zoneDot, {backgroundColor: '#22c55e'}]} />
@@ -26,15 +39,21 @@ export default function StatsCard({
           <Text style={styles.zoneText}>62–85</Text>
         </View>
       </View>
+
       <View style={styles.chart}>
-        {[0.5, 0.6, 0.45, 0.7, 0.65, 0.8, 0.55, 0.6, 0.75, 0.5, 0.65, 0.7].map(
-          (v, i) => (
-            <View key={i} style={styles.chartBarTrack}>
-              <View style={[styles.chartBar, {height: `${v * 100}%`}]} />
-            </View>
-          ),
-        )}
+        {BARS.map((v, i) => (
+          <View key={i} style={styles.chartBarTrack}>
+            <View
+              style={[
+                styles.chartBar,
+                {height: `${v * 100}%`, backgroundColor: barColor(v)},
+              ]}
+            />
+          </View>
+        ))}
       </View>
+
+      <Text style={styles.avgLabel}>avg 68</Text>
     </View>
   );
 }
@@ -46,9 +65,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.06)',
     padding: 14,
-    shadowColor: '#000',
+    shadowColor: 'rgba(0,0,0,0.3)',
     shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.3,
+    shadowOpacity: 1,
     shadowRadius: 8,
     elevation: 4,
   },
@@ -83,11 +102,17 @@ const styles = StyleSheet.create({
     color: '#6b7280',
     fontSize: 13,
   },
+  minMax: {
+    color: '#6b7280',
+    fontSize: 10,
+    fontFamily: Platform.select({ios: 'Menlo', default: 'monospace'}),
+    marginTop: 2,
+    marginBottom: 8,
+  },
   zones: {
     flexDirection: 'row',
     gap: 12,
-    marginTop: 6,
-    marginBottom: 12,
+    marginBottom: 10,
   },
   zone: {
     flexDirection: 'row',
@@ -116,7 +141,13 @@ const styles = StyleSheet.create({
   },
   chartBar: {
     width: '100%',
-    backgroundColor: '#ef4444',
     borderRadius: 2,
+  },
+  avgLabel: {
+    color: '#6b7280',
+    fontSize: 10,
+    fontFamily: Platform.select({ios: 'Menlo', default: 'monospace'}),
+    marginTop: 4,
+    textAlign: 'center',
   },
 });

@@ -1,0 +1,38 @@
+appId: com.mf.example.host
+---
+# Phase 2: v2 deployed (both remotes)
+# Mini: improved components. Nested-mini: CacheInfo crashes.
+# App is already running from phase 1. CDN was swapped by orchestrator.
+
+# Wait for update toast (poll detects hash changes)
+- extendedWaitUntil:
+    visible:
+      id: 'update-toast'
+    timeout: 30000
+
+# Restart via toast
+- tapOn:
+    id: 'update-toast-restart'
+
+# Wait for JS context reload
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: 'stats-card'
+    timeout: 20000
+
+# Mini v2 loaded
+- assertVisible:
+    id: 'stats-card-version'
+    text: 'v2'
+
+# Nested-mini: ActivityFeed v2 works
+- assertVisible:
+    id: 'activity-feed'
+- assertVisible:
+    id: 'activity-feed-version'
+    text: 'v2'
+
+# CacheInfo CRASHED — error boundary visible
+- assertVisible:
+    id: 'error-CacheInfo'

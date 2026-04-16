@@ -1,0 +1,47 @@
+appId: com.mf.example.host
+---
+# Phase 4: Partial fix — nested-mini v3 (improvements kept, crash reverted)
+# Tests the alternative UI path: dismiss toast → update bar → restart from bar.
+
+# Wait for update toast
+- extendedWaitUntil:
+    visible:
+      id: 'update-toast'
+    timeout: 30000
+
+# Dismiss toast (tap "Later")
+- tapOn:
+    id: 'update-toast-dismiss'
+
+# UpdateBar should now be visible (hasUpdate=true, toastExpanded=false)
+- extendedWaitUntil:
+    visible:
+      id: 'update-bar'
+    timeout: 5000
+
+# Restart via the update bar
+- tapOn:
+    id: 'update-bar-restart'
+
+# Wait for JS context reload
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: 'stats-card'
+    timeout: 20000
+
+# Mini still v2
+- assertVisible:
+    id: 'stats-card-version'
+    text: 'v2'
+
+# Nested-mini v3: improved ActivityFeed kept, CacheInfo fixed (v1)
+- assertVisible:
+    id: 'activity-feed'
+- assertVisible:
+    id: 'activity-feed-version'
+    text: 'v2'
+- assertVisible:
+    id: 'cache-info'
+- assertNotVisible:
+    id: 'error-CacheInfo'

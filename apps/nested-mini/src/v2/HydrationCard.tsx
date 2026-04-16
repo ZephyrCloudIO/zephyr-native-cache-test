@@ -4,6 +4,9 @@ import {Platform, StyleSheet, Text, View} from 'react-native';
 const GLASSES = 6;
 const GOAL = 8;
 
+// Gradient: lighter for earlier glasses, deeper for later filled ones
+const FILLED_COLORS = ['#bae6fd', '#93c5fd', '#7dd3fc', '#60a5fa', '#38bdf8', '#0ea5e9'];
+
 export default function HydrationCard({
   testID = 'hydration-card',
 }: {
@@ -13,20 +16,30 @@ export default function HydrationCard({
     <View style={styles.card} testID={testID}>
       <View style={styles.labelRow}>
         <Text style={styles.label}>Hydration</Text>
-        <Text testID="hydration-card-version" style={styles.version}>v1</Text>
+        <Text testID="hydration-card-version" style={styles.version}>v2</Text>
       </View>
       <View style={styles.header}>
         <Text style={styles.value}>{GLASSES}</Text>
         <Text style={styles.unit}> / {GOAL} glasses</Text>
       </View>
-      <View style={styles.glasses}>
-        {Array.from({length: GOAL}).map((_, i) => (
-          <View
-            key={i}
-            style={[styles.glass, i < GLASSES && styles.glassFilled]}
-          />
-        ))}
+      <View style={styles.drops}>
+        {Array.from({length: GOAL}).map((_, i) => {
+          const filled = i < GLASSES;
+          const fillColor = filled ? FILLED_COLORS[Math.min(i, FILLED_COLORS.length - 1)] : undefined;
+          return (
+            <View
+              key={i}
+              style={[
+                styles.drop,
+                filled
+                  ? {backgroundColor: fillColor}
+                  : styles.dropEmpty,
+              ]}
+            />
+          );
+        })}
       </View>
+      <Text style={styles.lastDrink}>Last drink: 2:30pm</Text>
       <Text style={styles.hint}>
         {GOAL - GLASSES} more to reach your daily goal
       </Text>
@@ -41,9 +54,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.06)',
     padding: 14,
-    shadowColor: '#000',
+    shadowColor: 'rgba(0,0,0,0.3)',
     shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.3,
+    shadowOpacity: 1,
     shadowRadius: 8,
     elevation: 4,
   },
@@ -66,7 +79,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'baseline',
-    marginBottom: 10,
+    marginBottom: 12,
   },
   value: {
     color: '#ffffff',
@@ -77,19 +90,24 @@ const styles = StyleSheet.create({
     color: '#6b7280',
     fontSize: 12,
   },
-  glasses: {
+  drops: {
     flexDirection: 'row',
     gap: 6,
     marginBottom: 8,
   },
-  glass: {
-    flex: 1,
-    height: 24,
-    borderRadius: 4,
+  drop: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+  },
+  dropEmpty: {
     backgroundColor: 'rgba(255, 255, 255, 0.04)',
   },
-  glassFilled: {
-    backgroundColor: '#38bdf8',
+  lastDrink: {
+    color: '#6b7280',
+    fontSize: 10,
+    fontFamily: Platform.select({ios: 'Menlo', default: 'monospace'}),
+    marginBottom: 4,
   },
   hint: {
     color: '#4b5563',
