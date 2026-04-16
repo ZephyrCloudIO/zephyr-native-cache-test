@@ -279,6 +279,12 @@ const taskDefs: TaskDef[] = [
       startServe(join(FIXTURES, 'nested-current'), '8083', 'CDN :8083');
       await waitForManifest(8082, 'mini CDN', log);
       await waitForManifest(8083, 'nested-mini CDN', log);
+      if (PLATFORM === 'android') {
+        for (const port of ['8082', '8083']) {
+          await execa('adb', ['reverse', `tcp:${port}`, `tcp:${port}`]);
+          log(`adb reverse tcp:${port}`);
+        }
+      }
     },
   },
   ...(MODE === 'dev' ? [{

@@ -8,7 +8,8 @@ dist/
 
 # Android
 **/.gradle/
-**/android/build/
+**/android/**/build/
+**/.cxx/
 
 # RNEF
 .rnef/
