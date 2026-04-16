@@ -4,7 +4,11 @@ appId: com.mf.example.host
 # Mini: improved components. Nested-mini: CacheInfo crashes.
 # App is already running from phase 1. CDN was swapped by orchestrator.
 
-# Wait for update toast (poll detects hash changes)
+# Trigger immediate update check instead of waiting for poll timer
+- tapOn:
+    id: 'devtools-check-updates'
+
+# Wait for update toast
 - extendedWaitUntil:
     visible:
       id: 'update-toast'

@@ -292,23 +292,23 @@ function App(): React.JSX.Element {
             onPress={handleToggleDevTools}
           />
         </Animated.View>
-        <DevToolsPanel
-          status={status}
-          isOnline={isOnline}
-          pollIntervalMs={status.pollIntervalMs}
-          lastPollAt={status.lastPollAt}
-          showSources={showSources}
-          expanded={devToolsExpanded}
-          onToggleExpanded={handleToggleDevTools}
-          onCheckUpdates={handleCheckUpdates}
-          onClearCache={handleClearCache}
-          onToggleSources={handleToggleSources}
-        />
       </SafeAreaView>
       <Toast
         visible={toastExpanded}
         onRestart={handleRestart}
         onDismiss={() => setToastExpanded(false)}
+      />
+      <DevToolsPanel
+        status={status}
+        isOnline={isOnline}
+        pollIntervalMs={status.pollIntervalMs}
+        lastPollAt={status.lastPollAt}
+        showSources={showSources}
+        expanded={devToolsExpanded}
+        onToggleExpanded={handleToggleDevTools}
+        onCheckUpdates={handleCheckUpdates}
+        onClearCache={handleClearCache}
+        onToggleSources={handleToggleSources}
       />
     </Animated.View>
   );

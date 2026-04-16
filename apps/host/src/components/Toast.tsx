@@ -33,7 +33,7 @@ export function UpdateBar({visible, onRestart, onExpand}: UpdateBarProps) {
 
   return (
     <Animated.View style={[barStyles.container, {height, opacity}]} testID="update-bar">
-      <Button onPress={onExpand} style={barStyles.content}>
+      <Button onPress={onExpand} style={barStyles.content} accessible={false}>
         <View style={barStyles.dot} />
         <Text style={[barStyles.text, barStyles.mono]}>Update available</Text>
         <Button onPress={onRestart} style={barStyles.button} testID="update-bar-restart">

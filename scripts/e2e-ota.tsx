@@ -13,7 +13,7 @@ const FIXTURES = join(ROOT, 'e2e-fixtures');
 const HOST = join(ROOT, 'apps/host');
 const FLOWS = join(HOST, 'e2e/flows');
 const SERVE = join(ROOT, 'apps/mini/node_modules/.bin/serve');
-const POLL_WAIT_MS = 20_000;
+const CDN_SETTLE_MS = 2_000;
 
 // ── Args ───────────────────────────────────────────────────────────────────
 
@@ -306,7 +306,7 @@ const taskDefs: TaskDef[] = [
     title: 'Phase 2 — update + crash',
     run: async (log) => {
       if (INTERACTIVE) { log('⏸ Press Enter...'); await waitForEnter(); }
-      else { log(`Waiting ${POLL_WAIT_MS / 1000}s for poll...`); await sleep(POLL_WAIT_MS); }
+      else { log('Waiting for CDN to settle...'); await sleep(CDN_SETTLE_MS); }
       await checkCDN(log); await exec(`maestro test ${join(FLOWS, 'ota-phase2.yaml')}`, log);
     },
   },
@@ -315,7 +315,7 @@ const taskDefs: TaskDef[] = [
     title: 'Phase 3 — rollback',
     run: async (log) => {
       if (INTERACTIVE) { log('⏸ Press Enter...'); await waitForEnter(); }
-      else { log(`Waiting ${POLL_WAIT_MS / 1000}s for poll...`); await sleep(POLL_WAIT_MS); }
+      else { log('Waiting for CDN to settle...'); await sleep(CDN_SETTLE_MS); }
       await checkCDN(log); await exec(`maestro test ${join(FLOWS, 'ota-phase3.yaml')}`, log);
     },
   },
@@ -324,7 +324,7 @@ const taskDefs: TaskDef[] = [
     title: 'Phase 4 — partial update',
     run: async (log) => {
       if (INTERACTIVE) { log('⏸ Press Enter...'); await waitForEnter(); }
-      else { log(`Waiting ${POLL_WAIT_MS / 1000}s for poll...`); await sleep(POLL_WAIT_MS); }
+      else { log('Waiting for CDN to settle...'); await sleep(CDN_SETTLE_MS); }
       await checkCDN(log); await exec(`maestro test ${join(FLOWS, 'ota-phase4.yaml')}`, log);
     },
   },

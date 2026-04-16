@@ -3,7 +3,11 @@ appId: com.mf.example.host
 # Phase 3: Rollback nested-mini to v1 (mini stays at v2)
 # Only nested-mini CDN changed. App is running from phase 2.
 
-# Wait for update toast (poll detects nested-mini hash change)
+# Trigger immediate update check
+- tapOn:
+    id: 'devtools-check-updates'
+
+# Wait for update toast
 - extendedWaitUntil:
     visible:
       id: 'update-toast'

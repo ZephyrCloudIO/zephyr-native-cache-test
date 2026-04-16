@@ -216,7 +216,8 @@ export function DevToolsPanel({
           <Button
             onPress={onCheckUpdates}
             style={styles.quickButton}
-            disabled={status.isPolling}>
+            disabled={status.isPolling}
+            testID="devtools-check-updates">
             <Text
               style={[
                 styles.quickIcon,
@@ -351,9 +352,13 @@ export function DevToolsPanel({
 
 const styles = StyleSheet.create({
   container: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 34,
     backgroundColor: 'rgba(9, 9, 11, 0.97)',
     borderTopWidth: 1,
-    zIndex: 2,
+    zIndex: 200,
     borderTopColor: 'rgba(255, 255, 255, 0.08)',
     overflow: 'hidden',
   },

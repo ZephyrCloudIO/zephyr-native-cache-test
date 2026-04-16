@@ -3,6 +3,10 @@ appId: com.mf.example.host
 # Phase 4: Partial fix — nested-mini v3 (improvements kept, crash reverted)
 # Tests the alternative UI path: dismiss toast → update bar → restart from bar.
 
+# Trigger immediate update check
+- tapOn:
+    id: 'devtools-check-updates'
+
 # Wait for update toast
 - extendedWaitUntil:
     visible:
