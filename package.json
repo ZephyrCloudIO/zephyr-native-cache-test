@@ -12,7 +12,6 @@
     "refresh": "pnpm install",
     "run:ios": "bash scripts/check-native-cache.sh && cd apps/host && pnpm exec rnef run:ios",
     "e2e": "node --import tsx scripts/e2e-ota.tsx",
-    "e2e:ci": "node --import tsx scripts/e2e-ota.tsx --ci",
     "e2e:dev": "node --import tsx scripts/e2e-ota.tsx --dev",
     "e2e:demo": "node --import tsx scripts/e2e-ota.tsx --interactive",
     "e2e:build": "bash scripts/build-e2e-versions.sh"

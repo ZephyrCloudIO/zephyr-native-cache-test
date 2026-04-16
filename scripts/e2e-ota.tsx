@@ -17,14 +17,13 @@ const CDN_SETTLE_MS = 2_000;
 
 // ── Args ───────────────────────────────────────────────────────────────────
 
-let PLATFORM = 'ios';
+let PLATFORM = '';
 let MODE: 'release' | 'dev' = 'release';
 let INTERACTIVE = false;
-let CI_MODE = false;
+let CI_MODE = process.env.CI === '1' || process.env.CI === 'true';
 
 for (const arg of process.argv.slice(2)) {
   if (arg === '--interactive' || arg === '-i') INTERACTIVE = true;
-  else if (arg === '--ci') CI_MODE = true;
   else if (arg === '--dev') MODE = 'dev';
   else if (arg === '--release') MODE = 'release';
   else if (arg === 'ios' || arg === 'android') PLATFORM = arg;
@@ -32,6 +31,11 @@ for (const arg of process.argv.slice(2)) {
 
 // Auto-detect: no TTY = CI mode
 if (!process.stdout.isTTY) CI_MODE = true;
+
+if (!PLATFORM) {
+  console.error('Usage: pnpm e2e <ios|android> [--dev] [--interactive]');
+  process.exit(1);
+}
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -187,7 +191,8 @@ async function hostAppChanged(): Promise<boolean> {
   let currentHash = 'unknown';
   try {
     // Track only source that affects the release build — exclude e2e test files
-    const paths = ['apps/host/src/', 'apps/host/ios/', 'apps/host/index.js', 'apps/host/metro.config.js', 'apps/host/runtime-plugin.ts', 'apps/host/package.json'];
+    const nativeDir = PLATFORM === 'android' ? 'apps/host/android/' : 'apps/host/ios/';
+    const paths = ['apps/host/src/', nativeDir, 'apps/host/index.js', 'apps/host/metro.config.js', 'apps/host/runtime-plugin.ts', 'apps/host/package.json'];
     const { stdout: lsFiles } = await execa('git', ['ls-files', '-s', ...paths], { cwd: ROOT });
     const { stdout: diff } = await execa('git', ['diff', 'HEAD', '--', ...paths], { cwd: ROOT });
     currentHash = createHash('sha256').update(lsFiles + diff).digest('hex');
@@ -200,16 +205,22 @@ async function hostAppChanged(): Promise<boolean> {
 }
 
 function cleanBuildCaches(): void {
-  // rnef's own build cache — the primary cache layer that skips Xcode entirely
+  // rnef's own build cache — the primary cache layer that can skip the native build entirely
   const rnefCache = join(HOST, '.rnef/cache');
   if (existsSync(rnefCache)) rmSync(rnefCache, { recursive: true, force: true });
 
-  // Xcode DerivedData — fallback cache if rnef cache is already clean
-  const dd = join(process.env.HOME ?? '', 'Library/Developer/Xcode/DerivedData');
-  if (existsSync(dd)) {
-    for (const dir of readdirSync(dd)) {
-      if (dir.startsWith('MFExampleHost-')) {
-        rmSync(join(dd, dir), { recursive: true, force: true });
+  if (PLATFORM === 'android') {
+    // Gradle build output
+    const androidBuild = join(HOST, 'android/app/build');
+    if (existsSync(androidBuild)) rmSync(androidBuild, { recursive: true, force: true });
+  } else {
+    // Xcode DerivedData
+    const dd = join(process.env.HOME ?? '', 'Library/Developer/Xcode/DerivedData');
+    if (existsSync(dd)) {
+      for (const dir of readdirSync(dd)) {
+        if (dir.startsWith('MFExampleHost-')) {
+          rmSync(join(dd, dir), { recursive: true, force: true });
+        }
       }
     }
   }
@@ -291,7 +302,10 @@ const taskDefs: TaskDef[] = [
         cleanBuildCaches();
       }
       const args = ['exec', 'rnef', `run:${PLATFORM}`];
-      if (MODE === 'release') args.push('--configuration', 'Release', '--destination', 'simulator');
+      if (MODE === 'release') {
+        if (PLATFORM === 'android') args.push('--variant', 'Release');
+        else args.push('--configuration', 'Release', '--destination', 'simulator');
+      }
       const proc = execa('pnpm', args, { cwd: HOST, reject: false, env: { ...process.env, FORCE_COLOR: '1' } });
       const pipe = (s: NodeJS.ReadableStream | null | undefined) => { s?.on('data', (c: Buffer) => { for (const l of c.toString().split('\n')) { const t = l.trim(); if (t) log(t); } }); };
       pipe(proc.stdout); pipe(proc.stderr);
@@ -410,7 +424,7 @@ function VLine({ height }: { height: number }) {
 function TaskListPane({ tasks, selected, notification, width, isShuttingDown }: { tasks: TaskState[]; selected: number; notification: string; width: number; isShuttingDown: boolean }) {
   return (
     <Box flexDirection="column" flexGrow={1} paddingX={1}>
-      <Text bold color="#a78bfa"> ⚡ OTA E2E <Text color="#6b7280"> {MODE}</Text></Text>
+      <Text bold color="#a78bfa"> ⚡ OTA E2E <Text color="#6b7280"> {PLATFORM} · {MODE}</Text></Text>
       <Box><HRule width={width - 2} /></Box>
       <Box flexDirection="column" flexGrow={1}>
         {tasks.map((t, i) => {
