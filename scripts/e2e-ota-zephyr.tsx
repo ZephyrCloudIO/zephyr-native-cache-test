@@ -270,6 +270,27 @@ function describeVersion(filter: string, version: string): string {
   return `**${filter}** ${version} → pin to version **#${entry.versionNumber}** (${entry.appUid})`;
 }
 
+// Zephyr edge CDN propagation can take up to ~60s after a new deployment
+// finishes to start serving the new manifest. We gate each Maestro phase on a
+// wall-clock bound since the most recent `publishRemote` — by the time the
+// operator has pinned the version in the dashboard and pressed SPACE, a good
+// chunk of that budget is usually burned already; we only block for whatever
+// remains.
+const EDGE_PROPAGATION_MS = 60_000;
+let lastPublishAt = 0;
+
+async function waitForEdgeSettle(log: (m: string) => void): Promise<void> {
+  if (lastPublishAt === 0) return; // nothing was published yet this session
+  const remaining = EDGE_PROPAGATION_MS - (Date.now() - lastPublishAt);
+  if (remaining <= 0) {
+    log('Edge CDN already settled — proceeding.');
+    return;
+  }
+  const seconds = Math.ceil(remaining / 1000);
+  log(`⏳ Waiting ${seconds}s for edge CDN to propagate the deployment…`);
+  await sleep(remaining);
+}
+
 // Locate the most recently built iOS simulator `.app` under DerivedData so the
 // Install step can drop it onto the booted sim without re-running the build.
 function findIosAppPath(): string {
@@ -364,6 +385,7 @@ const taskDefs: TaskDef[] = [
     run: async (log) => {
       await publishRemote('cache-test-mini', 'v1', log);
       await publishRemote('cache-test-nested-mini', 'v1', log);
+      lastPublishAt = Date.now();
     },
   },
   {
@@ -421,8 +443,11 @@ const taskDefs: TaskDef[] = [
   {
     // Install is fast — pausing here would make pin-v1 / Phase-1 feel like
     // two SPACE presses in a row. Let Maestro roll straight after install.
+    // `waitForEdgeSettle` blocks until ≥60s has elapsed since `Publish v1`
+    // so the cold launch doesn't race an in-flight CDN propagation.
     title: 'Phase 1 — baseline',
     run: async (log) => {
+      await waitForEdgeSettle(log);
       await exec(`maestro --platform ${PLATFORM} test ${join(FLOWS, 'ota-phase1-zephyr.yaml')}`, log, { cwd: ROOT });
     },
   },
@@ -432,6 +457,7 @@ const taskDefs: TaskDef[] = [
       await pause('Ready to publish v2 of mini + nested-mini to Zephyr.', log);
       await publishRemote('cache-test-mini', 'v2', log);
       await publishRemote('cache-test-nested-mini', 'v2', log);
+      lastPublishAt = Date.now();
     },
   },
   {
@@ -451,9 +477,11 @@ const taskDefs: TaskDef[] = [
   {
     // No pause — we just came off `Manual: pin v2`, which is already gated by
     // the operator. Running Maestro immediately keeps the flow from asking
-    // for two SPACE presses back to back.
+    // for two SPACE presses back to back. `waitForEdgeSettle` ensures the
+    // app's next 15s poll sees the settled manifest, not a racing one.
     title: 'Phase 2 — update + crash',
     run: async (log) => {
+      await waitForEdgeSettle(log);
       await exec(`maestro --platform ${PLATFORM} test ${join(FLOWS, 'ota-phase2-zephyr.yaml')}`, log, { cwd: ROOT });
     },
   },
@@ -474,6 +502,7 @@ const taskDefs: TaskDef[] = [
     // Follows `Manual: rollback nested-mini` — no extra pause needed.
     title: 'Phase 3 — rollback',
     run: async (log) => {
+      await waitForEdgeSettle(log);
       await exec(`maestro --platform ${PLATFORM} test ${join(FLOWS, 'ota-phase3-zephyr.yaml')}`, log, { cwd: ROOT });
     },
   },
@@ -482,6 +511,7 @@ const taskDefs: TaskDef[] = [
     run: async (log) => {
       await pause('Ready to publish v3 of nested-mini to Zephyr.', log);
       await publishRemote('cache-test-nested-mini', 'v3', log);
+      lastPublishAt = Date.now();
     },
   },
   {
@@ -501,6 +531,7 @@ const taskDefs: TaskDef[] = [
     // Follows `Manual: pin nested-mini v3` — no extra pause needed.
     title: 'Phase 4 — partial update',
     run: async (log) => {
+      await waitForEdgeSettle(log);
       await exec(`maestro --platform ${PLATFORM} test ${join(FLOWS, 'ota-phase4-zephyr.yaml')}`, log, { cwd: ROOT });
     },
   },
