@@ -54,19 +54,30 @@ runtime polls the resolved manifest URL for changes.
    }
    ```
    (Replace `development` with your chosen env name.)
+5. **Have a device/simulator ready** (or don't — see below). Preflight will
+   verify that at least one Android emulator / iOS simulator is booted. If
+   nothing is booted, it pauses and offers to boot one for you:
+   - Android: picks the first AVD from `emulator -list-avds`. Override with
+     `ZE_ANDROID_AVD=<name>` if you have several.
+   - iOS: picks the first iPhone from the newest installed iOS runtime.
+     Override with `ZE_IOS_SIMULATOR=<name>`.
+   - Press SPACE at the `▶ BOOT DEVICE` prompt to accept, or Ctrl+C to
+     abort and boot manually.
 
-> **Note:** This block may need to be added after the *first* publish so the
-> apps exist and you can see their exact names in the dashboard. If the e2e
-> flow fails at the "Build host" step because the resolve returns nothing,
-> this is almost certainly the cause.
+> **Note:** The `zephyr:dependencies` block may need to be added after the
+> *first* publish so the apps exist and you can see their exact names in the
+> dashboard. If the e2e flow fails at the "Build host" step because the
+> resolve returns nothing, this is almost certainly the cause.
 
 ---
 
 ## Per-pause walkthrough
 
-The orchestrator pauses nine times. Seven are automated "press SPACE to run"
-gates (no dashboard action needed). The four **Manual** pauses below require
-dashboard work.
+The orchestrator has **seven pauses** — four **Manual** (dashboard work
+required, detailed below) and three automated "press SPACE to run" gates
+(pre-publish-v2, pre-publish-v3, and the final Success hold). An
+**eighth, conditional** pause appears during Preflight if no device is
+booted and you want the orchestrator to boot one for you.
 
 ### Pause A — "Tag v1 as default for both remotes"
 
@@ -170,10 +181,3 @@ plus one Rolled back for `nested-mini`.
 If any of the labels / paths above are wrong, edit this file in place. The
 orchestrator's pause messages intentionally stay one-liners — full instructions
 live here so they can be corrected without code changes.
-
-Known unknowns (flagged for your first dry run):
-- [ ] Exact dashboard nav to reach **Tags & Environments** for an app
-- [ ] Whether a `development` env auto-creates or must be manually created
-- [ ] Whether "default" is a tag name, an env flag, or both
-- [ ] The exact button label for moving a tag / pinning an env to a version
-- [ ] Whether `Rollback` shows up for remote apps or only for hosts
