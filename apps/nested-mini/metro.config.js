@@ -18,11 +18,12 @@ const config = {
 
 const version = process.env.REMOTE_VERSION || 'v1';
 const v2 = './src/v2';
+const v3 = './src/v3';
 const v1 = './src';
 const exposePaths = {
   v1: { ActivityFeed: `${v1}/ActivityFeed.tsx`, CacheInfo: `${v1}/CacheInfo.tsx`, HydrationCard: `${v1}/HydrationCard.tsx` },
   v2: { ActivityFeed: `${v2}/ActivityFeed.tsx`, CacheInfo: `${v2}/CacheInfo.tsx`, HydrationCard: `${v2}/HydrationCard.tsx` },
-  v3: { ActivityFeed: `${v2}/ActivityFeed.tsx`, CacheInfo: `${v1}/CacheInfo.tsx`, HydrationCard: `${v2}/HydrationCard.tsx` },
+  v3: { ActivityFeed: `${v2}/ActivityFeed.tsx`, CacheInfo: `${v3}/CacheInfo.tsx`, HydrationCard: `${v2}/HydrationCard.tsx` },
 };
 const exposes = exposePaths[version] || exposePaths.v1;
 

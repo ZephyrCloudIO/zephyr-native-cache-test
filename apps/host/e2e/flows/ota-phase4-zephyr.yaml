@@ -36,5 +36,8 @@ appId: com.mf.example.host
     text: 'v2'
 - assertVisible:
     id: 'cache-info'
+- assertVisible:
+    id: 'cache-info-version'
+    text: 'v3'
 - assertNotVisible:
     id: 'error-CacheInfo'

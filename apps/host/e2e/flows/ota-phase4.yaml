@@ -39,7 +39,7 @@ appId: com.mf.example.host
     id: 'stats-card-version'
     text: 'v2'
 
-# Nested-mini v3: improved ActivityFeed kept, CacheInfo fixed (v1)
+# Nested-mini v3: improved ActivityFeed kept, CacheInfo reverted (labeled v3 to mark the release)
 - assertVisible:
     id: 'activity-feed'
 - assertVisible:
@@ -47,5 +47,8 @@ appId: com.mf.example.host
     text: 'v2'
 - assertVisible:
     id: 'cache-info'
+- assertVisible:
+    id: 'cache-info-version'
+    text: 'v3'
 - assertNotVisible:
     id: 'error-CacheInfo'
