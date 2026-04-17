@@ -15,6 +15,7 @@ import {
   pause,
   registerBgProcess,
   runTaskPipeline,
+  sleep,
 } from './lib/e2e-runtime.js';
 
 // ── Paths & Config ─────────────────────────────────────────────────────────
@@ -43,7 +44,7 @@ if (!PLATFORM) {
 
 const REQUIRED_ENV = ['ZE_API_GATE', 'ZE_API', 'ZE_IS_PREVIEW', 'ZE_SECRET_TOKEN'] as const;
 
-function checkPreflight(log: (m: string) => void): void {
+async function checkPreflight(log: (m: string) => void): Promise<void> {
   const missing = REQUIRED_ENV.filter((k) => !process.env[k]);
   if (missing.length > 0) {
     throw new Error(
@@ -53,9 +54,163 @@ function checkPreflight(log: (m: string) => void): void {
   log('All required env vars set:');
   for (const k of REQUIRED_ENV) {
     const v = process.env[k]!;
-    const redacted = k === 'ZE_SECRET_TOKEN' ? `${v.slice(0, 8)}…` : v;
-    log(`  ${k}=${redacted}`);
+    const display = /TOKEN|SECRET|KEY|PASSWORD|AUTH/.test(k) ? '<set>' : v;
+    log(`  ${k}=${display}`);
   }
+  await ensureDevice(log);
+}
+
+// The `Install host` step drops the pre-built binary onto a running device —
+// `adb install` / `xcrun simctl install booted` both fail with unhelpful errors
+// if nothing is booted. Resolve this up front so we don't notice ~10 minutes
+// in (after vendor rebuild, host build, publish, and manual pin-v1).
+//
+// If nothing is booted, we ask the user to confirm before starting one —
+// they might intentionally be about to plug in a physical device. The chosen
+// device is NOT killed on exit; the final Success task keeps the app alive
+// for demo purposes, so the user owns the device lifecycle.
+// Override which AVD/simulator to boot via `ZE_ANDROID_AVD` / `ZE_IOS_SIMULATOR`.
+async function ensureDevice(log: (m: string) => void): Promise<void> {
+  if (PLATFORM === 'android') await ensureAndroidDevice(log);
+  else await ensureIosSimulator(log);
+}
+
+async function listAndroidDevices(): Promise<string[]> {
+  const { stdout } = await execa('adb', ['devices'], { reject: false });
+  return stdout
+    .split('\n')
+    .slice(1)
+    .map((l) => l.trim())
+    .filter((l) => /\tdevice$/.test(l))
+    .map((l) => l.split('\t')[0]!);
+}
+
+async function ensureAndroidDevice(log: (m: string) => void): Promise<void> {
+  let devices = await listAndroidDevices();
+  if (devices.length > 0) {
+    log(`Android device(s) ready: ${devices.join(', ')}`);
+    return;
+  }
+
+  const { stdout: avdList, exitCode } = await execa('emulator', ['-list-avds'], { reject: false });
+  if (exitCode !== 0) {
+    throw new Error(
+      'No Android device connected and `emulator` is not on PATH. ' +
+        'Add `$ANDROID_HOME/emulator` to PATH or boot a device manually.',
+    );
+  }
+  const avds = avdList.trim().split('\n').filter(Boolean);
+  if (avds.length === 0) {
+    throw new Error(
+      'No Android device connected and no AVDs found. ' +
+        'Create one in Android Studio → Device Manager.',
+    );
+  }
+  const avd = process.env.ZE_ANDROID_AVD ?? avds[0]!;
+  if (!avds.includes(avd)) {
+    throw new Error(`ZE_ANDROID_AVD="${avd}" not found. Available: ${avds.join(', ')}`);
+  }
+
+  await pause(
+    [
+      'No Android device connected.',
+      `Press SPACE to boot AVD **${avd}**, or Ctrl+C to abort${
+        avds.length > 1 ? ` (override via **ZE_ANDROID_AVD** — options: ${avds.join(', ')})` : ''
+      }.`,
+    ].join('\n'),
+    log,
+    { label: '▶ BOOT DEVICE', prompt: 'Press SPACE to boot · Ctrl+C to abort' },
+  );
+
+  log(`Booting AVD "${avd}"…`);
+  execa('emulator', ['-avd', avd, '-no-boot-anim'], {
+    detached: true,
+    stdio: 'ignore',
+    reject: false,
+  }).unref?.();
+
+  const deadline = Date.now() + 180_000;
+  while (Date.now() < deadline) {
+    await sleep(2000);
+    const { stdout: state } = await execa(
+      'adb',
+      ['shell', 'getprop', 'sys.boot_completed'],
+      { reject: false },
+    );
+    if (state.trim() === '1') {
+      devices = await listAndroidDevices();
+      log(`AVD "${avd}" booted — ${devices.join(', ')}`);
+      return;
+    }
+  }
+  throw new Error(`AVD "${avd}" did not finish booting within 3 minutes.`);
+}
+
+async function ensureIosSimulator(log: (m: string) => void): Promise<void> {
+  const { stdout: bootedCheck } = await execa(
+    'xcrun',
+    ['simctl', 'list', 'devices', 'booted'],
+    { reject: false },
+  );
+  const booted = bootedCheck.split('\n').filter((l) => l.includes('(Booted)'));
+  if (booted.length > 0) {
+    log(`iOS simulator(s) booted: ${booted.length}`);
+    booted.forEach((l) => log(`  ${l.trim()}`));
+    return;
+  }
+
+  const { stdout: json } = await execa(
+    'xcrun',
+    ['simctl', 'list', 'devices', 'available', '-j'],
+    { reject: false },
+  );
+  const data = JSON.parse(json) as {
+    devices: Record<string, Array<{ udid: string; name: string; isAvailable?: boolean }>>;
+  };
+  // Runtimes look like `com.apple.CoreSimulator.SimRuntime.iOS-17-5`; pick the
+  // highest iOS runtime so we don't boot an old simulator when newer ones exist.
+  const iosRuntime = Object.keys(data.devices)
+    .filter((k) => k.includes('iOS') || k.includes('iPhone'))
+    .sort()
+    .pop();
+  if (!iosRuntime) {
+    throw new Error('No iOS simulator runtimes available. Install via Xcode → Settings → Platforms.');
+  }
+  const candidates = (data.devices[iosRuntime] ?? []).filter((d) => d.isAvailable !== false);
+  const name = process.env.ZE_IOS_SIMULATOR;
+  const device =
+    (name && candidates.find((d) => d.name === name)) ??
+    candidates.find((d) => d.name.startsWith('iPhone')) ??
+    candidates[0];
+  if (!device) {
+    if (name) {
+      throw new Error(
+        `ZE_IOS_SIMULATOR="${name}" not found. Available: ${candidates.map((d) => d.name).join(', ')}`,
+      );
+    }
+    throw new Error(`No available simulators in runtime "${iosRuntime}".`);
+  }
+
+  await pause(
+    [
+      'No iOS simulator booted.',
+      `Press SPACE to boot **${device.name}**, or Ctrl+C to abort${
+        candidates.length > 1
+          ? ` (override via **ZE_IOS_SIMULATOR** — options: ${candidates.map((d) => d.name).join(', ')})`
+          : ''
+      }.`,
+    ].join('\n'),
+    log,
+    { label: '▶ BOOT DEVICE', prompt: 'Press SPACE to boot · Ctrl+C to abort' },
+  );
+
+  log(`Booting simulator "${device.name}"…`);
+  await execa('xcrun', ['simctl', 'boot', device.udid], { reject: false });
+  execa('open', ['-a', 'Simulator'], { reject: false }).catch(() => {});
+  // `bootstatus` blocks until the simulator is fully ready, unlike `boot` which
+  // returns as soon as the boot is kicked off.
+  await execa('xcrun', ['simctl', 'bootstatus', device.udid]);
+  log(`iOS simulator "${device.name}" ready.`);
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────

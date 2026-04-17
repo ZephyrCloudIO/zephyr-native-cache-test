@@ -570,32 +570,38 @@ function App({ taskDefs: defs, title, subtitle }: { taskDefs: TaskDef[]; title: 
     buf.get(label)!.push(msg);
   }, []);
 
-  useEffect(() => {
-    const flush = setInterval(() => {
-      const tb = taskLogBuf.current;
-      if (tb.size > 0) {
-        const snap = new Map(tb); tb.clear();
-        setTasks((prev: TaskState[]) => prev.map((t: TaskState, i: number) => {
-          const lines = snap.get(i);
-          return lines ? { ...t, logs: [...t.logs, ...lines] } : t;
-        }));
-      }
-      const sb = serverLogBuf.current;
-      if (sb.size > 0) {
-        const snap = new Map(sb); sb.clear();
-        setServers((prev: ServerState[]) => {
-          const next = [...prev];
-          for (const [label, lines] of snap) {
-            const idx = next.findIndex((s: ServerState) => s.label === label);
-            if (idx >= 0) next[idx] = { ...next[idx]!, logs: [...next[idx]!.logs, ...lines] };
-            else next.push({ label, logs: lines });
-          }
-          return next;
-        });
-      }
-    }, 150);
-    return () => clearInterval(flush);
+  // Drain buffered logs into task/server state. Extracted so we can force a
+  // flush on exit — without it, a task that fails faster than the 150ms poll
+  // (e.g. a synchronous preflight throw) exits before its log ever renders,
+  // leaving the log pane empty for the failed task.
+  const flushLogs = useCallback(() => {
+    const tb = taskLogBuf.current;
+    if (tb.size > 0) {
+      const snap = new Map(tb); tb.clear();
+      setTasks((prev: TaskState[]) => prev.map((t: TaskState, i: number) => {
+        const lines = snap.get(i);
+        return lines ? { ...t, logs: [...t.logs, ...lines] } : t;
+      }));
+    }
+    const sb = serverLogBuf.current;
+    if (sb.size > 0) {
+      const snap = new Map(sb); sb.clear();
+      setServers((prev: ServerState[]) => {
+        const next = [...prev];
+        for (const [label, lines] of snap) {
+          const idx = next.findIndex((s: ServerState) => s.label === label);
+          if (idx >= 0) next[idx] = { ...next[idx]!, logs: [...next[idx]!.logs, ...lines] };
+          else next.push({ label, logs: lines });
+        }
+        return next;
+      });
+    }
   }, []);
+
+  useEffect(() => {
+    const interval = setInterval(flushLogs, 150);
+    return () => clearInterval(interval);
+  }, [flushLogs]);
 
   const setStatus = useCallback((idx: number, status: Status, ms = 0) => {
     setTasks((prev: TaskState[]) => prev.map((t: TaskState, i: number) => i === idx ? { ...t, status, elapsed: ms } : t));
@@ -659,7 +665,10 @@ function App({ taskDefs: defs, title, subtitle }: { taskDefs: TaskDef[]; title: 
           break;
         }
       }
-      setTimeout(() => exit(), 50);
+      // Drain any pending logs (especially the ERROR line from a fast-failing
+      // task) before React tears down, then give Ink a beat to repaint.
+      flushLogs();
+      setTimeout(() => exit(), 250);
     })();
   }, []);
 
