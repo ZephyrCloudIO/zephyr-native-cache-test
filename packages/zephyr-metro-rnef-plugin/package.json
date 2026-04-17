@@ -1,0 +1,21 @@
+{
+  "name": "zephyr-metro-rnef-plugin",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "RNEF plugin that bundles MF remotes and hosts through zephyrCommandWrapper, uploading artifacts to Zephyr Cloud after each Metro build. Local workspace package; mirrors the upstream plugin in zephyr-examples.",
+  "main": "./index.mjs",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.mjs"
+    }
+  },
+  "files": ["index.mjs", "index.d.ts"],
+  "peerDependencies": {
+    "@module-federation/metro": "*",
+    "@rnef/tools": "*",
+    "zephyr-metro-plugin": "*"
+  }
+}

@@ -9,5 +9,5 @@
     "skipLibCheck": true,
     "types": ["node"]
   },
-  "include": ["*.tsx", "*.ts", "*.mts"]
+  "include": ["*.tsx", "*.ts", "*.mts", "lib/**/*.tsx", "lib/**/*.ts"]
 }

@@ -9,11 +9,13 @@
     "dev:raw": "bash scripts/check-ports.sh && bash scripts/vendor-state.sh && turbo run dev",
     "build:mf-core": "bash scripts/build-mf-core.sh",
     "build:native-cache": "bash scripts/build-native-cache.sh",
+    "build:zephyr-plugins": "bash scripts/build-zephyr-plugins.sh",
     "refresh": "pnpm install",
     "run:ios": "bash scripts/check-native-cache.sh && cd apps/host && pnpm exec rnef run:ios",
     "e2e": "node --import tsx scripts/e2e-ota.tsx",
     "e2e:dev": "node --import tsx scripts/e2e-ota.tsx --dev",
     "e2e:demo": "node --import tsx scripts/e2e-ota.tsx --interactive",
+    "e2e:zephyr": "ZEPHYR_E2E=1 node --env-file-if-exists=.env.e2e --import tsx scripts/e2e-ota-zephyr.tsx",
     "e2e:build": "bash scripts/build-e2e-versions.sh"
   },
   "devDependencies": {
@@ -34,7 +36,11 @@
       "@module-federation/error-codes": "file:./tarballs/module-federation-error-codes.tgz",
       "@module-federation/sdk": "file:./tarballs/module-federation-sdk.tgz",
       "@module-federation/runtime-core": "file:./tarballs/module-federation-runtime-core.tgz",
-      "@module-federation/runtime": "file:./tarballs/module-federation-runtime.tgz"
+      "@module-federation/runtime": "file:./tarballs/module-federation-runtime.tgz",
+      "zephyr-metro-plugin": "file:./tarballs/zephyr-metro-plugin.tgz",
+      "zephyr-agent": "file:./tarballs/zephyr-agent.tgz",
+      "zephyr-edge-contract": "file:./tarballs/zephyr-edge-contract.tgz",
+      "zephyr-xpack-internal": "file:./tarballs/zephyr-xpack-internal.tgz"
     },
     "onlyBuiltDependencies": [
       "esbuild"

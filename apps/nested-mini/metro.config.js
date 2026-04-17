@@ -2,6 +2,8 @@ const path = require('node:path');
 const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
 const {withModuleFederation} = require('@module-federation/metro');
 
+const ZEPHYR_E2E = process.env.ZEPHYR_E2E === '1';
+
 const config = {
   resolver: {
     extraNodeModules: {
@@ -24,45 +26,57 @@ const exposePaths = {
 };
 const exposes = exposePaths[version] || exposePaths.v1;
 
-module.exports = withModuleFederation(
-  mergeConfig(getDefaultConfig(__dirname), config),
-  {
-    name: 'MFExampleNestedMini',
-    filename: 'nestedMini.bundle',
-    exposes: {
-      './ActivityFeed': exposes.ActivityFeed,
-      './CacheInfo': exposes.CacheInfo,
-      './HydrationCard': exposes.HydrationCard,
-    },
-    shared: {
-      react: {
-        singleton: true,
-        eager: false,
-        requiredVersion: '19.1.0',
-        version: '19.1.0',
-        import: false,
-      },
-      'react-native': {
-        singleton: true,
-        eager: false,
-        requiredVersion: '0.80.0',
-        version: '0.80.0',
-        import: false,
-      },
-      lodash: {
-        singleton: false,
-        eager: false,
-        requiredVersion: '4.17.23',
-        version: '4.17.23',
-      },
-    },
-    shareStrategy: 'version-first',
+const mfConfig = {
+  name: 'MFExampleNestedMini',
+  filename: 'nestedMini.bundle',
+  exposes: {
+    './ActivityFeed': exposes.ActivityFeed,
+    './CacheInfo': exposes.CacheInfo,
+    './HydrationCard': exposes.HydrationCard,
   },
-  {
-    flags: {
-      unstable_patchHMRClient: true,
-      unstable_patchInitializeCore: true,
-      unstable_patchRuntimeRequire: true,
+  shared: {
+    react: {
+      singleton: true,
+      eager: false,
+      requiredVersion: '19.1.0',
+      version: '19.1.0',
+      import: false,
+    },
+    'react-native': {
+      singleton: true,
+      eager: false,
+      requiredVersion: '0.80.0',
+      version: '0.80.0',
+      import: false,
+    },
+    lodash: {
+      singleton: false,
+      eager: false,
+      requiredVersion: '4.17.23',
+      version: '4.17.23',
     },
   },
-);
+  shareStrategy: 'version-first',
+};
+
+const mfFlags = {
+  flags: {
+    unstable_patchHMRClient: true,
+    unstable_patchInitializeCore: true,
+    unstable_patchRuntimeRequire: true,
+  },
+};
+
+async function buildZephyrConfig() {
+  const {withZephyr} = require('zephyr-metro-plugin');
+  const zephyrMfConfig = await withZephyr()(mfConfig);
+  return withModuleFederation(
+    mergeConfig(getDefaultConfig(__dirname), config),
+    zephyrMfConfig,
+    mfFlags,
+  );
+}
+
+module.exports = ZEPHYR_E2E
+  ? buildZephyrConfig()
+  : withModuleFederation(mergeConfig(getDefaultConfig(__dirname), config), mfConfig, mfFlags);
