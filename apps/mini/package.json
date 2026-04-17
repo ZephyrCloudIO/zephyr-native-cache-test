@@ -32,7 +32,6 @@
     "@module-federation/metro-plugin-rnef": "file:../../tarballs/module-federation-metro-plugin-rnef.tgz",
     "@module-federation/runtime": "file:../../tarballs/module-federation-runtime.tgz",
     "@react-native-community/cli": "^19.1.0",
-    "@rnef/tools": "^0.7.25",
     "@react-native/babel-preset": "0.80.0",
     "@react-native/eslint-config": "0.80.0",
     "@react-native/metro-config": "0.80.0",
@@ -52,8 +51,7 @@
     "serve": "^14.2.4",
     "typescript": "5.0.4",
     "zephyr-metro-plugin": "file:../../tarballs/zephyr-metro-plugin.tgz",
-    "zephyr-metro-rnef-plugin": "workspace:*",
-    "zephyr-xpack-internal": "file:../../tarballs/zephyr-xpack-internal.tgz"
+    "zephyr-metro-rnef-plugin": "workspace:*"
   },
   "engines": {
     "node": ">=18"

@@ -1,0 +1,50 @@
+appId: com.mf.example.host
+---
+# Phase 1 (Zephyr): cold launch — remote bundles are fetched from the
+# Zephyr CDN for the first time. `launchApp` is plain (no `clearState`)
+# because the orchestrator freshly installed the `.app` via `simctl install`
+# right before this step, so no prior data container exists to clear.
+# Maestro's iOS clearState path relies on its own install bookkeeping and
+# silently no-ops on externally-installed apps, leaving the sim at SpringBoard.
+# Uses `extendedWaitUntil` on remote components so the first network hop
+# can exceed Maestro's default assertion timeout.
+
+- launchApp
+- waitForAnimationToEnd
+
+# Mini remote components (first fetch over the network)
+- extendedWaitUntil:
+    visible:
+      id: 'stats-card'
+    timeout: 30000
+- assertVisible:
+    id: 'stats-card-version'
+    text: 'v1'
+- extendedWaitUntil:
+    visible:
+      id: 'deploy-card'
+    timeout: 15000
+
+# Nested-mini remote components
+- extendedWaitUntil:
+    visible:
+      id: 'activity-feed'
+    timeout: 15000
+- extendedWaitUntil:
+    visible:
+      id: 'cache-info'
+    timeout: 15000
+
+# Host component
+- assertVisible:
+    id: 'host-info'
+
+# No crashes, no update toast
+- assertNotVisible:
+    id: 'error-CacheInfo'
+- assertNotVisible:
+    id: 'update-toast'
+
+# DevTools panel accessible
+- assertVisible:
+    id: 'devtools-panel-handle'

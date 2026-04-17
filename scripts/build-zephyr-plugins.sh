@@ -23,7 +23,7 @@ cd "$ZP_WT"
 info "Installing vendor dependencies..."
 pnpm install
 
-PKGS=(zephyr-edge-contract zephyr-agent zephyr-xpack-internal zephyr-metro-plugin)
+PKGS=(zephyr-edge-contract zephyr-agent zephyr-metro-plugin)
 
 for pkg in "${PKGS[@]}"; do
   info "Building $pkg..."

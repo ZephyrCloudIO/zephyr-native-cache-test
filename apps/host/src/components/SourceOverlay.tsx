@@ -1,6 +1,7 @@
 import React from 'react';
 import {Platform, StyleSheet, Text, View} from 'react-native';
 import type {RemoteCacheEntry} from '../hooks/useCacheStatus';
+import {versionColor} from '../version-palette';
 
 const ORIGINS = {
   mini: {color: '#8b5cf6', label: 'mini'},
@@ -20,11 +21,13 @@ export function SourceOverlay({
   name,
   entry,
   loading = 'lazy',
+  version,
 }: {
   origin: keyof typeof ORIGINS;
   name: string;
   entry?: RemoteCacheEntry;
   loading?: 'eager' | 'lazy' | 'on-demand';
+  version?: string;
 }) {
   const {color, label} = ORIGINS[origin];
   const isNotLoaded = loading === 'on-demand' && !entry;
@@ -37,6 +40,14 @@ export function SourceOverlay({
         : '';
   return (
     <View style={[styles.container, {borderColor: color}]}>
+      {/* Top-right version badge — mirrors the position used inside each
+          remote component's card so the operator sees the same label in the
+          same spot regardless of whether the overlay is covering the content. */}
+      {version && (
+        <Text style={[styles.versionBadge, {color: versionColor(version)}]}>
+          {version}
+        </Text>
+      )}
       <Text style={styles.name}>{name}</Text>
       <View
         style={[
@@ -65,6 +76,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 8,
+  },
+  versionBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 10,
+    fontSize: 11,
+    fontWeight: '700',
+    fontFamily: Platform.select({ios: 'Menlo', default: 'monospace'}),
   },
   name: {
     fontSize: 14,

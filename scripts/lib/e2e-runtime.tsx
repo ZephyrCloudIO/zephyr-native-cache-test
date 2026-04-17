@@ -10,16 +10,52 @@ import { join } from 'node:path';
 
 export type Status = 'pending' | 'running' | 'done' | 'failed' | 'skipped';
 
+// Styled log lines let `pause()` highlight specific tokens (version numbers,
+// environment names) without coloring the whole message. `pause()` parses
+// `**…**` markers in the caller's message and emits them as `highlight`
+// segments; callers don't need to construct segments by hand.
+//
+// Plain strings keep the existing call sites (exec, publishRemote, etc.)
+// working unchanged — they just render as normal lines.
+export type Accent = 'label' | 'highlight' | 'prompt';
+export interface InlineSegment {
+  text: string;
+  accent?: Accent;
+}
+export interface StyledLogEntry {
+  segments: InlineSegment[];
+}
+export type LogMessage = string | StyledLogEntry;
+
+function entryToText(entry: LogMessage): string {
+  if (typeof entry === 'string') return entry;
+  return entry.segments.map((s) => s.text).join('');
+}
+
+// Split a string on `**token**` markers, returning segments where the marked
+// tokens get the given accent and the rest stays plain.
+function parseAccents(text: string, accent: Accent = 'highlight'): InlineSegment[] {
+  const parts = text.split(/\*\*([^*]+)\*\*/);
+  const out: InlineSegment[] = [];
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i];
+    if (!part) continue;
+    if (i % 2 === 1) out.push({ text: part, accent });
+    else out.push({ text: part });
+  }
+  return out;
+}
+
 export interface TaskDef {
   title: string;
   skip?: () => string | false;
-  run: (log: (msg: string) => void, serverLog: (label: string, msg: string) => void) => Promise<void>;
+  run: (log: (msg: LogMessage) => void, serverLog: (label: string, msg: string) => void) => Promise<void>;
 }
 
 interface TaskState {
   title: string;
   status: Status;
-  logs: string[];
+  logs: LogMessage[];
   elapsed: number;
 }
 
@@ -88,16 +124,37 @@ export function resolvePause(): void {
   r();
 }
 
-export function pause(message: string, log: (msg: string) => void): Promise<void> {
-  return new Promise<void>((resolve) => {
+export interface PauseOptions {
+  // Banner label shown above the message. Defaults to `⏸ PAUSE`.
+  label?: string;
+  // Text after the `▸` prompt glyph. Defaults to continuation wording.
+  prompt?: string;
+}
+
+export async function pause(
+  message: string,
+  log: (msg: LogMessage) => void,
+  options: PauseOptions = {},
+): Promise<void> {
+  const label = options.label ?? '⏸ PAUSE';
+  const promptText = options.prompt ?? 'Press SPACE (or ENTER) to continue';
+
+  await new Promise<void>((resolve) => {
     pauseResolver = resolve;
 
     log('');
-    const [first, ...rest] = message.split('\n');
-    log(`⏸ ${first}`);
-    for (const line of rest) log(`   ${line}`);
+    log({ segments: [{ text: label, accent: 'label' }] });
     log('');
-    log('   Press SPACE (or ENTER) to continue…');
+    for (const line of message.split('\n')) {
+      log({ segments: parseAccents(line) });
+    }
+    log('');
+    log({
+      segments: [
+        { text: '▸ ', accent: 'prompt' },
+        { text: promptText },
+      ],
+    });
     log('');
 
     if (currentMode === 'ci') {
@@ -111,6 +168,7 @@ export function pause(message: string, log: (msg: string) => void): Promise<void
     }
     // TUI mode: App's useInput handler calls resolvePause() on SPACE/ENTER.
   });
+  // No confirmation line — the next task's output is the signal that we moved on.
 }
 
 // ── Primitive helpers ──────────────────────────────────────────────────────
@@ -147,16 +205,13 @@ export async function waitForManifest(
   throw new Error(`Timeout: ${label} on :${port} not serving manifest`);
 }
 
-export async function exec(
-  cmd: string,
+type ExecOpts = { cwd?: string; env?: Record<string, string | undefined> };
+
+async function runProc(
+  proc: ResultPromise,
+  label: string,
   log: (m: string) => void,
-  opts: { cwd?: string; env?: Record<string, string | undefined> } = {},
 ): Promise<void> {
-  const proc = execaCommand(cmd, {
-    cwd: opts.cwd ?? process.cwd(),
-    reject: false,
-    env: { ...process.env, FORCE_COLOR: currentMode === 'ci' ? '0' : '1', ...opts.env },
-  });
   activeProc = proc;
   const pipe = (stream: NodeJS.ReadableStream | null | undefined) => {
     stream?.on('data', (chunk: Buffer) => {
@@ -170,7 +225,41 @@ export async function exec(
   pipe(proc.stderr);
   const result = await proc;
   activeProc = null;
-  if (result.exitCode !== 0) throw new Error(`Command failed (exit ${result.exitCode}): ${cmd}`);
+  if (result.exitCode !== 0) throw new Error(`Command failed (exit ${result.exitCode}): ${label}`);
+}
+
+function execEnv(opts: ExecOpts): Record<string, string | undefined> {
+  return { ...process.env, FORCE_COLOR: currentMode === 'ci' ? '0' : '1', ...opts.env };
+}
+
+// Shell-style command string — convenient but does NOT perform shell-level
+// quote parsing. Paths with spaces must use `execArgs` instead.
+export async function exec(
+  cmd: string,
+  log: (m: string) => void,
+  opts: ExecOpts = {},
+): Promise<void> {
+  return runProc(
+    execaCommand(cmd, { cwd: opts.cwd ?? process.cwd(), reject: false, env: execEnv(opts) }),
+    cmd,
+    log,
+  );
+}
+
+// argv-style invocation — use for commands that accept filesystem paths so
+// quoting is handled by execa instead of by string concatenation. Example:
+// `execArgs('xcrun', ['simctl', 'install', 'booted', appPath], log)`.
+export async function execArgs(
+  bin: string,
+  args: string[],
+  log: (m: string) => void,
+  opts: ExecOpts = {},
+): Promise<void> {
+  return runProc(
+    execa(bin, args, { cwd: opts.cwd ?? process.cwd(), reject: false, env: execEnv(opts) }),
+    `${bin} ${args.join(' ')}`,
+    log,
+  );
 }
 
 // Vendor submodule SHA tracker — rebuild the native cache only when
@@ -250,8 +339,25 @@ export async function hostAppChanged(
 
 // ── CI runner ──────────────────────────────────────────────────────────────
 
+// ANSI escapes match the TUI accent colors so highlighted tokens stay
+// distinctive in plain-text CI output.
+const ANSI_RESET = '\x1b[0m';
+const ANSI_ACCENT: Record<Accent, string> = {
+  label: '\x1b[1;33m',     // bold yellow  (⏸ PAUSE)
+  highlight: '\x1b[1;36m', // bold cyan    (inline tokens)
+  prompt: '\x1b[1;32m',    // bold green   (▸ Press SPACE)
+};
+
+function ciRender(msg: LogMessage): string {
+  if (typeof msg === 'string') return msg;
+  return msg.segments
+    .map((s) => (s.accent ? `${ANSI_ACCENT[s.accent]}${s.text}${ANSI_RESET}` : s.text))
+    .join('');
+}
+
 async function runCI(taskDefs: TaskDef[]): Promise<void> {
-  const log = (prefix: string) => (msg: string) => console.log(`[${prefix}] ${msg}`);
+  const log = (prefix: string) => (msg: LogMessage) =>
+    console.log(`[${prefix}] ${ciRender(msg)}`);
   const serverLog = (label: string, msg: string) => console.log(`[${label}] ${msg}`);
 
   for (const def of taskDefs) {
@@ -356,13 +462,40 @@ function TaskListPane({ tasks, selected, notification, width, isShuttingDown, ti
   );
 }
 
+// Accent palette for the TUI — no backgrounds, just foreground color + bold
+// on the small parts that should draw the eye (⏸ PAUSE label, inline tokens,
+// ▸ Press SPACE glyph). The bulk of each message renders in the default
+// terminal color so it stays comfortable to read.
+const ACCENT_COLOR: Record<Accent, string> = {
+  label: '#fbbf24',     // yellow-400 — PAUSE label
+  highlight: '#22d3ee', // cyan-400   — version numbers, env names
+  prompt: '#4ade80',    // green-400  — action glyphs
+};
+
+function LogLine({ entry }: { entry: LogMessage | '' }) {
+  if (typeof entry === 'string') {
+    return <Text wrap="truncate">{entry || ' '}</Text>;
+  }
+  // Styled lines wrap instead of truncate so pause instructions stay fully
+  // readable even when wider than the pane.
+  return (
+    <Text wrap="wrap">
+      {entry.segments.map((s, i) =>
+        s.accent
+          ? <Text key={i} color={ACCENT_COLOR[s.accent]} bold>{s.text}</Text>
+          : <Text key={i}>{s.text}</Text>,
+      )}
+    </Text>
+  );
+}
+
 function LogPane({ title, logs, height, scrollOffset, width }: {
-  title: string; logs: string[]; height: number; scrollOffset: number; width: number;
+  title: string; logs: LogMessage[]; height: number; scrollOffset: number; width: number;
 }) {
   const vis = Math.max(1, height - 3);
   const end = Math.max(0, logs.length - scrollOffset);
   const start = Math.max(0, end - vis);
-  const lines = logs.slice(start, start + vis);
+  const lines: (LogMessage | '')[] = logs.slice(start, start + vis);
   const atBottom = scrollOffset === 0;
   const atTop = start === 0;
   const scrollIndicator = logs.length > vis ? (atBottom ? '' : atTop ? ' ↑ top' : ` ↑${scrollOffset}`) : '';
@@ -375,8 +508,8 @@ function LogPane({ title, logs, height, scrollOffset, width }: {
       <Box flexDirection="column">
         {logs.length === 0
           ? <Text dimColor>No output yet</Text>
-          : lines.map((l: string, i: number) => (
-              <Box key={`l${start + i}`}><Text wrap="truncate">{l || ' '}</Text></Box>
+          : lines.map((l, i) => (
+              <Box key={`l${start + i}`}><LogLine entry={l} /></Box>
             ))}
       </Box>
     </Box>
@@ -422,10 +555,10 @@ function App({ taskDefs: defs, title, subtitle }: { taskDefs: TaskDef[]; title: 
   const height = stdout?.rows ?? 30;
   const runningRef = useRef(true);
 
-  const taskLogBuf = useRef<Map<number, string[]>>(new Map());
+  const taskLogBuf = useRef<Map<number, LogMessage[]>>(new Map());
   const serverLogBuf = useRef<Map<string, string[]>>(new Map());
 
-  const addLog = useCallback((idx: number, msg: string) => {
+  const addLog = useCallback((idx: number, msg: LogMessage) => {
     const buf = taskLogBuf.current;
     if (!buf.has(idx)) buf.set(idx, []);
     buf.get(idx)!.push(msg);
@@ -485,7 +618,7 @@ function App({ taskDefs: defs, title, subtitle }: { taskDefs: TaskDef[]; title: 
     if (input === '[') {
       const task = tasks[taskIdx];
       if (task && task.logs.length > 0) {
-        execa('pbcopy', { input: task.logs.join('\n') }).catch(() => {});
+        execa('pbcopy', { input: task.logs.map(entryToText).join('\n') }).catch(() => {});
         setNotification(`✓ Copied ${task.logs.length} task lines`);
         setTimeout(() => setNotification(''), 3000);
       }

@@ -27,7 +27,7 @@ import {NativeMFECache} from 'zephyr-native-cache';
 
 // mini remote — StatsCard eager, rest lazy
 // @ts-ignore
-import StatsCard from 'mini/StatsCard';
+import StatsCard, {VERSION as statsCardVersion} from 'mini/StatsCard';
 // @ts-ignore
 const DeployCard = React.lazy(() => import('mini/DeployCard'));
 // @ts-ignore
@@ -35,7 +35,7 @@ const CalorieCard = React.lazy(() => import('mini/CalorieCard'));
 
 // nestedMini remote — ActivityFeed eager, rest lazy
 // @ts-ignore
-import ActivityFeed from 'nestedMini/ActivityFeed';
+import ActivityFeed, {VERSION as activityFeedVersion} from 'nestedMini/ActivityFeed';
 // @ts-ignore
 const CacheInfo = React.lazy(() => import('nestedMini/CacheInfo'));
 // @ts-ignore
@@ -172,6 +172,7 @@ function App(): React.JSX.Element {
                     origin="mini"
                     entry={statsEntry}
                     loading="eager"
+                    version={statsCardVersion}
                   />
                 )}
               </Tappable>
@@ -233,6 +234,7 @@ function App(): React.JSX.Element {
                     origin="nestedMini"
                     entry={feedEntry}
                     loading="eager"
+                    version={activityFeedVersion}
                   />
                 )}
               </Tappable>

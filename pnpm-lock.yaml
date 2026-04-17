@@ -12,7 +12,6 @@ overrides:
   zephyr-metro-plugin: file:./tarballs/zephyr-metro-plugin.tgz
   zephyr-agent: file:./tarballs/zephyr-agent.tgz
   zephyr-edge-contract: file:./tarballs/zephyr-edge-contract.tgz
-  zephyr-xpack-internal: file:./tarballs/zephyr-xpack-internal.tgz
 
 pnpmfileChecksum: sha256-o6jQdR40XMU5Fu5d/n1gYJTxykRjpLNYhHNauNQNlCo=
 
@@ -131,7 +130,10 @@ importers:
         version: 5.0.4
       zephyr-metro-plugin:
         specifier: file:../../tarballs/zephyr-metro-plugin.tgz
-        version: file:tarballs/zephyr-metro-plugin.tgz(https-proxy-agent@7.0.6)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))(zephyr-xpack-internal@0.2.0(https-proxy-agent@7.0.6)(webpack@5.106.2))
+        version: file:tarballs/zephyr-metro-plugin.tgz(https-proxy-agent@7.0.6)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))
+      zephyr-metro-rnef-plugin:
+        specifier: workspace:*
+        version: link:../../packages/zephyr-metro-rnef-plugin
 
   apps/mini:
     dependencies:
@@ -190,9 +192,6 @@ importers:
       '@rnef/plugin-metro':
         specifier: ^0.7.25
         version: 0.7.28(@react-native/community-cli-plugin@0.80.0(@react-native-community/cli@19.1.2(typescript@5.0.4)))
-      '@rnef/tools':
-        specifier: ^0.7.25
-        version: 0.7.28
       '@types/jest':
         specifier: ^29.5.13
         version: 29.5.14
@@ -225,13 +224,10 @@ importers:
         version: 5.0.4
       zephyr-metro-plugin:
         specifier: file:../../tarballs/zephyr-metro-plugin.tgz
-        version: file:tarballs/zephyr-metro-plugin.tgz(https-proxy-agent@7.0.6)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))(zephyr-xpack-internal@file:tarballs/zephyr-xpack-internal.tgz(https-proxy-agent@7.0.6)(webpack@5.106.2))
+        version: file:tarballs/zephyr-metro-plugin.tgz(https-proxy-agent@7.0.6)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))
       zephyr-metro-rnef-plugin:
         specifier: workspace:*
         version: link:../../packages/zephyr-metro-rnef-plugin
-      zephyr-xpack-internal:
-        specifier: file:../../tarballs/zephyr-xpack-internal.tgz
-        version: file:tarballs/zephyr-xpack-internal.tgz(https-proxy-agent@7.0.6)(webpack@5.106.2)
 
   apps/nested-mini:
     dependencies:
@@ -287,9 +283,6 @@ importers:
       '@rnef/plugin-metro':
         specifier: ^0.7.25
         version: 0.7.28(@react-native/community-cli-plugin@0.80.0(@react-native-community/cli@19.1.2(typescript@5.0.4)))
-      '@rnef/tools':
-        specifier: ^0.7.25
-        version: 0.7.28
       '@types/jest':
         specifier: ^29.5.13
         version: 29.5.14
@@ -322,13 +315,10 @@ importers:
         version: 5.0.4
       zephyr-metro-plugin:
         specifier: file:../../tarballs/zephyr-metro-plugin.tgz
-        version: file:tarballs/zephyr-metro-plugin.tgz(https-proxy-agent@7.0.6)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))(zephyr-xpack-internal@file:tarballs/zephyr-xpack-internal.tgz(https-proxy-agent@7.0.6)(webpack@5.106.2))
+        version: file:tarballs/zephyr-metro-plugin.tgz(https-proxy-agent@7.0.6)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))
       zephyr-metro-rnef-plugin:
         specifier: workspace:*
         version: link:../../packages/zephyr-metro-rnef-plugin
-      zephyr-xpack-internal:
-        specifier: file:../../tarballs/zephyr-xpack-internal.tgz
-        version: file:tarballs/zephyr-xpack-internal.tgz(https-proxy-agent@7.0.6)(webpack@5.106.2)
 
   packages/zephyr-metro-rnef-plugin:
     dependencies:
@@ -340,7 +330,7 @@ importers:
         version: 0.7.28
       zephyr-metro-plugin:
         specifier: file:../../tarballs/zephyr-metro-plugin.tgz
-        version: file:tarballs/zephyr-metro-plugin.tgz(https-proxy-agent@7.0.6)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.2.5))(zephyr-xpack-internal@0.2.0(https-proxy-agent@7.0.6)(webpack@5.106.2))
+        version: file:tarballs/zephyr-metro-plugin.tgz(https-proxy-agent@7.0.6)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.2.5))
 
 packages:
 
@@ -1347,11 +1337,6 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@module-federation/automatic-vendor-federation@1.2.1':
-    resolution: {integrity: sha512-73wxkXM7pbRZ6GGM90JP5IPTPvY3fvrhQyTVdMCUx85cQRWqnbzbibcsz3pkOMOeXyYAO4tXXsG13yNaEEGhJA==}
-    peerDependencies:
-      webpack: ^5.0.0-beta.16
-
   '@module-federation/dts-plugin@2.3.1':
     resolution: {integrity: sha512-6BJvu+dLDtW/ngpyuOLgpKOgtOnMUTZY51JUyargVckerKRbe7Ul+414YaHj32mu2FpsiHVMl4ig1XnxgnRg2Q==}
     peerDependencies:
@@ -1692,12 +1677,6 @@ packages:
   '@types/babel__traverse@7.28.0':
     resolution: {integrity: sha512-8PvcXf70gTDZBgt9ptxJ8elBeBjcLOAcOtoO/mPJjtji1+CdGbHgm77om1GrsPxsiE+uXIpNSK64UYaIwQXd4Q==}
 
-  '@types/eslint-scope@3.7.7':
-    resolution: {integrity: sha512-MzMFlSLBqNF2gcHWO0G1vP/YQyfvrxZ0bF+u7mzUdZ1/xK4A4sru+nraZz5i3iEIk1l1uyicaDVTB4QbbEkAYg==}
-
-  '@types/eslint@9.6.1':
-    resolution: {integrity: sha512-FXx2pKgId/WyYo2jXw63kk7/+TY7u7AziEJxJAnSFzHlqTAS3Ync6SvgYAN/k4/PQpnnVuzoMuVnByKK2qp0ag==}
-
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
 
@@ -1837,57 +1816,6 @@ packages:
   '@vscode/sudo-prompt@9.3.2':
     resolution: {integrity: sha512-gcXoCN00METUNFeQOFJ+C9xUI0DKB+0EGMVg7wbVYRHBw2Eq3fKisDZOkRdOz3kqXRKOENMfShPOmypw1/8nOw==}
 
-  '@webassemblyjs/ast@1.14.1':
-    resolution: {integrity: sha512-nuBEDgQfm1ccRp/8bCQrx1frohyufl4JlbMMZ4P1wpeOfDhF6FQkxZJ1b/e+PLwr6X1Nhw6OLme5usuBWYBvuQ==}
-
-  '@webassemblyjs/floating-point-hex-parser@1.13.2':
-    resolution: {integrity: sha512-6oXyTOzbKxGH4steLbLNOu71Oj+C8Lg34n6CqRvqfS2O71BxY6ByfMDRhBytzknj9yGUPVJ1qIKhRlAwO1AovA==}
-
-  '@webassemblyjs/helper-api-error@1.13.2':
-    resolution: {integrity: sha512-U56GMYxy4ZQCbDZd6JuvvNV/WFildOjsaWD3Tzzvmw/mas3cXzRJPMjP83JqEsgSbyrmaGjBfDtV7KDXV9UzFQ==}
-
-  '@webassemblyjs/helper-buffer@1.14.1':
-    resolution: {integrity: sha512-jyH7wtcHiKssDtFPRB+iQdxlDf96m0E39yb0k5uJVhFGleZFoNw1c4aeIcVUPPbXUVJ94wwnMOAqUHyzoEPVMA==}
-
-  '@webassemblyjs/helper-numbers@1.13.2':
-    resolution: {integrity: sha512-FE8aCmS5Q6eQYcV3gI35O4J789wlQA+7JrqTTpJqn5emA4U2hvwJmvFRC0HODS+3Ye6WioDklgd6scJ3+PLnEA==}
-
-  '@webassemblyjs/helper-wasm-bytecode@1.13.2':
-    resolution: {integrity: sha512-3QbLKy93F0EAIXLh0ogEVR6rOubA9AoZ+WRYhNbFyuB70j3dRdwH9g+qXhLAO0kiYGlg3TxDV+I4rQTr/YNXkA==}
-
-  '@webassemblyjs/helper-wasm-section@1.14.1':
-    resolution: {integrity: sha512-ds5mXEqTJ6oxRoqjhWDU83OgzAYjwsCV8Lo/N+oRsNDmx/ZDpqalmrtgOMkHwxsG0iI//3BwWAErYRHtgn0dZw==}
-
-  '@webassemblyjs/ieee754@1.13.2':
-    resolution: {integrity: sha512-4LtOzh58S/5lX4ITKxnAK2USuNEvpdVV9AlgGQb8rJDHaLeHciwG4zlGr0j/SNWlr7x3vO1lDEsuePvtcDNCkw==}
-
-  '@webassemblyjs/leb128@1.13.2':
-    resolution: {integrity: sha512-Lde1oNoIdzVzdkNEAWZ1dZ5orIbff80YPdHx20mrHwHrVNNTjNr8E3xz9BdpcGqRQbAEa+fkrCb+fRFTl/6sQw==}
-
-  '@webassemblyjs/utf8@1.13.2':
-    resolution: {integrity: sha512-3NQWGjKTASY1xV5m7Hr0iPeXD9+RDobLll3T9d2AO+g3my8xy5peVyjSag4I50mR1bBSN/Ct12lo+R9tJk0NZQ==}
-
-  '@webassemblyjs/wasm-edit@1.14.1':
-    resolution: {integrity: sha512-RNJUIQH/J8iA/1NzlE4N7KtyZNHi3w7at7hDjvRNm5rcUXa00z1vRz3glZoULfJ5mpvYhLybmVcwcjGrC1pRrQ==}
-
-  '@webassemblyjs/wasm-gen@1.14.1':
-    resolution: {integrity: sha512-AmomSIjP8ZbfGQhumkNvgC33AY7qtMCXnN6bL2u2Js4gVCg8fp735aEiMSBbDR7UQIj90n4wKAFUSEd0QN2Ukg==}
-
-  '@webassemblyjs/wasm-opt@1.14.1':
-    resolution: {integrity: sha512-PTcKLUNvBqnY2U6E5bdOQcSM+oVP/PmrDY9NzowJjislEjwP/C4an2303MCVS2Mg9d3AJpIGdUFIQQWbPds0Sw==}
-
-  '@webassemblyjs/wasm-parser@1.14.1':
-    resolution: {integrity: sha512-JLBl+KZ0R5qB7mCnud/yyX08jWFw5MsoalJ1pQ4EdFlgj9VdXKGuENGsiCIjegI1W7p91rUlcB/LB5yRJKNTcQ==}
-
-  '@webassemblyjs/wast-printer@1.14.1':
-    resolution: {integrity: sha512-kPSSXE6De1XOR820C90RIo2ogvZG+c3KiHzqUoO/F34Y2shGzesfqv7o57xrxovZJH/MetF5UjroJ/R/3isoiw==}
-
-  '@xtuc/ieee754@1.2.0':
-    resolution: {integrity: sha512-DX8nKgqcGwsc0eJSqYt5lwP4DH5FlHnmuWWBRy7X0NcaGR0ZtuyeESgMwTYVEtxmsNGY+qit4QYT/MIYTOTPeA==}
-
-  '@xtuc/long@4.2.2':
-    resolution: {integrity: sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==}
-
   '@zeit/schemas@2.36.0':
     resolution: {integrity: sha512-7kjMwcChYEzMKjeex9ZFXkt1AyNov9R5HZtjBKVsmVpw7pa7ZtlCGvCBC2vnnXctaYN+aRI61HjIqeetZW5ROg==}
 
@@ -1898,12 +1826,6 @@ packages:
   accepts@1.3.8:
     resolution: {integrity: sha512-PYAthTa2m2VKxuvSD3DPC/Gy+U+sOA1LAuT8mkmRuvw+NACSaeXEQ+NHcVF7rONl6qcaxV3Uuemwawk+7+SJLw==}
     engines: {node: '>= 0.6'}
-
-  acorn-import-phases@1.0.4:
-    resolution: {integrity: sha512-wKmbr/DDiIXzEOiWrTTUcDm24kQ2vGfZQvM2fwg2vXqR5uW6aapr7ObPtj1th32b9u90/Pf4AItvdTh42fBmVQ==}
-    engines: {node: '>=10.13.0'}
-    peerDependencies:
-      acorn: ^8.14.0
 
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -1922,19 +1844,6 @@ packages:
   agent-base@7.1.4:
     resolution: {integrity: sha512-MnA+YT8fwfJPgBx3m60MNqakm30XOkyIoH1y6huTQvC0PwZG7ki8NacLBcrPbNoo8vEZy7Jpuk7+jMO+CUovTQ==}
     engines: {node: '>= 14'}
-
-  ajv-formats@2.1.1:
-    resolution: {integrity: sha512-Wx0Kx52hxE7C18hkMEggYlEifqWZtYaRgouJor+WMdPnQyEK13vgEWyVNup7SoeeoLMsr4kf5h6dOW11I15MUA==}
-    peerDependencies:
-      ajv: ^8.0.0
-    peerDependenciesMeta:
-      ajv:
-        optional: true
-
-  ajv-keywords@5.1.0:
-    resolution: {integrity: sha512-YCS/JNFAUyr5vAuhk1DWm1CBxRHW9LbJ2ozWeemrIqpbsqKjHVxYPyi5GC0rjZIT5JxJ3virVTS8wk4i/Z+krw==}
-    peerDependencies:
-      ajv: ^8.8.2
 
   ajv@6.14.0:
     resolution: {integrity: sha512-IWrosm/yrn43eiKqkfkHis7QioDleaXQHdDVPKg0FSwwd/DuvyX79TZnFOnYpB7dcsFAMmtFztZuXPDvSePkFw==}
@@ -2260,10 +2169,6 @@ packages:
     engines: {node: '>=12.13.0'}
     hasBin: true
 
-  chrome-trace-event@1.0.4:
-    resolution: {integrity: sha512-rNjApaLzuwaOTjCiT8lSDdGN1APCiqkChLMJxJPWLunPAt5fy8xgU9/jNOchV84wfIxrA0lRQB7oCT8jrn/wrQ==}
-    engines: {node: '>=6.0'}
-
   chromium-edge-launcher@0.2.0:
     resolution: {integrity: sha512-JfJjUnq25y9yg4FABRRVPmBGWPZZi+AQXT4mxupb67766/0UlhG8PAZCz6xzEMXTbW3CsSoE8PcCWA49n35mKg==}
 
@@ -2564,10 +2469,6 @@ packages:
     resolution: {integrity: sha512-Q0n9HRi4m6JuGIV1eFlmvJB7ZEVxu93IrMyiMsGC0lrMJMWzRgx6WGquyfQgZVb31vhGgXnfmPNNXmxnOkRBrg==}
     engines: {node: '>= 0.8'}
 
-  enhanced-resolve@5.20.1:
-    resolution: {integrity: sha512-Qohcme7V1inbAfvjItgw0EaxVX5q2rdVEZHRBrEQdRZTssLDGsL8Lwrznl8oQ/6kuTJONLaDcGjkNP247XEhcA==}
-    engines: {node: '>=10.13.0'}
-
   env-paths@2.2.1:
     resolution: {integrity: sha512-+h1lkLKhZMTYjog1VEpJNG7NZJWcuc2DDk/qsqSTRRCOXiLjeQ1d1/udrUGhqMxUgAlwKNZ0cf2uqan5GLuS2A==}
     engines: {node: '>=6'}
@@ -2606,9 +2507,6 @@ packages:
   es-iterator-helpers@1.3.1:
     resolution: {integrity: sha512-zWwRvqWiuBPr0muUG/78cW3aHROFCNIQ3zpmYDpwdbnt2m+xlNyRWpHBpa2lJjSBit7BQ+RXA1iwbSmu5yJ/EQ==}
     engines: {node: '>= 0.4'}
-
-  es-module-lexer@2.0.0:
-    resolution: {integrity: sha512-5POEcUuZybH7IdmGsD8wlf0AI55wMecM9rVBTI/qEAy2c1kTOm3DjFYjrBdI2K3BaJjJYfYFeRtM0t9ssnRuxw==}
 
   es-object-atoms@1.1.1:
     resolution: {integrity: sha512-FGgH2h8zKNim9ljj7dankFPcICIK9Cp5bm+c2gQSYePhpaG5+esrLODihIorn+Pe6FGJzWhXQotPv73jTaldXA==}
@@ -2772,10 +2670,6 @@ packages:
     resolution: {integrity: sha512-i/2XbnSz/uxRCU6+NdVJgKWDTM427+MqYbkQzD321DuCQJUqOuJKIA0IM2+W2xtYHdKOmZ4dR6fExsd4SXL+WQ==}
     engines: {node: '>=6'}
 
-  events@3.3.0:
-    resolution: {integrity: sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==}
-    engines: {node: '>=0.8.x'}
-
   eventsource-parser@3.0.6:
     resolution: {integrity: sha512-Vo1ab+QXPzZ4tCa8SwIHJFaSzy4R6SHf7BY79rFBDf0idraZWAkYrDjDj8uWaSm3S2TK+hJ7/t1CEmZ7jXw+pg==}
     engines: {node: '>=18.0.0'}
@@ -2852,9 +2746,6 @@ packages:
   find-file-up@2.0.1:
     resolution: {integrity: sha512-qVdaUhYO39zmh28/JLQM5CoYN9byEOKEH4qfa8K1eNV17W0UUMJ9WgbR/hHFH+t5rcl+6RTb5UC7ck/I+uRkpQ==}
     engines: {node: '>=8'}
-
-  find-package-json@1.2.0:
-    resolution: {integrity: sha512-+SOGcLGYDJHtyqHd87ysBhmaeQ95oWspDKnMXBrnQ9Eq4OkLNqejgoaD8xVWu6GPa0B6roa6KinCMEMcVeqONw==}
 
   find-pkg@2.0.0:
     resolution: {integrity: sha512-WgZ+nKbELDa6N3i/9nrHeNznm+lY3z4YfhDDWgW+5P0pdmMj26bxaxU11ookgY3NyP9GC7HvZ9etp0jRFqGEeQ==}
@@ -2985,9 +2876,6 @@ packages:
   glob-parent@6.0.2:
     resolution: {integrity: sha512-XxwI8EOhVQgWp6iDL+3b0r86f4d6AX6zSU55HfB4ydCEuXLXc5FcYeOu+nnGftS4TEju/11rt4KJPTMgbfmv4A==}
     engines: {node: '>=10.13.0'}
-
-  glob-to-regexp@0.4.1:
-    resolution: {integrity: sha512-lkX1HJXwyMcprw/5YUZc2s7DrpAiHB21/V+E1rHUrVNokkvB6bqMzT0VfV6/86ZNabt1k14YOIaT7nDvOX3Iiw==}
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
@@ -3504,10 +3392,6 @@ packages:
     resolution: {integrity: sha512-49Fg7WXkU3Vl2h6LbLtMQ/HyB6rXSIX7SqvBLQmssRBGN9I0PNvPmAmCWSOY6SOvrjhI/F7/bGAv9RtnsPA03g==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
 
-  jest-worker@27.5.1:
-    resolution: {integrity: sha512-7vuh85V5cdDofPyxn58nrPjBktZo0u9x1g8WtjQol+jZDaE+fhN+cIvTj11GndBnMnyfrUOG1sZQxCdjKh+DKg==}
-    engines: {node: '>= 10.13.0'}
-
   jest-worker@29.7.0:
     resolution: {integrity: sha512-eIz2msL/EzL9UFTFFx7jBTkeZfku0yUAyZZZmJ93H2TYEiroIx2PQjEXcwYtYl8zXCxb+PAmA2hLIt/6ZEkPHw==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
@@ -3603,10 +3487,6 @@ packages:
 
   lines-and-columns@1.2.4:
     resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
-
-  loader-runner@4.3.1:
-    resolution: {integrity: sha512-IWqP2SCPhyVFTBtRcgMHdzlf9ul25NwaFx4wCEH/KjAXuuHY4yNjvPXsBokp8jCB936PyWRaPKUNh8NvylLp2Q==}
-    engines: {node: '>=6.11.5'}
 
   locate-path@5.0.0:
     resolution: {integrity: sha512-t7hw9pI+WvuwNJXwk5zVHpyhIqzg2qTlklJOf0mVxGSbe3Fp2VieZcduNYjaLDoy6p9uGpQEGWG87WpMKlNq8g==}
@@ -3820,9 +3700,6 @@ packages:
   negotiator@0.6.4:
     resolution: {integrity: sha512-myRT3DiWPHqho5PrJaIRyaMv2kgYf0mUVgBNOYMuCH5Ki1yEiQaf/ZJuQ62nvpc44wL5WDbTX7yGJi1Neevw8w==}
     engines: {node: '>= 0.6'}
-
-  neo-async@2.6.2:
-    resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
 
   nocache@3.0.4:
     resolution: {integrity: sha512-WDD0bdg9mbq6F4mRxEYcPWwfA1vxd0mrvKOyxI7Xj/atfRHVeutzuWByG//jfm4uPzp0y4Kj051EORCBSQMycw==}
@@ -4308,10 +4185,6 @@ packages:
   scheduler@0.27.0:
     resolution: {integrity: sha512-eNv+WrVbKu1f3vbYJT/xtiF5syA5HPIMtf9IgY/nKg0sWqzAUEvqY/xm7OcZc/qafLx/iO9FgOmeSAp4v5ti/Q==}
 
-  schema-utils@4.3.3:
-    resolution: {integrity: sha512-eflK8wEtyOE6+hsaRVPxvUKYCpRgzLqDTb8krvAsRIwOGlHoSgYLgBXoubGgLd2fT41/OUYdb48v4k4WWHQurA==}
-    engines: {node: '>= 10.13.0'}
-
   semver@6.3.1:
     resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
     hasBin: true
@@ -4548,10 +4421,6 @@ packages:
     resolution: {integrity: sha512-yEFYrVhod+hdNyx7g5Bnkkb0G6si8HJurOoOEgC8B/O0uXLHlaey/65KRv6cuWBNhBgHKAROVpc7QyYqE5gFng==}
     engines: {node: '>=20'}
 
-  tapable@2.3.2:
-    resolution: {integrity: sha512-1MOpMXuhGzGL5TTCZFItxCc0AARf1EZFQkGqMm7ERKj8+Hgr5oLvJOVFcC+lRmR8hCe2S3jC4T5D7Vg/d7/fhA==}
-    engines: {node: '>=6'}
-
   tar@7.5.13:
     resolution: {integrity: sha512-tOG/7GyXpFevhXVh8jOPJrmtRpOTsYqUIkVdVooZYJS/z8WhfQUX8RJILmeuJNinGAMSu1veBr4asSHFt5/hng==}
     engines: {node: '>=18'}
@@ -4559,22 +4428,6 @@ packages:
   terminal-size@4.0.1:
     resolution: {integrity: sha512-avMLDQpUI9I5XFrklECw1ZEUPJhqzcwSWsyyI8blhRLT+8N1jLJWLWWYQpB2q2xthq8xDvjZPISVh53T/+CLYQ==}
     engines: {node: '>=18'}
-
-  terser-webpack-plugin@5.4.0:
-    resolution: {integrity: sha512-Bn5vxm48flOIfkdl5CaD2+1CiUVbonWQ3KQPyP7/EuIl9Gbzq/gQFOzaMFUEgVjB1396tcK0SG8XcNJ/2kDH8g==}
-    engines: {node: '>= 10.13.0'}
-    peerDependencies:
-      '@swc/core': '*'
-      esbuild: '*'
-      uglify-js: '*'
-      webpack: ^5.1.0
-    peerDependenciesMeta:
-      '@swc/core':
-        optional: true
-      esbuild:
-        optional: true
-      uglify-js:
-        optional: true
 
   terser@5.46.1:
     resolution: {integrity: sha512-vzCjQO/rgUuK9sf8VJZvjqiqiHFaZLnOiimmUuOKODxWL8mm/xua7viT7aqX7dgPY60otQjUotzFMmCB4VdmqQ==}
@@ -4754,26 +4607,8 @@ packages:
   walker@1.0.8:
     resolution: {integrity: sha512-ts/8E8l5b7kY0vlWLewOkDXMmPdLcVV4GmOQLyxuSswIJsweeFZtAsMF7k1Nszz+TYBQrlYRmzOnr398y1JemQ==}
 
-  watchpack@2.5.1:
-    resolution: {integrity: sha512-Zn5uXdcFNIA1+1Ei5McRd+iRzfhENPCe7LeABkJtNulSxjma+l7ltNx55BWZkRlwRnpOgHqxnjyaDgJnNXnqzg==}
-    engines: {node: '>=10.13.0'}
-
   wcwidth@1.0.1:
     resolution: {integrity: sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==}
-
-  webpack-sources@3.3.4:
-    resolution: {integrity: sha512-7tP1PdV4vF+lYPnkMR0jMY5/la2ub5Fc/8VQrrU+lXkiM6C4TjVfGw7iKfyhnTQOsD+6Q/iKw0eFciziRgD58Q==}
-    engines: {node: '>=10.13.0'}
-
-  webpack@5.106.2:
-    resolution: {integrity: sha512-wGN3qcrBQIFmQ/c0AiOAQBvrZ5lmY8vbbMv4Mxfgzqd/B6+9pXtLo73WuS1dSGXM5QYY3hZnIbvx+K1xxe6FyA==}
-    engines: {node: '>=10.13.0'}
-    hasBin: true
-    peerDependencies:
-      webpack-cli: '*'
-    peerDependenciesMeta:
-      webpack-cli:
-        optional: true
 
   whatwg-fetch@3.6.20:
     resolution: {integrity: sha512-EqhiFU6daOA8kpjOWTL0olhVOF3i7OrFzSYiGsEMB8GcXS+RrzauAERX65xMeNWVqxA6HXH2m69Z9LaKKdisfg==}
@@ -4954,10 +4789,6 @@ packages:
     peerDependencies:
       metro: '>=0.70.0'
       react-native: '>=0.60.0'
-      zephyr-xpack-internal: '>=0.1.0'
-    peerDependenciesMeta:
-      zephyr-xpack-internal:
-        optional: true
 
   zephyr-native-cache@file:tarballs/zephyr-native-cache.tgz:
     resolution: {tarball: file:tarballs/zephyr-native-cache.tgz}
@@ -4965,13 +4796,6 @@ packages:
     peerDependencies:
       react: '>=19.0.0'
       react-native: '>=0.79.0'
-
-  zephyr-xpack-internal@0.2.0:
-    resolution: {integrity: sha512-90dgLEASah1ZuSM2kOUAjmz5Ye4/6nTx4+fTHDYuejLeDZMXDMVB/XoiKHZoka4GWbgYbCoz/LsrYdREHB6Rmg==}
-
-  zephyr-xpack-internal@file:tarballs/zephyr-xpack-internal.tgz:
-    resolution: {tarball: file:tarballs/zephyr-xpack-internal.tgz}
-    version: 0.2.0
 
 snapshots:
 
@@ -6192,11 +6016,6 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@module-federation/automatic-vendor-federation@1.2.1(webpack@5.106.2)':
-    dependencies:
-      find-package-json: 1.2.0
-      webpack: 5.106.2
-
   '@module-federation/dts-plugin@2.3.1(typescript@5.0.4)':
     dependencies:
       '@module-federation/error-codes': file:tarballs/module-federation-error-codes.tgz
@@ -6885,16 +6704,6 @@ snapshots:
     dependencies:
       '@babel/types': 7.29.0
 
-  '@types/eslint-scope@3.7.7':
-    dependencies:
-      '@types/eslint': 9.6.1
-      '@types/estree': 1.0.8
-
-  '@types/eslint@9.6.1':
-    dependencies:
-      '@types/estree': 1.0.8
-      '@types/json-schema': 7.0.15
-
   '@types/estree@1.0.8': {}
 
   '@types/graceful-fs@4.1.9':
@@ -7074,86 +6883,6 @@ snapshots:
 
   '@vscode/sudo-prompt@9.3.2': {}
 
-  '@webassemblyjs/ast@1.14.1':
-    dependencies:
-      '@webassemblyjs/helper-numbers': 1.13.2
-      '@webassemblyjs/helper-wasm-bytecode': 1.13.2
-
-  '@webassemblyjs/floating-point-hex-parser@1.13.2': {}
-
-  '@webassemblyjs/helper-api-error@1.13.2': {}
-
-  '@webassemblyjs/helper-buffer@1.14.1': {}
-
-  '@webassemblyjs/helper-numbers@1.13.2':
-    dependencies:
-      '@webassemblyjs/floating-point-hex-parser': 1.13.2
-      '@webassemblyjs/helper-api-error': 1.13.2
-      '@xtuc/long': 4.2.2
-
-  '@webassemblyjs/helper-wasm-bytecode@1.13.2': {}
-
-  '@webassemblyjs/helper-wasm-section@1.14.1':
-    dependencies:
-      '@webassemblyjs/ast': 1.14.1
-      '@webassemblyjs/helper-buffer': 1.14.1
-      '@webassemblyjs/helper-wasm-bytecode': 1.13.2
-      '@webassemblyjs/wasm-gen': 1.14.1
-
-  '@webassemblyjs/ieee754@1.13.2':
-    dependencies:
-      '@xtuc/ieee754': 1.2.0
-
-  '@webassemblyjs/leb128@1.13.2':
-    dependencies:
-      '@xtuc/long': 4.2.2
-
-  '@webassemblyjs/utf8@1.13.2': {}
-
-  '@webassemblyjs/wasm-edit@1.14.1':
-    dependencies:
-      '@webassemblyjs/ast': 1.14.1
-      '@webassemblyjs/helper-buffer': 1.14.1
-      '@webassemblyjs/helper-wasm-bytecode': 1.13.2
-      '@webassemblyjs/helper-wasm-section': 1.14.1
-      '@webassemblyjs/wasm-gen': 1.14.1
-      '@webassemblyjs/wasm-opt': 1.14.1
-      '@webassemblyjs/wasm-parser': 1.14.1
-      '@webassemblyjs/wast-printer': 1.14.1
-
-  '@webassemblyjs/wasm-gen@1.14.1':
-    dependencies:
-      '@webassemblyjs/ast': 1.14.1
-      '@webassemblyjs/helper-wasm-bytecode': 1.13.2
-      '@webassemblyjs/ieee754': 1.13.2
-      '@webassemblyjs/leb128': 1.13.2
-      '@webassemblyjs/utf8': 1.13.2
-
-  '@webassemblyjs/wasm-opt@1.14.1':
-    dependencies:
-      '@webassemblyjs/ast': 1.14.1
-      '@webassemblyjs/helper-buffer': 1.14.1
-      '@webassemblyjs/wasm-gen': 1.14.1
-      '@webassemblyjs/wasm-parser': 1.14.1
-
-  '@webassemblyjs/wasm-parser@1.14.1':
-    dependencies:
-      '@webassemblyjs/ast': 1.14.1
-      '@webassemblyjs/helper-api-error': 1.13.2
-      '@webassemblyjs/helper-wasm-bytecode': 1.13.2
-      '@webassemblyjs/ieee754': 1.13.2
-      '@webassemblyjs/leb128': 1.13.2
-      '@webassemblyjs/utf8': 1.13.2
-
-  '@webassemblyjs/wast-printer@1.14.1':
-    dependencies:
-      '@webassemblyjs/ast': 1.14.1
-      '@xtuc/long': 4.2.2
-
-  '@xtuc/ieee754@1.2.0': {}
-
-  '@xtuc/long@4.2.2': {}
-
   '@zeit/schemas@2.36.0': {}
 
   abort-controller@3.0.0:
@@ -7165,10 +6894,6 @@ snapshots:
       mime-types: 2.1.35
       negotiator: 0.6.3
 
-  acorn-import-phases@1.0.4(acorn@8.16.0):
-    dependencies:
-      acorn: 8.16.0
-
   acorn-jsx@5.3.2(acorn@8.16.0):
     dependencies:
       acorn: 8.16.0
@@ -7178,15 +6903,6 @@ snapshots:
   adm-zip@0.5.17: {}
 
   agent-base@7.1.4: {}
-
-  ajv-formats@2.1.1(ajv@8.18.0):
-    optionalDependencies:
-      ajv: 8.18.0
-
-  ajv-keywords@5.1.0(ajv@8.18.0):
-    dependencies:
-      ajv: 8.18.0
-      fast-deep-equal: 3.1.3
 
   ajv@6.14.0:
     dependencies:
@@ -7589,8 +7305,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  chrome-trace-event@1.0.4: {}
-
   chromium-edge-launcher@0.2.0:
     dependencies:
       '@types/node': 25.5.2
@@ -7883,11 +7597,6 @@ snapshots:
 
   encodeurl@2.0.0: {}
 
-  enhanced-resolve@5.20.1:
-    dependencies:
-      graceful-fs: 4.2.11
-      tapable: 2.3.2
-
   env-paths@2.2.1: {}
 
   envinfo@7.21.0: {}
@@ -7987,8 +7696,6 @@ snapshots:
       iterator.prototype: 1.1.5
       math-intrinsics: 1.1.0
       safe-array-concat: 1.1.3
-
-  es-module-lexer@2.0.0: {}
 
   es-object-atoms@1.1.1:
     dependencies:
@@ -8205,8 +7912,6 @@ snapshots:
 
   event-target-shim@5.0.1: {}
 
-  events@3.3.0: {}
-
   eventsource-parser@3.0.6: {}
 
   eventsource@4.1.0:
@@ -8311,8 +8016,6 @@ snapshots:
   find-file-up@2.0.1:
     dependencies:
       resolve-dir: 1.0.1
-
-  find-package-json@1.2.0: {}
 
   find-pkg@2.0.0:
     dependencies:
@@ -8449,8 +8152,6 @@ snapshots:
   glob-parent@6.0.2:
     dependencies:
       is-glob: 4.0.3
-
-  glob-to-regexp@0.4.1: {}
 
   glob@7.2.3:
     dependencies:
@@ -9205,12 +8906,6 @@ snapshots:
       jest-util: 29.7.0
       string-length: 4.0.2
 
-  jest-worker@27.5.1:
-    dependencies:
-      '@types/node': 25.6.0
-      merge-stream: 2.0.0
-      supports-color: 8.1.1
-
   jest-worker@29.7.0:
     dependencies:
       '@types/node': 25.5.2
@@ -9324,8 +9019,6 @@ snapshots:
       - supports-color
 
   lines-and-columns@1.2.4: {}
-
-  loader-runner@4.3.1: {}
 
   locate-path@5.0.0:
     dependencies:
@@ -9617,8 +9310,6 @@ snapshots:
   negotiator@0.6.3: {}
 
   negotiator@0.6.4: {}
-
-  neo-async@2.6.2: {}
 
   nocache@3.0.4: {}
 
@@ -10197,13 +9888,6 @@ snapshots:
 
   scheduler@0.27.0: {}
 
-  schema-utils@4.3.3:
-    dependencies:
-      '@types/json-schema': 7.0.15
-      ajv: 8.18.0
-      ajv-formats: 2.1.1(ajv@8.18.0)
-      ajv-keywords: 5.1.0(ajv@8.18.0)
-
   semver@6.3.1: {}
 
   semver@7.7.4: {}
@@ -10491,8 +10175,6 @@ snapshots:
 
   tagged-tag@1.0.0: {}
 
-  tapable@2.3.2: {}
-
   tar@7.5.13:
     dependencies:
       '@isaacs/fs-minipass': 4.0.1
@@ -10502,14 +10184,6 @@ snapshots:
       yallist: 5.0.0
 
   terminal-size@4.0.1: {}
-
-  terser-webpack-plugin@5.4.0(webpack@5.106.2):
-    dependencies:
-      '@jridgewell/trace-mapping': 0.3.31
-      jest-worker: 27.5.1
-      schema-utils: 4.3.3
-      terser: 5.46.1
-      webpack: 5.106.2
 
   terser@5.46.1:
     dependencies:
@@ -10684,47 +10358,9 @@ snapshots:
     dependencies:
       makeerror: 1.0.12
 
-  watchpack@2.5.1:
-    dependencies:
-      glob-to-regexp: 0.4.1
-      graceful-fs: 4.2.11
-
   wcwidth@1.0.1:
     dependencies:
       defaults: 1.0.4
-
-  webpack-sources@3.3.4: {}
-
-  webpack@5.106.2:
-    dependencies:
-      '@types/eslint-scope': 3.7.7
-      '@types/estree': 1.0.8
-      '@types/json-schema': 7.0.15
-      '@webassemblyjs/ast': 1.14.1
-      '@webassemblyjs/wasm-edit': 1.14.1
-      '@webassemblyjs/wasm-parser': 1.14.1
-      acorn: 8.16.0
-      acorn-import-phases: 1.0.4(acorn@8.16.0)
-      browserslist: 4.28.2
-      chrome-trace-event: 1.0.4
-      enhanced-resolve: 5.20.1
-      es-module-lexer: 2.0.0
-      eslint-scope: 5.1.1
-      events: 3.3.0
-      glob-to-regexp: 0.4.1
-      graceful-fs: 4.2.11
-      loader-runner: 4.3.1
-      mime-db: 1.54.0
-      neo-async: 2.6.2
-      schema-utils: 4.3.3
-      tapable: 2.3.2
-      terser-webpack-plugin: 5.4.0(webpack@5.106.2)
-      watchpack: 2.5.1
-      webpack-sources: 3.3.4
-    transitivePeerDependencies:
-      - '@swc/core'
-      - esbuild
-      - uglify-js
 
   whatwg-fetch@3.6.20: {}
 
@@ -10904,38 +10540,22 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  zephyr-metro-plugin@file:tarballs/zephyr-metro-plugin.tgz(https-proxy-agent@7.0.6)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))(zephyr-xpack-internal@0.2.0(https-proxy-agent@7.0.6)(webpack@5.106.2)):
+  zephyr-metro-plugin@file:tarballs/zephyr-metro-plugin.tgz(https-proxy-agent@7.0.6)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0)):
     dependencies:
       metro: 0.82.5
       react-native: 0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0)
       zephyr-agent: file:tarballs/zephyr-agent.tgz(https-proxy-agent@7.0.6)
       zephyr-edge-contract: file:tarballs/zephyr-edge-contract.tgz
-    optionalDependencies:
-      zephyr-xpack-internal: 0.2.0(https-proxy-agent@7.0.6)(webpack@5.106.2)
     transitivePeerDependencies:
       - https-proxy-agent
       - supports-color
 
-  zephyr-metro-plugin@file:tarballs/zephyr-metro-plugin.tgz(https-proxy-agent@7.0.6)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))(zephyr-xpack-internal@file:tarballs/zephyr-xpack-internal.tgz(https-proxy-agent@7.0.6)(webpack@5.106.2)):
-    dependencies:
-      metro: 0.82.5
-      react-native: 0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0)
-      zephyr-agent: file:tarballs/zephyr-agent.tgz(https-proxy-agent@7.0.6)
-      zephyr-edge-contract: file:tarballs/zephyr-edge-contract.tgz
-    optionalDependencies:
-      zephyr-xpack-internal: file:tarballs/zephyr-xpack-internal.tgz(https-proxy-agent@7.0.6)(webpack@5.106.2)
-    transitivePeerDependencies:
-      - https-proxy-agent
-      - supports-color
-
-  zephyr-metro-plugin@file:tarballs/zephyr-metro-plugin.tgz(https-proxy-agent@7.0.6)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.2.5))(zephyr-xpack-internal@0.2.0(https-proxy-agent@7.0.6)(webpack@5.106.2)):
+  zephyr-metro-plugin@file:tarballs/zephyr-metro-plugin.tgz(https-proxy-agent@7.0.6)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.2.5)):
     dependencies:
       metro: 0.82.5
       react-native: 0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.2.5)
       zephyr-agent: file:tarballs/zephyr-agent.tgz(https-proxy-agent@7.0.6)
       zephyr-edge-contract: file:tarballs/zephyr-edge-contract.tgz
-    optionalDependencies:
-      zephyr-xpack-internal: 0.2.0(https-proxy-agent@7.0.6)(webpack@5.106.2)
     transitivePeerDependencies:
       - https-proxy-agent
       - supports-color
@@ -10945,26 +10565,3 @@ snapshots:
       mitt: 3.0.1
       react: 19.1.0
       react-native: 0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0)
-
-  zephyr-xpack-internal@0.2.0(https-proxy-agent@7.0.6)(webpack@5.106.2):
-    dependencies:
-      '@module-federation/automatic-vendor-federation': 1.2.1(webpack@5.106.2)
-      tslib: 2.8.1
-      zephyr-agent: file:tarballs/zephyr-agent.tgz(https-proxy-agent@7.0.6)
-      zephyr-edge-contract: file:tarballs/zephyr-edge-contract.tgz
-    transitivePeerDependencies:
-      - https-proxy-agent
-      - supports-color
-      - webpack
-    optional: true
-
-  zephyr-xpack-internal@file:tarballs/zephyr-xpack-internal.tgz(https-proxy-agent@7.0.6)(webpack@5.106.2):
-    dependencies:
-      '@module-federation/automatic-vendor-federation': 1.2.1(webpack@5.106.2)
-      tslib: 2.8.1
-      zephyr-agent: file:tarballs/zephyr-agent.tgz(https-proxy-agent@7.0.6)
-      zephyr-edge-contract: file:tarballs/zephyr-edge-contract.tgz
-    transitivePeerDependencies:
-      - https-proxy-agent
-      - supports-color
-      - webpack

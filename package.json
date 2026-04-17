@@ -40,8 +40,7 @@
       "@module-federation/runtime": "file:./tarballs/module-federation-runtime.tgz",
       "zephyr-metro-plugin": "file:./tarballs/zephyr-metro-plugin.tgz",
       "zephyr-agent": "file:./tarballs/zephyr-agent.tgz",
-      "zephyr-edge-contract": "file:./tarballs/zephyr-edge-contract.tgz",
-      "zephyr-xpack-internal": "file:./tarballs/zephyr-xpack-internal.tgz"
+      "zephyr-edge-contract": "file:./tarballs/zephyr-edge-contract.tgz"
     },
     "onlyBuiltDependencies": [
       "esbuild"

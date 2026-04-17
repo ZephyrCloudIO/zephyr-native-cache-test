@@ -47,7 +47,19 @@ export const zephyrMetroRNEFPlugin =
         logger.info('Bundle artifacts uploaded to Zephyr.');
         outro('Success.');
       },
-      options: commands.bundleFederatedHostOptions,
+      // Mirror the stock @module-federation/metro-plugin-rnef extras. Xcode's
+      // "Bundle React Native code and images" build phase passes a
+      // `--config-cmd` flag that the core MF options don't declare, so the
+      // RNEF plugin adds it as a pass-through. Without it, Release builds
+      // fail with `unknown option '--config-cmd'`.
+      options: [
+        ...commands.bundleFederatedHostOptions,
+        {
+          name: '--config-cmd [string]',
+          description:
+            '[Internal] Pass-through for Xcode build script — matches the stock RNEF plugin.',
+        },
+      ],
     });
 
     api.registerCommand({

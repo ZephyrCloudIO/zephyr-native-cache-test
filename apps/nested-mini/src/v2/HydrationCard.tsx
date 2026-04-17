@@ -1,6 +1,9 @@
 import React from 'react';
 import {Platform, StyleSheet, Text, View} from 'react-native';
 
+export const VERSION = 'v2';
+const VERSION_COLOR = '#22c55e'; // green-500
+
 const GLASSES = 6;
 const GOAL = 8;
 
@@ -16,7 +19,7 @@ export default function HydrationCard({
     <View style={styles.card} testID={testID}>
       <View style={styles.labelRow}>
         <Text style={styles.label}>Hydration</Text>
-        <Text testID="hydration-card-version" style={styles.version}>v2</Text>
+        <Text testID="hydration-card-version" style={styles.version}>{VERSION}</Text>
       </View>
       <View style={styles.header}>
         <Text style={styles.value}>{GLASSES}</Text>
@@ -51,8 +54,8 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: '#0f0f13',
     borderRadius: 14,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.06)',
+    borderWidth: 2,
+    borderColor: VERSION_COLOR,
     padding: 14,
     shadowColor: 'rgba(0,0,0,0.3)',
     shadowOffset: {width: 0, height: 4},
@@ -72,8 +75,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   version: {
-    color: '#4b5563',
-    fontSize: 9,
+    color: VERSION_COLOR,
+    fontSize: 11,
+    fontWeight: '700',
     fontFamily: Platform.select({ios: 'Menlo', default: 'monospace'}),
   },
   header: {

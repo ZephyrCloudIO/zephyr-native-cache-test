@@ -1,10 +1,11 @@
 import { execa, execaCommand } from 'execa';
+import { existsSync, readdirSync, statSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   type TaskDef,
   exec,
-  sleep,
+  execArgs,
   killPort,
   waitForManifest,
   nativeCacheChanged,
@@ -111,7 +112,29 @@ async function publishRemote(
 function describeVersion(filter: string, version: string): string {
   const entry = publishedVersions.get(`${filter}:${version}`);
   if (!entry) return `${filter} ${version} — identifier not captured; pick manually`;
-  return `${filter} ${version} → pin to version #${entry.versionNumber} (${entry.appUid})`;
+  return `**${filter}** ${version} → pin to version **#${entry.versionNumber}** (${entry.appUid})`;
+}
+
+// Locate the most recently built iOS simulator `.app` under DerivedData so the
+// Install step can drop it onto the booted sim without re-running the build.
+function findIosAppPath(): string {
+  const dd = join(process.env.HOME ?? '', 'Library/Developer/Xcode/DerivedData');
+  if (!existsSync(dd)) throw new Error(`DerivedData not found at ${dd}`);
+  const candidates = readdirSync(dd)
+    .filter((d) => d.startsWith('MFExampleHost-'))
+    .map((d) => ({ path: join(dd, d), mtime: statSync(join(dd, d)).mtimeMs }))
+    .sort((a, b) => b.mtime - a.mtime);
+  for (const { path } of candidates) {
+    const productsDir = join(path, 'Build/Products/Release-iphonesimulator');
+    if (!existsSync(productsDir)) continue;
+    const app = readdirSync(productsDir).find((f) => f.endsWith('.app'));
+    if (app) return join(productsDir, app);
+  }
+  throw new Error('No built MFExampleHost.app found under DerivedData — run the Build step first');
+}
+
+function androidApkPath(): string {
+  return join(HOST, 'android/app/build/outputs/apk/release/app-release.apk');
 }
 
 // ── Task definitions ───────────────────────────────────────────────────────
@@ -156,30 +179,29 @@ const taskDefs: TaskDef[] = [
     },
   }] : []),
   {
-    title: 'Build & install host',
+    // Build the native binary up-front so the long compile step can run in
+    // parallel with the operator preparing the dashboard. Install is deferred
+    // until after pin v1 (see `Install host`) so nothing hits the device before
+    // the Zephyr environment is actually serving bundles.
+    //
+    // Dev mode skips this: Metro serves the JS bundle at runtime, so `rnef
+    // run:<platform>` at the Install step is enough.
+    title: 'Build host',
+    skip: () => (MODE === 'dev' ? 'dev mode — Metro serves bundles at runtime' : false),
     run: async (log) => {
       const changed = await hostAppChanged(ROOT, hostPaths(PLATFORM), `zephyr:${PLATFORM}`);
       if (changed) {
         log('Host app source changed — cleaning DerivedData to force rebuild');
         cleanHostBuildCaches(HOST, PLATFORM);
       }
-      const args = ['exec', 'rnef', `run:${PLATFORM}`];
-      if (MODE === 'release') {
-        if (PLATFORM === 'android') args.push('--variant', 'Release');
-        else args.push('--configuration', 'Release', '--destination', 'simulator');
-      }
-      const proc = execa('pnpm', args, {
+      const cmd =
+        PLATFORM === 'android'
+          ? 'pnpm exec rnef build:android --variant Release'
+          : 'pnpm exec rnef build:ios --configuration Release --destination simulator';
+      await exec(cmd, log, {
         cwd: HOST,
-        reject: false,
-        env: { ...process.env, FORCE_COLOR: '1', ZEPHYR_E2E: '1' },
+        env: { ZEPHYR_E2E: '1', FORCE_COLOR: '1' },
       });
-      const pipe = (s: NodeJS.ReadableStream | null | undefined) => {
-        s?.on('data', (c: Buffer) => { for (const l of c.toString().split('\n')) { const t = l.trim(); if (t) log(t); } });
-      };
-      pipe(proc.stdout); pipe(proc.stderr);
-      const res = await proc;
-      if (res.exitCode !== 0) throw new Error(`rnef run failed (exit ${res.exitCode})`);
-      log('App launched, initializing...'); await sleep(5000);
     },
   },
   {
@@ -194,7 +216,7 @@ const taskDefs: TaskDef[] = [
     run: async (log) => {
       await pause(
         [
-          'In the Zephyr dashboard, pin the DEMO environment to v1 for both remotes:',
+          'In the Zephyr dashboard, pin the **DEMO** environment to **v1** for both remotes:',
           `• ${describeVersion('cache-test-mini', 'v1')}`,
           `• ${describeVersion('cache-test-nested-mini', 'v1')}`,
           'See ZEPHYR_OTA_DEMO.md → Pause A for navigation.',
@@ -204,10 +226,49 @@ const taskDefs: TaskDef[] = [
     },
   },
   {
+    // Drop the pre-built binary onto the simulator/device without launching.
+    // Phase 1 owns the first cold launch so the MF runtime state starts clean
+    // and bundles come straight from Zephyr.
+    title: 'Install host',
+    run: async (log) => {
+      if (MODE === 'dev') {
+        // Dev mode: `rnef run` wires Metro + install + launch in one step,
+        // which is fine here because dev fetches bundles from Metro (not from
+        // baked URLs) so there's no "stale URLs baked in" concern.
+        const proc = execa('pnpm', ['exec', 'rnef', `run:${PLATFORM}`], {
+          cwd: HOST,
+          reject: false,
+          env: { ...process.env, FORCE_COLOR: '1', ZEPHYR_E2E: '1' },
+        });
+        const pipe = (s: NodeJS.ReadableStream | null | undefined) => {
+          s?.on('data', (c: Buffer) => {
+            for (const l of c.toString().split('\n')) { const t = l.trim(); if (t) log(t); }
+          });
+        };
+        pipe(proc.stdout); pipe(proc.stderr);
+        const res = await proc;
+        if (res.exitCode !== 0) throw new Error(`rnef run failed (exit ${res.exitCode})`);
+        return;
+      }
+      if (PLATFORM === 'android') {
+        const apk = androidApkPath();
+        if (!existsSync(apk)) throw new Error(`APK missing: ${apk} — did Build host succeed?`);
+        log(`Installing ${apk}`);
+        await execArgs('adb', ['install', '-r', apk], log, { cwd: ROOT });
+      } else {
+        const app = findIosAppPath();
+        log(`Installing ${app}`);
+        await execArgs('xcrun', ['simctl', 'install', 'booted', app], log, { cwd: ROOT });
+      }
+      log('Installed — app is not running. Phase 1 will launch it.');
+    },
+  },
+  {
+    // Install is fast — pausing here would make pin-v1 / Phase-1 feel like
+    // two SPACE presses in a row. Let Maestro roll straight after install.
     title: 'Phase 1 — baseline',
     run: async (log) => {
-      await pause('Ready to run Phase 1 Maestro — verify v1 baseline renders.', log);
-      await exec(`maestro test ${join(FLOWS, 'ota-phase1.yaml')}`, log, { cwd: ROOT });
+      await exec(`maestro --platform ${PLATFORM} test ${join(FLOWS, 'ota-phase1-zephyr.yaml')}`, log, { cwd: ROOT });
     },
   },
   {
@@ -223,7 +284,7 @@ const taskDefs: TaskDef[] = [
     run: async (log) => {
       await pause(
         [
-          'In the Zephyr dashboard, pin the DEMO environment to v2 for both remotes:',
+          'In the Zephyr dashboard, pin the **DEMO** environment to **v2** for both remotes:',
           `• ${describeVersion('cache-test-mini', 'v2')}`,
           `• ${describeVersion('cache-test-nested-mini', 'v2')}`,
           'See ZEPHYR_OTA_DEMO.md → Pause B for navigation.',
@@ -233,10 +294,12 @@ const taskDefs: TaskDef[] = [
     },
   },
   {
+    // No pause — we just came off `Manual: pin v2`, which is already gated by
+    // the operator. Running Maestro immediately keeps the flow from asking
+    // for two SPACE presses back to back.
     title: 'Phase 2 — update + crash',
     run: async (log) => {
-      await pause('Ready to run Phase 2 Maestro — observe OTA update + crash recovery.', log);
-      await exec(`maestro test ${join(FLOWS, 'ota-phase2-zephyr.yaml')}`, log, { cwd: ROOT });
+      await exec(`maestro --platform ${PLATFORM} test ${join(FLOWS, 'ota-phase2-zephyr.yaml')}`, log, { cwd: ROOT });
     },
   },
   {
@@ -244,19 +307,19 @@ const taskDefs: TaskDef[] = [
     run: async (log) => {
       await pause(
         [
-          'In the Zephyr dashboard, rollback nested-mini\'s DEMO env to v1:',
+          'In the Zephyr dashboard, rollback **nested-mini**\'s **DEMO** env to **v1**:',
           `• ${describeVersion('cache-test-nested-mini', 'v1')}`,
-          'Leave mini pinned to v2. See ZEPHYR_OTA_DEMO.md → Pause C for navigation.',
+          'Leave **mini** pinned to **v2**. See ZEPHYR_OTA_DEMO.md → Pause C for navigation.',
         ].join('\n'),
         log,
       );
     },
   },
   {
+    // Follows `Manual: rollback nested-mini` — no extra pause needed.
     title: 'Phase 3 — rollback',
     run: async (log) => {
-      await pause('Ready to run Phase 3 Maestro — observe rollback picked up by host.', log);
-      await exec(`maestro test ${join(FLOWS, 'ota-phase3-zephyr.yaml')}`, log, { cwd: ROOT });
+      await exec(`maestro --platform ${PLATFORM} test ${join(FLOWS, 'ota-phase3-zephyr.yaml')}`, log, { cwd: ROOT });
     },
   },
   {
@@ -271,19 +334,43 @@ const taskDefs: TaskDef[] = [
     run: async (log) => {
       await pause(
         [
-          'In the Zephyr dashboard, pin nested-mini\'s DEMO env to v3:',
+          'In the Zephyr dashboard, pin **nested-mini**\'s **DEMO** env to **v3**:',
           `• ${describeVersion('cache-test-nested-mini', 'v3')}`,
-          'Mini stays on v2. See ZEPHYR_OTA_DEMO.md → Pause D for navigation.',
+          '**Mini** stays on **v2**. See ZEPHYR_OTA_DEMO.md → Pause D for navigation.',
         ].join('\n'),
         log,
       );
     },
   },
   {
+    // Follows `Manual: pin nested-mini v3` — no extra pause needed.
     title: 'Phase 4 — partial update',
     run: async (log) => {
-      await pause('Ready to run Phase 4 Maestro — observe partial update (nested-mini only).', log);
-      await exec(`maestro test ${join(FLOWS, 'ota-phase4-zephyr.yaml')}`, log, { cwd: ROOT });
+      await exec(`maestro --platform ${PLATFORM} test ${join(FLOWS, 'ota-phase4-zephyr.yaml')}`, log, { cwd: ROOT });
+    },
+  },
+  {
+    // Final gate that holds the orchestrator (and the running sim) open after
+    // every phase passes. Without this the TUI exits the moment Phase 4
+    // finishes, killing the simulator app and taking the demo state with it.
+    title: '🎉 Success',
+    run: async (log) => {
+      await pause(
+        [
+          '🎉 **DEMO COMPLETE** — every phase passed',
+          '',
+          '✅ Host built, installed, and live on the simulator',
+          '✅ **v1** published + pinned → Phase 1 baseline',
+          '✅ **v2** OTA update + CacheInfo crash recovery → Phase 2',
+          '✅ **nested-mini** rolled back to v1 → Phase 3',
+          '✅ **nested-mini v3** partial update (mini stays on v2) → Phase 4',
+          '',
+          '🚀 Simulator stays up — tap around, show off the DevTools panel, or',
+          '   end the demo whenever you\'re ready.',
+        ].join('\n'),
+        log,
+        { label: '🎉 SUCCESS', prompt: 'Press SPACE to wrap up and exit' },
+      );
     },
   },
 ];

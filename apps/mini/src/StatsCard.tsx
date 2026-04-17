@@ -1,6 +1,11 @@
 import React from 'react';
 import {Platform, StyleSheet, Text, View} from 'react-native';
 
+// Mirrored from apps/host/src/version-palette.ts — remotes can't import from
+// the host, so each version-specific file carries its own color constant.
+export const VERSION = 'v1';
+const VERSION_COLOR = '#3b82f6'; // blue-500
+
 export default function StatsCard({
   testID = 'stats-card',
 }: {
@@ -10,7 +15,7 @@ export default function StatsCard({
     <View style={styles.card} testID={testID}>
       <View style={styles.labelRow}>
         <Text style={styles.label}>Heart Rate</Text>
-        <Text testID="stats-card-version" style={styles.version}>v1</Text>
+        <Text testID="stats-card-version" style={styles.version}>{VERSION}</Text>
       </View>
       <View style={styles.bpmRow}>
         <Text style={styles.bpm}>72</Text>
@@ -43,8 +48,8 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: '#0f0f13',
     borderRadius: 14,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.06)',
+    borderWidth: 2,
+    borderColor: VERSION_COLOR,
     padding: 14,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 4},
@@ -64,8 +69,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   version: {
-    color: '#4b5563',
-    fontSize: 9,
+    color: VERSION_COLOR,
+    fontSize: 11,
+    fontWeight: '700',
     fontFamily: Platform.select({ios: 'Menlo', default: 'monospace'}),
   },
   bpmRow: {

@@ -9,7 +9,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import type {CacheStatusState} from '../hooks/useCacheStatus';
+import type {CacheStatusState, RemoteCacheEntry} from '../hooks/useCacheStatus';
 import {Button} from './Button';
 
 interface DevToolsPanelProps {
@@ -42,14 +42,31 @@ const STATUS_LABELS: Record<string, string> = {
   pending: 'pending',
 };
 
-function displayName(remoteName: string): string {
-  // Strip path prefixes like "src/" and file extensions
-  const last = remoteName.split('/').pop() ?? remoteName;
-  const clean = last.replace(/\.(bundle|js|tsx?)$/, '');
-  // Container/entry bundles have no path segments (e.g. "mini", "nestedMini")
-  // Exposed modules live under a path (e.g. "src/PromoCard")
-  const isContainer = !remoteName.includes('/');
-  return isContainer ? `${clean} (entry)` : clean;
+// Derive a human-readable label for a remote/exposed bundle. Tries the
+// inferred `remoteName` first (e.g. `"mini"` for a container, `"exposed/StatsCard"`
+// for an exposed module); falls back to the `bundleUrl` last path segment so
+// rows never render as blank text when inference lands on an empty string.
+function displayName({remoteName, bundleUrl}: RemoteCacheEntry): string {
+  const lastSegment = (raw: string): string => {
+    const parts = raw.split('/').filter(Boolean);
+    const last = parts.pop() ?? '';
+    return last.split('.')[0].split('?')[0];
+  };
+  const fromRemote = lastSegment(remoteName);
+  if (fromRemote) {
+    const isContainer = !remoteName.includes('/');
+    return isContainer ? `${fromRemote} (entry)` : fromRemote;
+  }
+  try {
+    const url = new URL(bundleUrl);
+    const fromPath = lastSegment(url.pathname);
+    if (fromPath) return `${fromPath} (entry)`;
+    const host = url.hostname.split('.')[0];
+    if (host) return `${host} (entry)`;
+  } catch {
+    /* not a parseable URL — fall through */
+  }
+  return '(unknown)';
 }
 
 function relativeTime(timestamp: number | undefined): string {
@@ -276,7 +293,7 @@ export function DevToolsPanel({
             remoteEntries.map(entry => (
               <View key={entry.remoteName} style={styles.remoteRow}>
                 <Text style={[styles.remoteName, styles.mono]} numberOfLines={1}>
-                  {displayName(entry.remoteName)}
+                  {displayName(entry)}
                 </Text>
                 <View
                   style={[

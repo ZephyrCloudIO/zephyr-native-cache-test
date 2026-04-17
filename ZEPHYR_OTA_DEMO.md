@@ -57,8 +57,8 @@ runtime polls the resolved manifest URL for changes.
 
 > **Note:** This block may need to be added after the *first* publish so the
 > apps exist and you can see their exact names in the dashboard. If the e2e
-> flow fails at the "Build & install host" step because the resolve returns
-> nothing, this is almost certainly the cause.
+> flow fails at the "Build host" step because the resolve returns nothing,
+> this is almost certainly the cause.
 
 ---
 
