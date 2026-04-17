@@ -1,0 +1,34 @@
+appId: com.mf.example.host
+---
+# Phase 2 (Zephyr variant): v2 deployed to real Zephyr edge.
+# Mini: improved components. Nested-mini: CacheInfo crashes.
+# No `devtools-check-updates` tap — wait for the runtime's own polling loop
+# to pick up the new manifest. Timeout is generous to cover edge propagation
+# plus the next poll tick.
+
+- extendedWaitUntil:
+    visible:
+      id: 'update-toast'
+    timeout: 120000
+
+- tapOn:
+    id: 'update-toast-restart'
+
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: 'stats-card'
+    timeout: 20000
+
+- assertVisible:
+    id: 'stats-card-version'
+    text: 'v2'
+
+- assertVisible:
+    id: 'activity-feed'
+- assertVisible:
+    id: 'activity-feed-version'
+    text: 'v2'
+
+- assertVisible:
+    id: 'error-CacheInfo'

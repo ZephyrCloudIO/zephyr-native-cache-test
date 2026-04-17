@@ -1,5 +1,5 @@
 import * as React from 'react';
-const { useState, useEffect, useRef, useCallback, useReducer } = React;
+const { useState, useEffect, useRef, useCallback } = React;
 import { render, Box, Text, useInput, useApp, useStdout } from 'ink';
 import { execaCommand, execa, type ResultPromise } from 'execa';
 import { existsSync, readFileSync, writeFileSync, readdirSync, rmSync } from 'node:fs';
@@ -70,48 +70,37 @@ export function cleanup(): void {
 process.on('exit', restoreTerminal);
 
 // ── Pause coordination ─────────────────────────────────────────────────────
-// Both runners (CI and TUI) serve pause requests via `pause(message)`. The TUI
-// variant cooperates with Ink's input system; the CI variant uses raw stdin.
+// Both runners (CI and TUI) serve pause requests via `pause(message, log)`.
+// The instruction goes into the current task's log pane; CI also reads raw
+// stdin for the continuation key. TUI relies on App's useInput handler.
 
-let pauseMessage = '';
 let pauseResolver: (() => void) | null = null;
 let currentMode: 'ci' | 'tui' = 'ci';
-const pauseListeners = new Set<() => void>();
-
-function subscribePause(listener: () => void): () => void {
-  pauseListeners.add(listener);
-  return () => { pauseListeners.delete(listener); };
-}
-
-function notifyPauseListeners(): void {
-  for (const l of pauseListeners) l();
-}
 
 export function isPaused(): boolean {
   return pauseResolver !== null;
-}
-
-export function getPauseMessage(): string {
-  return pauseMessage;
 }
 
 export function resolvePause(): void {
   if (!pauseResolver) return;
   const r = pauseResolver;
   pauseResolver = null;
-  pauseMessage = '';
   r();
-  notifyPauseListeners();
 }
 
-export function pause(message: string): Promise<void> {
+export function pause(message: string, log: (msg: string) => void): Promise<void> {
   return new Promise<void>((resolve) => {
-    pauseMessage = message;
     pauseResolver = resolve;
-    notifyPauseListeners();
+
+    log('');
+    const [first, ...rest] = message.split('\n');
+    log(`⏸ ${first}`);
+    for (const line of rest) log(`   ${line}`);
+    log('');
+    log('   Press SPACE (or ENTER) to continue…');
+    log('');
 
     if (currentMode === 'ci') {
-      process.stderr.write(`\n⏸ ${message}\n   Press SPACE (or ENTER) to continue…\n`);
       const onData = () => {
         process.stdin.off('data', onData);
         try { process.stdin.setRawMode?.(true); } catch {}
@@ -120,7 +109,7 @@ export function pause(message: string): Promise<void> {
       try { process.stdin.setRawMode?.(false); } catch {}
       process.stdin.once('data', onData);
     }
-    // TUI mode: App's useInput handler calls resolvePause() on ENTER.
+    // TUI mode: App's useInput handler calls resolvePause() on SPACE/ENTER.
   });
 }
 
@@ -328,7 +317,7 @@ function VLine({ height }: { height: number }) {
   return <Text color="#1f2937">{Array.from({ length: height }, () => '│').join('\n')}</Text>;
 }
 
-function TaskListPane({ tasks, selected, notification, width, isShuttingDown, title, subtitle, pauseMsg }: {
+function TaskListPane({ tasks, selected, notification, width, isShuttingDown, title, subtitle }: {
   tasks: TaskState[];
   selected: number;
   notification: string;
@@ -336,7 +325,6 @@ function TaskListPane({ tasks, selected, notification, width, isShuttingDown, ti
   isShuttingDown: boolean;
   title: string;
   subtitle?: string;
-  pauseMsg: string;
 }) {
   return (
     <Box flexDirection="column" flexGrow={1} paddingX={1}>
@@ -356,7 +344,6 @@ function TaskListPane({ tasks, selected, notification, width, isShuttingDown, ti
           );
         })}
         <Box flexGrow={1} />
-        {pauseMsg ? <Text color="#fbbf24">⏸ {pauseMsg} — press SPACE</Text> : null}
         {notification ? <Text color="#22c55e">{notification}</Text> : null}
         {isShuttingDown
           ? <Text color="#ef4444">Shutting down… press again to force</Text>
@@ -430,7 +417,6 @@ function App({ taskDefs: defs, title, subtitle }: { taskDefs: TaskDef[]; title: 
   const [serverScroll, setServerScroll] = useState(0);
   const [notification, setNotification] = useState('');
   const [isShuttingDown, setIsShuttingDown] = useState(false);
-  const [, forcePauseUpdate] = useReducer((x: number) => x + 1, 0);
   const { exit } = useApp();
   const { stdout } = useStdout();
   const height = stdout?.rows ?? 30;
@@ -450,8 +436,6 @@ function App({ taskDefs: defs, title, subtitle }: { taskDefs: TaskDef[]; title: 
     if (!buf.has(label)) buf.set(label, []);
     buf.get(label)!.push(msg);
   }, []);
-
-  useEffect(() => subscribePause(forcePauseUpdate), []);
 
   useEffect(() => {
     const flush = setInterval(() => {
@@ -549,7 +533,6 @@ function App({ taskDefs: defs, title, subtitle }: { taskDefs: TaskDef[]; title: 
   const cols = stdout?.columns ?? 80;
   const listW = 46;
   const logW = cols - listW - 1;
-  const pauseMsg = isPaused() ? getPauseMessage() : '';
 
   return (
     <Box flexDirection="column" height={height}>
@@ -564,7 +547,6 @@ function App({ taskDefs: defs, title, subtitle }: { taskDefs: TaskDef[]; title: 
             isShuttingDown={isShuttingDown}
             title={title}
             subtitle={subtitle}
-            pauseMsg={pauseMsg}
           />
         </Box>
         <Box width={1} flexShrink={0} flexDirection="column"><VLine height={taskH} /></Box>

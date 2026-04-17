@@ -59,29 +59,70 @@ function checkPreflight(log: (m: string) => void): void {
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
+// Captured from each publish output so pause instructions can name the exact
+// version the operator should pin in the dashboard. Keyed by
+// `${appFilter}:${label}` where label is our own `v1`/`v2`/`v3`.
+//
+// Zephyr prints two lines per publish: `<app>.<project>.<org>#<n>` (e.g.
+// `cache-test-mini.zephyr-native-cache-test.zephyrcloudio#12`). It logs a
+// pre-build and post-build number; we keep the last match, which matches the
+// number baked into the deployment URL (`jakub-12-cache-test-mini-…`).
+const publishedVersions = new Map<
+  string,
+  { appUid: string; versionNumber: number; url: string }
+>();
+
 async function publishRemote(
   filter: string,
   version: string,
   log: (m: string) => void,
 ): Promise<void> {
   log(`Publishing ${filter} ${version}...`);
+  let appUid = '';
+  let versionNumber = 0;
+  let url = '';
+  // Child runs with FORCE_COLOR=1 in TUI mode, so Zephyr's lines contain ANSI
+  // color escapes (e.g. `\x1b[32mcache-test-mini\x1b[0m.zephyr…`). Strip them
+  // before matching — `#<n>` gets sandwiched between color resets otherwise.
+  const stripAnsi = (s: string): string => s.replace(/\x1b\[[0-9;]*m/g, '');
   await exec(
     `pnpm --filter=${filter} publish:${PLATFORM}`,
-    log,
+    (msg) => {
+      log(msg);
+      const plain = stripAnsi(msg);
+      const idMatch = plain.match(/([a-z0-9-]+\.[a-z0-9-]+\.[a-z0-9-]+)#(\d+)/i);
+      if (idMatch) {
+        appUid = idMatch[1]!;
+        versionNumber = parseInt(idMatch[2]!, 10);
+      }
+      const urlMatch = plain.match(/(https:\/\/[^\s]+\.zephyrcloudapp\.dev)/);
+      if (urlMatch) url = urlMatch[1]!;
+    },
     { cwd: ROOT, env: { REMOTE_VERSION: version, ZEPHYR_E2E: '1' } },
   );
-  log(`Published ${filter} ${version}`);
+  if (appUid && versionNumber) {
+    publishedVersions.set(`${filter}:${version}`, { appUid, versionNumber, url });
+    log(`→ captured: ${appUid}#${versionNumber}`);
+  } else {
+    log(`⚠ could not parse deployment identifier for ${filter} ${version}`);
+  }
+}
+
+function describeVersion(filter: string, version: string): string {
+  const entry = publishedVersions.get(`${filter}:${version}`);
+  if (!entry) return `${filter} ${version} — identifier not captured; pick manually`;
+  return `${filter} ${version} → pin to version #${entry.versionNumber} (${entry.appUid})`;
 }
 
 // ── Task definitions ───────────────────────────────────────────────────────
 
 const taskDefs: TaskDef[] = [
   {
-    title: 'Preflight — verify Zephyr env',
+    title: 'Preflight',
     run: async (log) => checkPreflight(log),
   },
   {
-    title: 'Rebuild vendor tarballs (native-cache + zephyr-plugins)',
+    title: 'Rebuild vendor tarballs',
     run: async (log) => {
       const changed = await nativeCacheChanged(ROOT);
       if (!changed) { log('Vendor source unchanged — skipping rebuild'); return; }
@@ -93,19 +134,6 @@ const taskDefs: TaskDef[] = [
       await exec('bash scripts/check-native-cache.sh', log, { cwd: ROOT });
       cleanHostBuildCaches(HOST, PLATFORM);
       log('Vendor tarballs ready');
-    },
-  },
-  {
-    title: 'Publish v1 (mini + nested-mini)',
-    run: async (log) => {
-      await publishRemote('cache-test-mini', 'v1', log);
-      await publishRemote('cache-test-nested-mini', 'v1', log);
-    },
-  },
-  {
-    title: 'Manual — tag v1 as default for both remotes',
-    run: async () => {
-      await pause('Dashboard: tag v1 as default for mini + nested-mini (see ZEPHYR_OTA_DEMO.md → Pause A)');
     },
   },
   ...(MODE === 'dev' ? [{
@@ -128,7 +156,7 @@ const taskDefs: TaskDef[] = [
     },
   }] : []),
   {
-    title: `Build & install host (${MODE === 'release' ? 'Release' : 'Debug'})`,
+    title: 'Build & install host',
     run: async (log) => {
       const changed = await hostAppChanged(ROOT, hostPaths(PLATFORM), `zephyr:${PLATFORM}`);
       if (changed) {
@@ -155,64 +183,107 @@ const taskDefs: TaskDef[] = [
     },
   },
   {
-    title: 'Phase 1 — v1 baseline',
+    title: 'Publish v1',
     run: async (log) => {
-      await pause('Ready to run Phase 1 Maestro — verify v1 baseline renders');
+      await publishRemote('cache-test-mini', 'v1', log);
+      await publishRemote('cache-test-nested-mini', 'v1', log);
+    },
+  },
+  {
+    title: 'Manual: pin v1',
+    run: async (log) => {
+      await pause(
+        [
+          'In the Zephyr dashboard, pin the DEMO environment to v1 for both remotes:',
+          `• ${describeVersion('cache-test-mini', 'v1')}`,
+          `• ${describeVersion('cache-test-nested-mini', 'v1')}`,
+          'See ZEPHYR_OTA_DEMO.md → Pause A for navigation.',
+        ].join('\n'),
+        log,
+      );
+    },
+  },
+  {
+    title: 'Phase 1 — baseline',
+    run: async (log) => {
+      await pause('Ready to run Phase 1 Maestro — verify v1 baseline renders.', log);
       await exec(`maestro test ${join(FLOWS, 'ota-phase1.yaml')}`, log, { cwd: ROOT });
     },
   },
   {
-    title: 'Publish v2 (mini + nested-mini)',
+    title: 'Publish v2',
     run: async (log) => {
-      await pause('Ready to publish v2 of mini + nested-mini to Zephyr');
+      await pause('Ready to publish v2 of mini + nested-mini to Zephyr.', log);
       await publishRemote('cache-test-mini', 'v2', log);
       await publishRemote('cache-test-nested-mini', 'v2', log);
     },
   },
   {
-    title: 'Manual — tag v2 as default for both remotes',
-    run: async () => {
-      await pause('Dashboard: tag v2 as default for mini + nested-mini (see ZEPHYR_OTA_DEMO.md → Pause B)');
+    title: 'Manual: pin v2',
+    run: async (log) => {
+      await pause(
+        [
+          'In the Zephyr dashboard, pin the DEMO environment to v2 for both remotes:',
+          `• ${describeVersion('cache-test-mini', 'v2')}`,
+          `• ${describeVersion('cache-test-nested-mini', 'v2')}`,
+          'See ZEPHYR_OTA_DEMO.md → Pause B for navigation.',
+        ].join('\n'),
+        log,
+      );
     },
   },
   {
     title: 'Phase 2 — update + crash',
     run: async (log) => {
-      await pause('Ready to run Phase 2 Maestro — observe OTA update + crash recovery');
-      await exec(`maestro test ${join(FLOWS, 'ota-phase2.yaml')}`, log, { cwd: ROOT });
+      await pause('Ready to run Phase 2 Maestro — observe OTA update + crash recovery.', log);
+      await exec(`maestro test ${join(FLOWS, 'ota-phase2-zephyr.yaml')}`, log, { cwd: ROOT });
     },
   },
   {
-    title: 'Manual — rollback nested-mini to v1',
-    run: async () => {
-      await pause('Dashboard: rollback nested-mini to v1 (mini stays on v2) (see ZEPHYR_OTA_DEMO.md → Pause C)');
+    title: 'Manual: rollback nested-mini',
+    run: async (log) => {
+      await pause(
+        [
+          'In the Zephyr dashboard, rollback nested-mini\'s DEMO env to v1:',
+          `• ${describeVersion('cache-test-nested-mini', 'v1')}`,
+          'Leave mini pinned to v2. See ZEPHYR_OTA_DEMO.md → Pause C for navigation.',
+        ].join('\n'),
+        log,
+      );
     },
   },
   {
     title: 'Phase 3 — rollback',
     run: async (log) => {
-      await pause('Ready to run Phase 3 Maestro — observe rollback picked up by host');
-      await exec(`maestro test ${join(FLOWS, 'ota-phase3.yaml')}`, log, { cwd: ROOT });
+      await pause('Ready to run Phase 3 Maestro — observe rollback picked up by host.', log);
+      await exec(`maestro test ${join(FLOWS, 'ota-phase3-zephyr.yaml')}`, log, { cwd: ROOT });
     },
   },
   {
     title: 'Publish nested-mini v3',
     run: async (log) => {
-      await pause('Ready to publish v3 of nested-mini to Zephyr');
+      await pause('Ready to publish v3 of nested-mini to Zephyr.', log);
       await publishRemote('cache-test-nested-mini', 'v3', log);
     },
   },
   {
-    title: 'Manual — tag nested-mini v3 as default',
-    run: async () => {
-      await pause('Dashboard: tag nested-mini v3 as default (see ZEPHYR_OTA_DEMO.md → Pause D)');
+    title: 'Manual: pin nested-mini v3',
+    run: async (log) => {
+      await pause(
+        [
+          'In the Zephyr dashboard, pin nested-mini\'s DEMO env to v3:',
+          `• ${describeVersion('cache-test-nested-mini', 'v3')}`,
+          'Mini stays on v2. See ZEPHYR_OTA_DEMO.md → Pause D for navigation.',
+        ].join('\n'),
+        log,
+      );
     },
   },
   {
     title: 'Phase 4 — partial update',
     run: async (log) => {
-      await pause('Ready to run Phase 4 Maestro — observe partial update (nested-mini only)');
-      await exec(`maestro test ${join(FLOWS, 'ota-phase4.yaml')}`, log, { cwd: ROOT });
+      await pause('Ready to run Phase 4 Maestro — observe partial update (nested-mini only).', log);
+      await exec(`maestro test ${join(FLOWS, 'ota-phase4-zephyr.yaml')}`, log, { cwd: ROOT });
     },
   },
 ];

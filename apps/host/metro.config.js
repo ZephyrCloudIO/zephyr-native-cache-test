@@ -66,12 +66,16 @@ const mfFlags = {
 
 async function buildZephyrConfig() {
   const {withZephyr} = require('zephyr-metro-plugin');
-  const zephyrMfConfig = await withZephyr()(mfConfig);
-  return withModuleFederation(
-    mergeConfig(getDefaultConfig(__dirname), config),
-    zephyrMfConfig,
-    mfFlags,
-  );
+  const baseConfig = mergeConfig(getDefaultConfig(__dirname), config);
+  // `withZephyr` only reads `remotes` from its first-argument options bag.
+  // Passing it via the MF-shaped second arg — as zephyr-examples does —
+  // leaves the resolve list empty and writes an empty zephyr-manifest.json.
+  const enhanced = await withZephyr({
+    name: mfConfig.name,
+    remotes: mfConfig.remotes,
+    target: process.env.ZEPHYR_TARGET === 'android' ? 'android' : 'ios',
+  })(baseConfig);
+  return withModuleFederation(enhanced, mfConfig, mfFlags);
 }
 
 module.exports = ZEPHYR_E2E

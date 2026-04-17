@@ -1,0 +1,40 @@
+appId: com.mf.example.host
+---
+# Phase 4 (Zephyr variant): partial fix — nested-mini v3 deployed.
+# Wait for polling; exercise the dismiss → update-bar → restart path.
+
+- extendedWaitUntil:
+    visible:
+      id: 'update-toast'
+    timeout: 120000
+
+- tapOn:
+    id: 'update-toast-dismiss'
+
+- extendedWaitUntil:
+    visible:
+      id: 'update-bar'
+    timeout: 5000
+
+- tapOn:
+    id: 'update-bar-restart'
+
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: 'stats-card'
+    timeout: 20000
+
+- assertVisible:
+    id: 'stats-card-version'
+    text: 'v2'
+
+- assertVisible:
+    id: 'activity-feed'
+- assertVisible:
+    id: 'activity-feed-version'
+    text: 'v2'
+- assertVisible:
+    id: 'cache-info'
+- assertNotVisible:
+    id: 'error-CacheInfo'

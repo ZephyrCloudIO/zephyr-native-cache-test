@@ -1,0 +1,29 @@
+appId: com.mf.example.host
+---
+# Phase 3 (Zephyr variant): nested-mini rolled back to v1 (mini stays at v2).
+# Wait for natural polling to pick up the manifest change.
+
+- extendedWaitUntil:
+    visible:
+      id: 'update-toast'
+    timeout: 120000
+
+- tapOn:
+    id: 'update-toast-restart'
+
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: 'stats-card'
+    timeout: 20000
+
+- assertVisible:
+    id: 'stats-card-version'
+    text: 'v2'
+
+- assertVisible:
+    id: 'cache-info'
+- assertNotVisible:
+    id: 'error-CacheInfo'
+- assertVisible:
+    id: 'activity-feed'

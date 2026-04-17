@@ -160,7 +160,7 @@ const taskDefs: TaskDef[] = [
   {
     title: 'Phase 2 — update + crash',
     run: async (log) => {
-      if (INTERACTIVE) await pause('Deployed v2 — ready to test update + crash recovery?');
+      if (INTERACTIVE) await pause('Deployed v2 — ready to test update + crash recovery?', log);
       else { log('Waiting for CDN to settle...'); await sleep(CDN_SETTLE_MS); }
       await checkCDN(log); await exec(`maestro test ${join(FLOWS, 'ota-phase2.yaml')}`, log, { cwd: ROOT });
     },
@@ -169,7 +169,7 @@ const taskDefs: TaskDef[] = [
   {
     title: 'Phase 3 — rollback',
     run: async (log) => {
-      if (INTERACTIVE) await pause('Rolled back nested-mini to v1 — ready to test rollback?');
+      if (INTERACTIVE) await pause('Rolled back nested-mini to v1 — ready to test rollback?', log);
       else { log('Waiting for CDN to settle...'); await sleep(CDN_SETTLE_MS); }
       await checkCDN(log); await exec(`maestro test ${join(FLOWS, 'ota-phase3.yaml')}`, log, { cwd: ROOT });
     },
@@ -178,7 +178,7 @@ const taskDefs: TaskDef[] = [
   {
     title: 'Phase 4 — partial update',
     run: async (log) => {
-      if (INTERACTIVE) await pause('Deployed nested-mini v3 — ready to test partial update?');
+      if (INTERACTIVE) await pause('Deployed nested-mini v3 — ready to test partial update?', log);
       else { log('Waiting for CDN to settle...'); await sleep(CDN_SETTLE_MS); }
       await checkCDN(log); await exec(`maestro test ${join(FLOWS, 'ota-phase4.yaml')}`, log, { cwd: ROOT });
     },

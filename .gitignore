@@ -4,7 +4,7 @@ dist/
 # iOS
 **/ios/Pods/
 **/ios/build/
-*.xcuserdata
+**/xcuserdata/
 
 # Android
 **/.gradle/
@@ -43,3 +43,6 @@ e2e-fixtures/
 # Misc
 .DS_Store
 *.log
+
+# zephyr manifests
+**/zephyr-manifest.json
