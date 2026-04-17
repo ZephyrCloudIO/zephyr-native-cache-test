@@ -10,6 +10,12 @@ dist/
 **/.gradle/
 **/android/**/build/
 **/.cxx/
+**/android/local.properties
+
+# IDE
+.idea/
+**/.idea/
+*.iml
 
 # RNEF
 .rnef/
