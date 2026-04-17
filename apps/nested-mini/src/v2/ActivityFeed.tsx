@@ -31,15 +31,21 @@ export default function ActivityFeed({
           ]}>
           <Text style={styles.icon}>{w.icon}</Text>
           <View style={styles.rowContent}>
-            <Text style={styles.type}>{w.type}</Text>
-            <Text style={styles.meta}>{w.duration}</Text>
-          </View>
-          <View style={[styles.badge, {backgroundColor: `${w.intensityColor}22`}]}>
-            <Text style={[styles.badgeText, {color: w.intensityColor}]}>
-              {w.intensity}
+            <Text style={styles.type} numberOfLines={1} ellipsizeMode="tail">
+              {w.type}
             </Text>
+            <View style={styles.metaRow}>
+              <Text style={styles.meta} numberOfLines={1}>
+                {w.duration}
+              </Text>
+              <View style={[styles.badge, {backgroundColor: `${w.intensityColor}22`}]}>
+                <Text style={[styles.badgeText, {color: w.intensityColor}]}>
+                  {w.intensity}
+                </Text>
+              </View>
+              <Text style={styles.cal} numberOfLines={1}>{w.cal}</Text>
+            </View>
           </View>
-          <Text style={styles.cal}>{w.cal}</Text>
         </View>
       ))}
       <View style={styles.footer}>
@@ -94,22 +100,27 @@ const styles = StyleSheet.create({
   },
   rowContent: {
     flex: 1,
+    minWidth: 0,
   },
   type: {
     color: '#d4d4d8',
     fontSize: 13,
     fontWeight: '500',
   },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 2,
+  },
   meta: {
     color: '#6b7280',
     fontSize: 10,
-    marginTop: 1,
   },
   badge: {
     borderRadius: 10,
-    paddingHorizontal: 7,
-    paddingVertical: 2,
-    marginRight: 8,
+    paddingHorizontal: 6,
+    paddingVertical: 1,
   },
   badgeText: {
     fontSize: 9,
@@ -118,7 +129,7 @@ const styles = StyleSheet.create({
   },
   cal: {
     color: '#a1a1aa',
-    fontSize: 11,
+    fontSize: 10,
   },
   footer: {
     marginTop: 4,

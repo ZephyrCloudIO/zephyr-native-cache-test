@@ -96,13 +96,14 @@ const styles = StyleSheet.create({
   },
   drops: {
     flexDirection: 'row',
-    gap: 6,
+    gap: 4,
     marginBottom: 8,
   },
   drop: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    flex: 1,
+    aspectRatio: 1,
+    maxWidth: 28,
+    borderRadius: 999,
   },
   dropEmpty: {
     backgroundColor: 'rgba(255, 255, 255, 0.04)',
