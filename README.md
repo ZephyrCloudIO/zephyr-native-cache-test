@@ -5,7 +5,11 @@ Test repo for validating the `zephyr-native-cache` integration with React Native
 Validates two draft PRs together:
 
 - **mf-core** [#4576](https://github.com/module-federation/core/pull/4576) — SHA-256 manifest hashes + ICacheLayer runtime contract
-- **zephyr-packages** [#412](https://github.com/ZephyrCloudIO/zephyr-packages/pull/412) — native cache package (Kotlin/C++/ObjC++)
+- **zephyr-packages** [#412](https://github.com/ZephyrCloudIO/zephyr-packages/pull/412) — native cache package (Kotlin/ObjC)
+
+### Why submodules + tarballs
+
+Both PRs are in-flight drafts that need to be iterated on locally before upstreaming. Rather than `pnpm add`-ing published versions, `vendor/` pins the PR branches as git submodules; `scripts/build-*.sh` packs them into `.tgz` tarballs on change; and `pnpm.overrides` in `package.json` redirects every transitive MF dependency at those tarballs. Editing a file in `vendor/` → restart `pnpm dev` → rebuild → reinstall → ready, all automated.
 
 ## Architecture
 
@@ -73,14 +77,19 @@ The full pipeline (when a rebuild is needed):
 
 Turbo caches the build tasks based on submodule state (commit SHA + uncommitted changes). When nothing changed, builds resolve instantly from cache and Metro reuses its transformer cache — saving significant startup time.
 
-Two explicit subcommands are also available:
+Explicit subcommands:
 
 | Command | What it does |
 | --- | --- |
-| `pnpm dev:cached` | Skip builds entirely, launch Metro with warm cache |
-| `pnpm dev:raw` | Force the full build pipeline + Metro cache reset |
+| `pnpm dev:v1` / `dev:v2` / `dev:v3` | Pin the remotes to a specific version bundle (via `REMOTE_VERSION`) and always reset Metro's cache. Use these when demoing OTA updates locally without going through the Zephyr e2e flow. `mini` falls back to v2 for v3 since it has no v3 content. |
+| `pnpm dev:cached` | Skip builds entirely, launch Metro with warm cache. |
+| `pnpm dev:raw` | Force the full build pipeline + Metro cache reset (what `pnpm dev` runs when vendor source changed). |
 
 If any Metro ports (8081-8083) are already in use, the dev script will show which processes hold them and prompt to kill before continuing.
+
+### End-to-end OTA demo
+
+For the full Zephyr-backed OTA demo (publish → pin in dashboard → verify with Maestro), see [`ZEPHYR_OTA_DEMO.md`](./ZEPHYR_OTA_DEMO.md). Kick it off with `pnpm e2e:zephyr ios` or `pnpm e2e:zephyr android`.
 
 ### Run on iOS
 
@@ -97,6 +106,11 @@ In Metro/device logs, look for:
 - `[MFE-Cache] initialized` — cache layer registered
 - First load: `downloaded` status (fetched + cached to disk)
 - Reload (Cmd+R): `cache-hit` status (served from disk)
+
+### Gotchas
+
+- **The disk cache is not HMR-friendly.** Once a remote bundle is cached (status: `downloaded` or `cache-hit`), edits to that remote's source won't show up after a normal Metro reload — the host keeps serving the already-cached bundle. To see new code, tap the **red ✕** button in the bottom-right dev overlay to drop the cache, then reload. The next load will hit Metro fresh and cache the updated bundle.
+- **`REMOTE_VERSION` only changes which source files Metro *bundles*; the cache keys on URL, not version.** If you switch between `dev:v1` / `dev:v2` / `dev:v3` without clearing the cache, you may still see the previously-cached bundle for that URL. Same fix: ✕ button, then reload.
 
 ### Making changes
 
