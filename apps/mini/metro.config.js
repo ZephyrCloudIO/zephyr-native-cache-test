@@ -17,7 +17,10 @@ const config = {
 };
 
 const version = process.env.REMOTE_VERSION || 'v1';
-const prefix = version === 'v1' ? './src' : `./src/${version}`;
+// mini has v1 (./src) and v2 (./src/v2) content only — no v3. Phase 4 of the
+// demo rolls nested-mini to v3 while mini stays on v2, so v3 falls back to v2.
+const prefixByVersion = { v1: './src', v2: './src/v2', v3: './src/v2' };
+const prefix = prefixByVersion[version] ?? prefixByVersion.v1;
 
 const mfConfig = {
   name: 'MFExampleMini',
