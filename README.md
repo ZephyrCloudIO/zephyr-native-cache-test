@@ -13,51 +13,106 @@ Both PRs are in-flight drafts that need to be iterated on locally before upstrea
 
 ## Architecture
 
-Three React Native apps using Module Federation over Metro:
+Three React Native apps using Module Federation over Metro (RN 0.80, new-arch / bridgeless enabled on both iOS and Android):
 
-| App          | Port | Role                                    |
-| ------------ | ---- | --------------------------------------- |
-| `host`       | 8081 | Host app, loads mini + nested-mini      |
-| `mini`       | 8082 | Remote, exposes `./info`                |
-| `nested-mini`| 8083 | Remote, exposes `./nestedMiniInfo`, consumes mini |
+| App          | Port | Role |
+| ------------ | ---- | ---- |
+| `host`       | 8081 | Health-dashboard UI that loads every exposed remote module. Registers the native cache layer on startup. |
+| `mini`       | 8082 | Remote. Exposes `StatsCard`, `DeployCard`, `CalorieCard`. Source lives under `src/` (v1), `src/v2/` (v2). No v3 — falls back to v2 for v3 demos. |
+| `nested-mini`| 8083 | Remote. Exposes `ActivityFeed`, `CacheInfo`, `HydrationCard`. Also *consumes* `mini/info` to exercise nested remote loading. Source under `src/`, `src/v2/`, `src/v3/` (only `CacheInfo` has v3 content). |
 
-The host app registers the native cache layer via `register({ forceCacheInDev: true })` in `index.js`, which enables disk caching of remote bundles through the `ICacheLayer` interface.
+Version switching is driven by `REMOTE_VERSION=v1|v2|v3` — each remote's `metro.config.js` maps that to the source prefix that gets exposed at build/serve time. See [Development](#development) for the `dev:v*` scripts.
+
+**Cache layer wiring** — `apps/host/index.js` calls `register({ forceCacheInDev: true, pollIntervalMs: 15_000 })` before `AppRegistry.registerComponent`, which installs:
+
+- `globalThis.__FEDERATION__.__NATIVE__.__CACHE_LAYER__` — the `BundleCacheLayer` instance (implements the `ICacheLayer` contract consumed by mf-core's `asyncRequire`)
+- `globalThis.__FEDERATION__.__NATIVE__.__CACHE__` — the async bundle loader that mf-core's `asyncRequire` routes through
+- `globalThis.__MFE_CHECK_UPDATES__` / `__MFE_START_UPDATE_POLLING__` / `__MFE_STOP_UPDATE_POLLING__` — manual polling controls for the DevTools panel
+
+The runtime plugin registered in each Metro config (`withZephyr` → `vendor/zephyr-packages/libs/zephyr-native-cache/src/runtime-plugin.ts`) hooks MF's `afterResolve` and `beforeInit` to extract bundle hashes from manifests and feed them to the cache layer for integrity verification and background polling.
 
 ## Setup
 
-### Prerequisites
+### Requirements
 
-- Node.js >= 20
-- pnpm 10.x
-- Xcode (for iOS)
-- Ruby + Bundler (for CocoaPods via rnef)
+Exact versions listed are what the repo has been tested against; stated minimums are the floor.
+
+| Tool | Minimum | Tested with | Notes |
+| --- | --- | --- | --- |
+| **Node.js** | 20.x | 24.14.1 | `>=20` enforced in `package.json` `engines` |
+| **pnpm** | 10.x | 10.33.0 | Enforced via `packageManager` field; use `corepack enable` to auto-install |
+| **Watchman** | any recent | 2025.x | Required for Metro's file watcher on macOS |
+| **Java JDK** | 17 | 17 | Required by Android Gradle Plugin 8.x / RN 0.80 |
+
+**iOS (native builds + e2e):**
+
+| Tool | Minimum | Notes |
+| --- | --- | --- |
+| **Xcode** | 15 | Repo tested with 26.3. Install full Xcode, not just CLT. |
+| **Ruby** | 2.6.10 | See `apps/host/Gemfile`. Ruby 3.4 works too — the Gemfile already pins the extra stdlib gems that 3.4 removed. |
+| **Bundler** | 2.x | `gem install bundler` or via rbenv/asdf |
+| **CocoaPods** | 1.13+ (not 1.15.0/1.15.1) | Installed via `bundle install` in `apps/host` |
+
+**Android (native builds + e2e):**
+
+| Tool | Notes |
+| --- | --- |
+| **Android SDK** | `ANDROID_HOME` (or `ANDROID_SDK_ROOT`) must be exported |
+| **Platform tools + emulator** | Add `$ANDROID_HOME/platform-tools` and `$ANDROID_HOME/emulator` to `PATH` so `adb` and `emulator` resolve |
+| **An AVD** | Create one in Android Studio → Device Manager. The e2e preflight will offer to boot the first listed AVD if none is running; override via `ZE_ANDROID_AVD=<name>`. |
+| **Compile SDK 35, min SDK 24** | Matches `apps/host/android/app/build.gradle` |
+
+**e2e flow (both mocked and Zephyr-backed):**
+
+| Tool | Notes |
+| --- | --- |
+| **Maestro** | Install via [maestro.mobile.dev](https://maestro.mobile.dev). Verify with `maestro --version`. |
+| **Zephyr token** *(Zephyr flow only)* | Copy `.env.e2e.example` → `.env.e2e` and fill in `ZE_SECRET_TOKEN` from the Zephyr dashboard. See [ZEPHYR_OTA_DEMO.md](./ZEPHYR_OTA_DEMO.md) for the full dashboard walkthrough. |
 
 ### Clone
 
 ```bash
-git clone --recurse-submodules <repo-url>
+git clone --recurse-submodules git@github.com:<org>/zephyr-native-cache-test.git
 cd zephyr-native-cache-test
 ```
 
-If you already cloned without submodules:
+If you cloned without `--recurse-submodules`:
 
 ```bash
-git submodule update --init
+git submodule update --init --recursive
 ```
 
-### Checkout PR branches in submodules
+`.gitmodules` pins each submodule to the correct working branch (`feat/native-cache-hashes` for `mf-core`, `feat/native-cache-tweaks` for `zephyr-packages`) — no manual branch checkout needed.
 
-The submodules need to be on the PR branches (not main):
+### First-run bootstrap
+
+`pnpm install` on its own **will fail** on a fresh clone — `pnpm.overrides` in `package.json` points at local tarballs that don't exist until the vendor submodules are packed. Two ways to get through it:
+
+**One-shot (recommended):** let `pnpm dev` drive the whole thing.
 
 ```bash
-cd vendor/mf-core
-git fetch origin pull/4576/head:pr/4576-metro-cache
-git checkout pr/4576-metro-cache
-
-cd ../zephyr-packages
-git fetch origin pull/412/head:pr/412-native-cache
-git checkout pr/412-native-cache
+pnpm dev
 ```
+
+`scripts/dev.sh` detects the missing tarballs, runs the vendor build pipeline (`build:mf-core` + `build:native-cache`), runs `pnpm install` to unpack the tarballs into `node_modules`, and finally launches all three Metro servers. First run takes ~2–3 minutes; subsequent runs resolve from turbo cache in seconds.
+
+**Explicit (for debugging setup issues):**
+
+```bash
+pnpm build:mf-core         # pack 6 @module-federation/* tarballs from vendor/mf-core
+pnpm build:native-cache    # pack zephyr-native-cache tarball from vendor/zephyr-packages
+pnpm install               # now that tarballs exist, root install resolves overrides
+```
+
+**iOS (native builds):** in `apps/host`, one-time Bundler setup, then pods on every vendor rebuild:
+
+```bash
+cd apps/host
+bundle install             # first time only
+pnpm pods                  # installs / updates CocoaPods
+```
+
+**Android (native builds):** no pre-step needed — Gradle resolves everything on first `pnpm run:android` / `rnef run:android`.
 
 ## Development
 
