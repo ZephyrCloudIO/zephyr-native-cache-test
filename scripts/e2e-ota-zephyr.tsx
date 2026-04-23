@@ -291,6 +291,17 @@ async function waitForEdgeSettle(log: (m: string) => void): Promise<void> {
   await sleep(remaining);
 }
 
+async function pauseForUpdateToast(log: (m: string) => void, label: string): Promise<void> {
+  await pause(
+    [
+      `Wait for OTA propagation/polling to surface the **update-toast** for **${label}**.`,
+      'Keep the app open on screen; when the toast is visible, continue.',
+    ].join('\n'),
+    log,
+    { label: '🛰️ WAIT FOR UPDATE', prompt: 'Press SPACE when update-toast is visible' },
+  );
+}
+
 // Locate the most recently built iOS simulator `.app` under DerivedData so the
 // Install step can drop it onto the booted sim without re-running the build.
 function findIosAppPath(): string {
@@ -475,13 +486,11 @@ const taskDefs: TaskDef[] = [
     },
   },
   {
-    // No pause — we just came off `Manual: pin v2`, which is already gated by
-    // the operator. Running Maestro immediately keeps the flow from asking
-    // for two SPACE presses back to back. `waitForEdgeSettle` ensures the
-    // app's next 15s poll sees the settled manifest, not a racing one.
+    // Operator gate: wait until the app actually shows the OTA toast, then run
+    // assertions immediately (instead of burning up to 120s inside Maestro).
     title: 'Phase 2 — update + crash',
     run: async (log) => {
-      await waitForEdgeSettle(log);
+      await pauseForUpdateToast(log, 'v2');
       await exec(`maestro --platform ${PLATFORM} test ${join(FLOWS, 'ota-phase2-zephyr.yaml')}`, log, { cwd: ROOT });
     },
   },
@@ -499,10 +508,10 @@ const taskDefs: TaskDef[] = [
     },
   },
   {
-    // Follows `Manual: rollback nested-mini` — no extra pause needed.
+    // Same operator gate as Phase 2, but for the rollback toast.
     title: 'Phase 3 — rollback',
     run: async (log) => {
-      await waitForEdgeSettle(log);
+      await pauseForUpdateToast(log, 'nested-mini rollback to v1');
       await exec(`maestro --platform ${PLATFORM} test ${join(FLOWS, 'ota-phase3-zephyr.yaml')}`, log, { cwd: ROOT });
     },
   },
@@ -528,10 +537,10 @@ const taskDefs: TaskDef[] = [
     },
   },
   {
-    // Follows `Manual: pin nested-mini v3` — no extra pause needed.
+    // Same operator gate as Phase 2/3, but for nested-mini v3.
     title: 'Phase 4 — partial update',
     run: async (log) => {
-      await waitForEdgeSettle(log);
+      await pauseForUpdateToast(log, 'nested-mini v3');
       await exec(`maestro --platform ${PLATFORM} test ${join(FLOWS, 'ota-phase4-zephyr.yaml')}`, log, { cwd: ROOT });
     },
   },

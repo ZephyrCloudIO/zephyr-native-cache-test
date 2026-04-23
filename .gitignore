@@ -5,6 +5,7 @@ dist/
 **/ios/Pods/
 **/ios/build/
 **/xcuserdata/
+**/.xcode.env.local/
 
 # Android
 **/.gradle/
