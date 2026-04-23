@@ -1,12 +1,11 @@
 appId: com.mf.example.host
 ---
 # Phase 4 (Zephyr variant): partial fix — nested-mini v3 deployed.
-# Wait for polling; exercise the dismiss → update-bar → restart path.
+# Orchestrator waits for polling to show `update-toast`; this flow then
+# exercises the dismiss → update-bar → restart path.
 
-- extendedWaitUntil:
-    visible:
-      id: 'update-toast'
-    timeout: 120000
+- assertVisible:
+    id: 'update-toast'
 
 - tapOn:
     id: 'update-toast-dismiss'

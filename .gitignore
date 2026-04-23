@@ -5,6 +5,7 @@ dist/
 **/ios/Pods/
 **/ios/build/
 **/xcuserdata/
+**/.xcode.env.local/
 
 # Android
 **/.gradle/
@@ -46,3 +47,5 @@ e2e-fixtures/
 
 # zephyr manifests
 **/zephyr-manifest.json
+.bundle
+vendor

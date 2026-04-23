@@ -6,7 +6,7 @@ pressing SPACE to continue.
 
 This doc is a **first-draft reference** distilled from
 `docs.zephyr-cloud.io`. Exact UI labels and navigation may differ slightly in
-the PR preview dashboard or after a UI rev — if you hit something that's wrong,
+the dev dashboard or after a UI rev — if you hit something that's wrong,
 correct it here and push.
 
 > **Docs source:** `/features/tags-environments`, `/features/versions`,
@@ -38,9 +38,8 @@ runtime polls the resolved manifest URL for changes.
 
 ## Before the first run
 
-1. **Log into the Zephyr dashboard** against the PR preview backend
-   (`https://api-zephyr-ci-pr-3379.herokuapp.com` behind the gateway — the
-   dashboard should be whatever preview frontend points at this API).
+1. **Log into the Zephyr dashboard** in the standard dev environment
+   (`https://api-dev.zephyr-cloud.io`, not a PR preview backend).
 2. **Get a personal access token** and export it as `ZE_SECRET_TOKEN` in your
    shell (see `.env.e2e.example`).
 3. Decide on an **environment name** to use for the demo (suggest:

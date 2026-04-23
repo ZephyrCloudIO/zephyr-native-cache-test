@@ -1,12 +1,10 @@
 appId: com.mf.example.host
 ---
 # Phase 3 (Zephyr variant): nested-mini rolled back to v1 (mini stays at v2).
-# Wait for natural polling to pick up the manifest change.
+# The orchestrator now pauses until natural polling surfaces `update-toast`.
 
-- extendedWaitUntil:
-    visible:
-      id: 'update-toast'
-    timeout: 120000
+- assertVisible:
+    id: 'update-toast'
 
 - tapOn:
     id: 'update-toast-restart'
