@@ -1,8 +1,15 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
-  "globalDependencies": [".gitmodules"],
-  "globalPassThroughEnv": ["REMOTE_VERSION", "ZEPHYR_E2E"],
+  "globalDependencies": [".gitmodules", ".env.e2e"],
+  "globalPassThroughEnv": [
+    "REMOTE_VERSION",
+    "ZEPHYR_E2E",
+    "ZE_API_GATE",
+    "ZE_API",
+    "ZE_IS_PREVIEW",
+    "ZE_SECRET_TOKEN"
+  ],
   "tasks": {
     "dev": {
       "cache": false,
@@ -18,10 +25,7 @@
       "dependsOn": ["//#build:mf-core", "//#build:native-cache"]
     },
     "//#build:mf-core": {
-      "inputs": [
-        ".mf-core.state",
-        "scripts/build-mf-core.sh"
-      ],
+      "inputs": [".mf-core.state", "scripts/build-mf-core.sh"],
       "outputs": [
         "tarballs/module-federation-error-codes.tgz",
         "tarballs/module-federation-sdk.tgz",
@@ -32,13 +36,8 @@
       ]
     },
     "//#build:native-cache": {
-      "inputs": [
-        ".native-cache.state",
-        "scripts/build-native-cache.sh"
-      ],
-      "outputs": [
-        "tarballs/zephyr-native-cache.tgz"
-      ]
+      "inputs": [".native-cache.state", "scripts/build-native-cache.sh"],
+      "outputs": ["tarballs/zephyr-native-cache.tgz"]
     }
   }
 }
