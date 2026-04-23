@@ -31,7 +31,7 @@ fi
 export ZEPHYR_E2E=1
 
 missing=()
-for v in ZE_API_GATE ZE_API ZE_IS_PREVIEW ZE_SECRET_TOKEN; do
+for v in ZE_API_GATE ZE_API ZE_SECRET_TOKEN; do
   [[ -n "${!v:-}" ]] || missing+=("$v")
 done
 [[ ${#missing[@]} -eq 0 ]] || error "Missing env vars: ${missing[*]}. See .env.e2e.example."

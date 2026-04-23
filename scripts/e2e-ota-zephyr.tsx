@@ -42,7 +42,7 @@ if (!PLATFORM) {
 
 // ── Preflight ──────────────────────────────────────────────────────────────
 
-const REQUIRED_ENV = ['ZE_API_GATE', 'ZE_API', 'ZE_IS_PREVIEW', 'ZE_SECRET_TOKEN'] as const;
+const REQUIRED_ENV = ['ZE_API_GATE', 'ZE_API', 'ZE_SECRET_TOKEN'] as const;
 
 async function checkPreflight(log: (m: string) => void): Promise<void> {
   const missing = REQUIRED_ENV.filter((k) => !process.env[k]);

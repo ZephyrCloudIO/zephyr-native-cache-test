@@ -7,7 +7,6 @@
     "ZEPHYR_E2E",
     "ZE_API_GATE",
     "ZE_API",
-    "ZE_IS_PREVIEW",
     "ZE_SECRET_TOKEN"
   ],
   "tasks": {
