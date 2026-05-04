@@ -5,8 +5,8 @@ Test repo for validating the `zephyr-native-cache` integration with React Native
 Validates the cache integration using:
 
 - **mf-core** [#4576](https://github.com/module-federation/core/pull/4576) — SHA-256 manifest hashes + ICacheLayer runtime contract
-- **zephyr-native-cache** `0.0.0-canary.55` — published canary package
-- **zephyr-metro-plugin** `0.0.0-canary.55` — published canary package
+- **zephyr-native-cache** `0.0.0-canary.57` — published canary package
+- **zephyr-metro-plugin** `0.0.0-canary.57` — published canary package
 
 ### Dependency model
 

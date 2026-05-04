@@ -16,6 +16,6 @@
   "peerDependencies": {
     "@module-federation/metro": "*",
     "@rnef/tools": "*",
-    "zephyr-metro-plugin": "*"
+    "zephyr-metro-plugin": "0.0.0-canary.57"
   }
 }
