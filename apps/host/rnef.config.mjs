@@ -3,7 +3,7 @@ import {platformAndroid} from '@rnef/platform-android';
 // @ts-check
 import {platformIOS} from '@rnef/platform-ios';
 import {pluginMetro} from '@rnef/plugin-metro';
-import {zephyrMetroRNEFPlugin} from 'zephyr-metro-rnef-plugin';
+import {zephyrMetroRNEFPlugin} from 'zephyr-metro-plugin';
 
 const ZEPHYR_E2E = process.env.ZEPHYR_E2E === '1';
 
