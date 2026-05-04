@@ -30,6 +30,7 @@ stable_name() {
 STAGING="$(mktemp -d)"
 trap 'rm -rf "$STAGING"' EXIT
 mkdir -p "$STAGING"
+mkdir -p "$TARBALLS_DIR"
 
 cd "$MF_WT"
 
