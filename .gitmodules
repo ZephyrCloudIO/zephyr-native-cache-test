@@ -2,7 +2,3 @@
 	path = vendor/mf-core
 	url = git@github.com:jbroma/module-federation-core.git
 	branch = feat/native-cache-hashes
-[submodule "vendor/zephyr-packages"]
-	path = vendor/zephyr-packages
-	url = ssh://git@github.com/ZephyrCloudIO/zephyr-packages.git
-	branch = feat/native-cache-tweaks

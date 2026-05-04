@@ -21,7 +21,7 @@
     },
     "//#refresh": {
       "cache": false,
-      "dependsOn": ["//#build:mf-core", "//#build:native-cache"]
+      "dependsOn": ["//#build:mf-core"]
     },
     "//#build:mf-core": {
       "inputs": [".mf-core.state", "scripts/build-mf-core.sh"],
@@ -33,10 +33,6 @@
         "tarballs/module-federation-metro.tgz",
         "tarballs/module-federation-metro-plugin-rnef.tgz"
       ]
-    },
-    "//#build:native-cache": {
-      "inputs": [".native-cache.state", "scripts/build-native-cache.sh"],
-      "outputs": ["tarballs/zephyr-native-cache.tgz"]
     }
   }
 }

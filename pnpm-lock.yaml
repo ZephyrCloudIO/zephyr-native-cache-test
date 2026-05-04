@@ -9,9 +9,6 @@ overrides:
   '@module-federation/sdk': file:./tarballs/module-federation-sdk.tgz
   '@module-federation/runtime-core': file:./tarballs/module-federation-runtime-core.tgz
   '@module-federation/runtime': file:./tarballs/module-federation-runtime.tgz
-  zephyr-metro-plugin: file:./tarballs/zephyr-metro-plugin.tgz
-  zephyr-agent: file:./tarballs/zephyr-agent.tgz
-  zephyr-edge-contract: file:./tarballs/zephyr-edge-contract.tgz
 
 pnpmfileChecksum: sha256-o6jQdR40XMU5Fu5d/n1gYJTxykRjpLNYhHNauNQNlCo=
 
@@ -53,8 +50,8 @@ importers:
         specifier: 0.80.0
         version: 0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0)
       zephyr-native-cache:
-        specifier: file:../../tarballs/zephyr-native-cache.tgz
-        version: file:tarballs/zephyr-native-cache.tgz(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))(react@19.1.0)
+        specifier: 0.0.0-canary.57
+        version: 0.0.0-canary.57(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))(react@19.1.0)
     devDependencies:
       '@babel/core':
         specifier: ^7.25.2
@@ -129,8 +126,8 @@ importers:
         specifier: 5.0.4
         version: 5.0.4
       zephyr-metro-plugin:
-        specifier: file:../../tarballs/zephyr-metro-plugin.tgz
-        version: file:tarballs/zephyr-metro-plugin.tgz(https-proxy-agent@7.0.6)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))
+        specifier: 0.0.0-canary.57
+        version: 0.0.0-canary.57(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))
       zephyr-metro-rnef-plugin:
         specifier: workspace:*
         version: link:../../packages/zephyr-metro-rnef-plugin
@@ -223,8 +220,8 @@ importers:
         specifier: 5.0.4
         version: 5.0.4
       zephyr-metro-plugin:
-        specifier: file:../../tarballs/zephyr-metro-plugin.tgz
-        version: file:tarballs/zephyr-metro-plugin.tgz(https-proxy-agent@7.0.6)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))
+        specifier: 0.0.0-canary.57
+        version: 0.0.0-canary.57(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))
       zephyr-metro-rnef-plugin:
         specifier: workspace:*
         version: link:../../packages/zephyr-metro-rnef-plugin
@@ -314,8 +311,8 @@ importers:
         specifier: 5.0.4
         version: 5.0.4
       zephyr-metro-plugin:
-        specifier: file:../../tarballs/zephyr-metro-plugin.tgz
-        version: file:tarballs/zephyr-metro-plugin.tgz(https-proxy-agent@7.0.6)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))
+        specifier: 0.0.0-canary.57
+        version: 0.0.0-canary.57(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))
       zephyr-metro-rnef-plugin:
         specifier: workspace:*
         version: link:../../packages/zephyr-metro-rnef-plugin
@@ -329,8 +326,8 @@ importers:
         specifier: '*'
         version: 0.7.28
       zephyr-metro-plugin:
-        specifier: file:../../tarballs/zephyr-metro-plugin.tgz
-        version: file:tarballs/zephyr-metro-plugin.tgz(https-proxy-agent@7.0.6)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.2.5))
+        specifier: 0.0.0-canary.57
+        version: 0.0.0-canary.57(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.2.5))
 
 packages:
 
@@ -1988,6 +1985,9 @@ packages:
   axios@1.13.5:
     resolution: {integrity: sha512-cz4ur7Vb0xS4/KUN0tPWe44eqxrIu31me+fbang3ijiNscE129POzipJJA6zniq2C/Z6sJCjMimjS8Lc/GAs8Q==}
 
+  axios@1.16.0:
+    resolution: {integrity: sha512-6hp5CwvTPlN2A31g5dxnwAX0orzM7pmCRDLnZSX772mv8WDqICwFjowHuPs04Mc8deIld1+ejhtaMn5vp6b+1w==}
+
   babel-jest@29.7.0:
     resolution: {integrity: sha512-BrvGY3xZSwEcCzKvKsCi2GgHqDqsYkOP4/by5xCgIwGXQxIEh+8ew3gmrE1y7XRR6LHZIj6yLYnUi/mm2KXKBg==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
@@ -2771,6 +2771,15 @@ packages:
 
   follow-redirects@1.15.11:
     resolution: {integrity: sha512-deG2P0JfjrTxl50XGCDyfI97ZGVCxIpfKYmfyrQ54n5FO/0gfIES8C/Psl6kWVDolizcaaxZJnTS0QSMxvnsBQ==}
+    engines: {node: '>=4.0'}
+    peerDependencies:
+      debug: '*'
+    peerDependenciesMeta:
+      debug:
+        optional: true
+
+  follow-redirects@1.16.0:
+    resolution: {integrity: sha512-y5rN/uOsadFT/JfYwhxRS5R7Qce+g3zG97+JrtFZlC9klX/W5hD7iiLzScI4nZqUS7DNUdhPgw4xI8W2LuXlUw==}
     engines: {node: '>=4.0'}
     peerDependencies:
       debug: '*'
@@ -3959,6 +3968,10 @@ packages:
   proxy-from-env@1.1.0:
     resolution: {integrity: sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==}
 
+  proxy-from-env@2.1.0:
+    resolution: {integrity: sha512-cJ+oHTW1VAEa8cJslgmUZrc+sjRKgAKl3Zyse6+PV38hZe/V6Z14TbCuXcan9F9ghlz4QrFr2c92TNF82UkYHA==}
+    engines: {node: '>=10'}
+
   punycode@2.3.1:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
@@ -4773,26 +4786,20 @@ packages:
   yoga-layout@3.2.1:
     resolution: {integrity: sha512-0LPOt3AxKqMdFBZA3HBAt/t/8vIKq7VaQYbuA8WxCgung+p9TVyKRYdpvCb80HcdTN2NkbIKbhNwKUfm3tQywQ==}
 
-  zephyr-agent@file:tarballs/zephyr-agent.tgz:
-    resolution: {tarball: file:tarballs/zephyr-agent.tgz}
-    version: 0.2.0
-    peerDependencies:
-      https-proxy-agent: ^7.0.6
+  zephyr-agent@0.0.0-canary.57:
+    resolution: {integrity: sha512-Gvc6h0wngRVWpH6Lvn4UhHa8HRy42P8bpcf1njQfIE5A9QFR05hDa4Nubw+R3LCXB2px0o/HXxSBUAqCe1BOLg==}
 
-  zephyr-edge-contract@file:tarballs/zephyr-edge-contract.tgz:
-    resolution: {tarball: file:tarballs/zephyr-edge-contract.tgz}
-    version: 0.2.0
+  zephyr-edge-contract@0.0.0-canary.57:
+    resolution: {integrity: sha512-sSvF5kplRPDpFcXzRsVNLxWMQDANZXFJucGg5s8rnAvn1q84FPY2cGV3XsK5KNOSdOVWpiA6jyB19ZvDqqwYxg==}
 
-  zephyr-metro-plugin@file:tarballs/zephyr-metro-plugin.tgz:
-    resolution: {tarball: file:tarballs/zephyr-metro-plugin.tgz}
-    version: 0.2.0
+  zephyr-metro-plugin@0.0.0-canary.57:
+    resolution: {integrity: sha512-EW0b7EGhw7VMO8iJYxaOHYWQIwx60LBBvcmDGNeo63V0GpVoj3iDgXgPQxREGlgPczdH2l1JVQDnEJDdAhX2nA==}
     peerDependencies:
       metro: '>=0.70.0'
       react-native: '>=0.60.0'
 
-  zephyr-native-cache@file:tarballs/zephyr-native-cache.tgz:
-    resolution: {tarball: file:tarballs/zephyr-native-cache.tgz}
-    version: 0.0.1
+  zephyr-native-cache@0.0.0-canary.57:
+    resolution: {integrity: sha512-P/mlQZgHmtf7heg9aN8SWPzCriQcasrQUReIYVvy+hFfKZ1aVLAvovf5I759U0tUxJCgjvnOrfNwqpC0Z98dtA==}
     peerDependencies:
       react: '>=19.0.0'
       react-native: '>=0.79.0'
@@ -6024,7 +6031,7 @@ snapshots:
       '@module-federation/third-party-dts-extractor': 2.3.1
       adm-zip: 0.5.17
       ansi-colors: 4.1.3
-      axios: 1.13.5(debug@4.4.3)
+      axios: 1.13.5
       fs-extra: 9.1.0
       isomorphic-ws: 5.0.0(ws@8.18.0)
       node-schedule: 2.1.1
@@ -7054,16 +7061,24 @@ snapshots:
     dependencies:
       possible-typed-array-names: 1.1.0
 
-  axios-retry@4.5.0(axios@1.13.5(debug@4.4.3)):
+  axios-retry@4.5.0(axios@1.16.0(debug@4.4.3)):
     dependencies:
-      axios: 1.13.5(debug@4.4.3)
+      axios: 1.16.0(debug@4.4.3)
       is-retry-allowed: 2.2.0
 
-  axios@1.13.5(debug@4.4.3):
+  axios@1.13.5:
     dependencies:
-      follow-redirects: 1.15.11(debug@4.4.3)
+      follow-redirects: 1.15.11
       form-data: 4.0.5
       proxy-from-env: 1.1.0
+    transitivePeerDependencies:
+      - debug
+
+  axios@1.16.0(debug@4.4.3):
+    dependencies:
+      follow-redirects: 1.16.0(debug@4.4.3)
+      form-data: 4.0.5
+      proxy-from-env: 2.1.0
     transitivePeerDependencies:
       - debug
 
@@ -8042,7 +8057,9 @@ snapshots:
 
   flow-enums-runtime@0.0.6: {}
 
-  follow-redirects@1.15.11(debug@4.4.3):
+  follow-redirects@1.15.11: {}
+
+  follow-redirects@1.16.0(debug@4.4.3):
     optionalDependencies:
       debug: 4.4.3
 
@@ -9576,6 +9593,8 @@ snapshots:
 
   proxy-from-env@1.1.0: {}
 
+  proxy-from-env@2.1.0: {}
+
   punycode@2.3.1: {}
 
   pure-rand@6.1.0: {}
@@ -10519,11 +10538,11 @@ snapshots:
 
   yoga-layout@3.2.1: {}
 
-  zephyr-agent@file:tarballs/zephyr-agent.tgz(https-proxy-agent@7.0.6):
+  zephyr-agent@0.0.0-canary.57:
     dependencies:
       '@toon-format/toon': 0.9.0
-      axios: 1.13.5(debug@4.4.3)
-      axios-retry: 4.5.0(axios@1.13.5(debug@4.4.3))
+      axios: 1.16.0(debug@4.4.3)
+      axios-retry: 4.5.0(axios@1.16.0(debug@4.4.3))
       debug: 4.4.3
       eventsource: 4.1.0
       git-url-parse: 15.0.0
@@ -10534,35 +10553,33 @@ snapshots:
       open: 10.2.0
       proper-lockfile: 4.1.2
       tslib: 2.8.1
-      zephyr-edge-contract: file:tarballs/zephyr-edge-contract.tgz
+      zephyr-edge-contract: 0.0.0-canary.57
     transitivePeerDependencies:
       - supports-color
 
-  zephyr-edge-contract@file:tarballs/zephyr-edge-contract.tgz:
+  zephyr-edge-contract@0.0.0-canary.57:
     dependencies:
       tslib: 2.8.1
 
-  zephyr-metro-plugin@file:tarballs/zephyr-metro-plugin.tgz(https-proxy-agent@7.0.6)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0)):
+  zephyr-metro-plugin@0.0.0-canary.57(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0)):
     dependencies:
       metro: 0.82.5
       react-native: 0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0)
-      zephyr-agent: file:tarballs/zephyr-agent.tgz(https-proxy-agent@7.0.6)
-      zephyr-edge-contract: file:tarballs/zephyr-edge-contract.tgz
+      zephyr-agent: 0.0.0-canary.57
+      zephyr-edge-contract: 0.0.0-canary.57
     transitivePeerDependencies:
-      - https-proxy-agent
       - supports-color
 
-  zephyr-metro-plugin@file:tarballs/zephyr-metro-plugin.tgz(https-proxy-agent@7.0.6)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.2.5)):
+  zephyr-metro-plugin@0.0.0-canary.57(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.2.5)):
     dependencies:
       metro: 0.82.5
       react-native: 0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.2.5)
-      zephyr-agent: file:tarballs/zephyr-agent.tgz(https-proxy-agent@7.0.6)
-      zephyr-edge-contract: file:tarballs/zephyr-edge-contract.tgz
+      zephyr-agent: 0.0.0-canary.57
+      zephyr-edge-contract: 0.0.0-canary.57
     transitivePeerDependencies:
-      - https-proxy-agent
       - supports-color
 
-  zephyr-native-cache@file:tarballs/zephyr-native-cache.tgz(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))(react@19.1.0):
+  zephyr-native-cache@0.0.0-canary.57(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))(react@19.1.0):
     dependencies:
       mitt: 3.0.1
       react: 19.1.0

@@ -4,21 +4,19 @@ Test harness for `zephyr-native-cache` — the native caching layer for Module F
 
 ## Submodules
 
-This repo includes two git submodules under `vendor/`:
+This repo uses one git submodule under `vendor/`:
 
-| Submodule            | Path                     | Purpose                                                    |
-| -------------------- | ------------------------ | ---------------------------------------------------------- |
-| `zephyr-packages`    | `vendor/zephyr-packages` | Contains `libs/zephyr-native-cache` — the cache package    |
-| `mf-core`            | `vendor/mf-core`         | MF runtime fork with Metro cache layer compatibility (PR)  |
+| Submodule | Path             | Purpose                                                   |
+| --------- | ---------------- | --------------------------------------------------------- |
+| `mf-core` | `vendor/mf-core` | MF runtime fork with Metro cache layer compatibility (PR) |
 
 ## Working in Submodules
 
-**Edit submodules directly** — do NOT create separate worktrees for `zephyr-packages` or `mf-core` when working on cache-related changes. The submodules are the working copies:
+**Edit the submodule directly** — do NOT create a separate worktree for `mf-core` when working on cache-related changes.
 
-- `vendor/zephyr-packages/libs/zephyr-native-cache/` — cache package source
 - `vendor/mf-core/packages/metro-core/` — MF runtime Metro integration
 
-Changes to these submodules are committed within this repo's context, then synced upstream via their respective PRs.
+`zephyr-native-cache` and `zephyr-metro-plugin` are consumed from npm canary versions.
 
 ## Test Apps
 
