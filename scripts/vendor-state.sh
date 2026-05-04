@@ -21,4 +21,3 @@ submodule_state() {
 }
 
 printf '%s\n' "$(submodule_state "$REPO_ROOT/vendor/mf-core")" > "$REPO_ROOT/.mf-core.state"
-printf '%s\n' "$(submodule_state "$REPO_ROOT/vendor/zephyr-packages")" > "$REPO_ROOT/.native-cache.state"

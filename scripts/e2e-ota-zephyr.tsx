@@ -8,7 +8,6 @@ import {
   execArgs,
   killPort,
   waitForManifest,
-  nativeCacheChanged,
   hostAppChanged,
   hostPaths,
   cleanHostBuildCaches,
@@ -63,7 +62,7 @@ async function checkPreflight(log: (m: string) => void): Promise<void> {
 // The `Install host` step drops the pre-built binary onto a running device —
 // `adb install` / `xcrun simctl install booted` both fail with unhelpful errors
 // if nothing is booted. Resolve this up front so we don't notice ~10 minutes
-// in (after vendor rebuild, host build, publish, and manual pin-v1).
+// in (after preflight, host build, publish, and manual pin-v1).
 //
 // If nothing is booted, we ask the user to confirm before starting one —
 // they might intentionally be about to plug in a physical device. The chosen
@@ -332,18 +331,10 @@ const taskDefs: TaskDef[] = [
     run: async (log) => checkPreflight(log),
   },
   {
-    title: 'Rebuild vendor tarballs',
+    title: 'Refresh native build cache state',
     run: async (log) => {
-      const changed = await nativeCacheChanged(ROOT);
-      if (!changed) { log('Vendor source unchanged — skipping rebuild'); return; }
-      log('Vendor source changed — rebuilding native-cache and zephyr-plugins...');
-      await exec('bash scripts/build-native-cache.sh', log, { cwd: ROOT });
-      await exec('bash scripts/build-zephyr-plugins.sh', log, { cwd: ROOT });
-      await exec('pnpm install', log, { cwd: ROOT });
-      await exec('pnpm pods', log, { cwd: HOST });
       await exec('bash scripts/check-native-cache.sh', log, { cwd: ROOT });
-      cleanHostBuildCaches(HOST, PLATFORM);
-      log('Vendor tarballs ready');
+      log('Native build cache state refreshed');
     },
   },
   ...(MODE === 'dev' ? [{

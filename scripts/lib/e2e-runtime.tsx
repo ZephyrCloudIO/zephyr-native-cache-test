@@ -262,24 +262,6 @@ export async function execArgs(
   );
 }
 
-// Vendor submodule SHA tracker — rebuild the native cache only when
-// `vendor/zephyr-packages` actually changed.
-export async function nativeCacheChanged(rootDir: string): Promise<boolean> {
-  const stateFile = join(rootDir, '.native-cache.state');
-  const submodule = join(rootDir, 'vendor/zephyr-packages');
-  let currentHash = 'unknown';
-  try {
-    const { stdout: head } = await execa('git', ['-C', submodule, 'rev-parse', 'HEAD']);
-    const { stdout: diff } = await execa('git', ['-C', submodule, 'diff', 'HEAD']);
-    currentHash = createHash('sha256').update(head + diff).digest('hex');
-  } catch { return true; }
-  try {
-    if (existsSync(stateFile) && readFileSync(stateFile, 'utf8').trim() === currentHash) return false;
-  } catch { /* rebuild */ }
-  writeFileSync(stateFile, currentHash + '\n');
-  return true;
-}
-
 // Source paths that influence the host app's native binary — hash these to
 // decide whether to clean DerivedData/gradle caches and force a rebuild.
 export function hostPaths(platform: string): string[] {

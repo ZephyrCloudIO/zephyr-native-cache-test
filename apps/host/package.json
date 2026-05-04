@@ -21,7 +21,7 @@
     "lodash": "4.17.23",
     "react": "19.1.0",
     "react-native": "0.80.0",
-    "zephyr-native-cache": "file:../../tarballs/zephyr-native-cache.tgz"
+    "zephyr-native-cache": "0.0.0-canary.55"
   },
   "zephyr:dependencies": {
     "mini": "zephyr:cache-test-mini@DEMO",
@@ -34,7 +34,7 @@
     "@module-federation/metro": "file:../../tarballs/module-federation-metro.tgz",
     "@module-federation/metro-plugin-rnef": "file:../../tarballs/module-federation-metro-plugin-rnef.tgz",
     "@module-federation/runtime": "file:../../tarballs/module-federation-runtime.tgz",
-    "zephyr-metro-plugin": "file:../../tarballs/zephyr-metro-plugin.tgz",
+    "zephyr-metro-plugin": "0.0.0-canary.55",
     "zephyr-metro-rnef-plugin": "workspace:*",
     "@react-native/babel-preset": "0.80.0",
     "@react-native/eslint-config": "0.80.0",

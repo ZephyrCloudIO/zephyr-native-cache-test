@@ -4,7 +4,7 @@ set -euo pipefail
 # Invalidate rnef's remote-build cache when native inputs change.
 # Runs before rnef run:ios so stale cached .app binaries are never installed.
 #
-# Fingerprint covers: all tarballs (native module source) + Podfile.lock (pod graph).
+# Fingerprint covers lockfile + app package manifests + Podfile.lock.
 # If any of these changed since the last successful run:ios, the rnef cache is nuked
 # so xcodebuild recompiles with the current native source.
 
@@ -15,7 +15,10 @@ STATE_FILE="$REPO_ROOT/.native-build.state"
 
 fingerprint() {
   cat \
-    "$REPO_ROOT"/tarballs/*.tgz \
+    "$REPO_ROOT/pnpm-lock.yaml" \
+    "$HOST_DIR/package.json" \
+    "$REPO_ROOT/apps/mini/package.json" \
+    "$REPO_ROOT/apps/nested-mini/package.json" \
     "$HOST_DIR/ios/Podfile.lock" \
     2>/dev/null | shasum -a 256 | cut -d' ' -f1
 }

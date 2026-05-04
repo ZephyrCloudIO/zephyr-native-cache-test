@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Smart dev entrypoint.
 # 1. Check for busy ports and prompt to kill
-# 2. Compute vendor submodule state
+# 2. Compute mf-core vendor submodule state
 # 3. If vendor unchanged and tarballs exist → dev:cached (fast, Metro reuses cache)
 #    Otherwise → dev (full build pipeline, Metro resets cache)
 
@@ -16,7 +16,6 @@ EXPECTED_TARBALLS=(
   module-federation-runtime.tgz
   module-federation-metro.tgz
   module-federation-metro-plugin-rnef.tgz
-  zephyr-native-cache.tgz
 )
 
 # ── Port check ────────────────────────────────────────────
@@ -69,13 +68,10 @@ submodule_state() {
 }
 
 old_mf=$(cat "$REPO_ROOT/.mf-core.state" 2>/dev/null || true)
-old_nc=$(cat "$REPO_ROOT/.native-cache.state" 2>/dev/null || true)
 
 new_mf=$(submodule_state "$REPO_ROOT/vendor/mf-core")
-new_nc=$(submodule_state "$REPO_ROOT/vendor/zephyr-packages")
 
 printf '%s\n' "$new_mf" > "$REPO_ROOT/.mf-core.state"
-printf '%s\n' "$new_nc" > "$REPO_ROOT/.native-cache.state"
 
 # ── Check tarballs ────────────────────────────────────────
 tarballs_ok=true
@@ -89,7 +85,7 @@ done
 # ── Decide mode ───────────────────────────────────────────
 cd "$REPO_ROOT"
 
-if [[ "$old_mf" == "$new_mf" && "$old_nc" == "$new_nc" && "$tarballs_ok" == true ]]; then
+if [[ "$old_mf" == "$new_mf" && "$tarballs_ok" == true ]]; then
   echo "→ Vendor unchanged — starting Metro with warm cache"
   exec pnpm exec turbo run dev:cached
 else

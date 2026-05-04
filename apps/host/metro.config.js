@@ -1,6 +1,9 @@
 const path = require('node:path');
 const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
 const {withModuleFederation} = require('@module-federation/metro');
+const zephyrNativeCacheRoot = path.dirname(
+  require.resolve('zephyr-native-cache/package.json'),
+);
 
 const ZEPHYR_E2E = process.env.ZEPHYR_E2E === '1';
 
@@ -13,10 +16,6 @@ const config = {
   },
   watchFolders: [
     path.resolve(__dirname, '../../node_modules'),
-    path.resolve(
-      __dirname,
-      '../../vendor/zephyr-packages/libs/zephyr-native-cache/src',
-    ),
   ],
 };
 
@@ -49,10 +48,7 @@ const mfConfig = {
   shareStrategy: 'loaded-first',
   runtimePlugins: [
     path.resolve(__dirname, './runtime-plugin.ts'),
-    path.resolve(
-      __dirname,
-      '../../vendor/zephyr-packages/libs/zephyr-native-cache/src/runtime-plugin.ts',
-    ),
+    path.resolve(zephyrNativeCacheRoot, 'src/runtime-plugin.ts'),
   ],
 };
 

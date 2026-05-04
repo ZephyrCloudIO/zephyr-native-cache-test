@@ -8,7 +8,6 @@ import {
   sleep,
   killPort,
   waitForManifest,
-  nativeCacheChanged,
   hostAppChanged,
   hostPaths,
   cleanHostBuildCaches,
@@ -72,17 +71,10 @@ function fixturesExist(): boolean {
 
 const taskDefs: TaskDef[] = [
   {
-    title: 'Rebuild native cache package',
+    title: 'Refresh native build cache state',
     run: async (log) => {
-      const changed = await nativeCacheChanged(ROOT);
-      if (!changed) { log('Vendor source unchanged — skipping rebuild'); return; }
-      log('Vendor source changed — rebuilding...');
-      await exec('bash scripts/build-native-cache.sh', log, { cwd: ROOT });
-      await exec('pnpm install', log, { cwd: ROOT });
-      await exec('pnpm pods', log, { cwd: HOST });
       await exec('bash scripts/check-native-cache.sh', log, { cwd: ROOT });
-      cleanHostBuildCaches(HOST, PLATFORM);
-      log('Native cache package ready');
+      log('Native build cache state refreshed');
     },
   },
   {
