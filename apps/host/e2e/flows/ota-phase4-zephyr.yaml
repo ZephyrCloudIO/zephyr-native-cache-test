@@ -32,7 +32,7 @@ appId: com.mf.example.host
     id: 'activity-feed'
 - assertVisible:
     id: 'activity-feed-version'
-    text: 'v2'
+    text: 'v3'
 - assertVisible:
     id: 'cache-info'
 - assertVisible:

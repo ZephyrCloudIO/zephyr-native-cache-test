@@ -458,7 +458,7 @@ const taskDefs: TaskDef[] = [
     // so the cold launch doesn't race an in-flight CDN propagation.
     title: 'Phase 1 — baseline',
     run: async (log) => {
-      await waitForEdgeSettle(log);
+      await pause('Ready to launch the app', log);
       await exec(`maestro --platform ${PLATFORM} test ${join(FLOWS, 'ota-phase1-zephyr.yaml')}`, log, { cwd: ROOT });
     },
   },
