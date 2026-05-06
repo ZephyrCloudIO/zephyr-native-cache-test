@@ -9,11 +9,14 @@ import {
   Text,
   View,
 } from 'react-native';
-import type {CacheStatusState, RemoteCacheEntry} from '../hooks/useCacheStatus';
+import type {
+  CacheStatusRemoteEntry,
+  CacheStatusSnapshot,
+} from 'zephyr-native-cache';
 import {Button} from './Button';
 
 interface DevToolsPanelProps {
-  status: CacheStatusState;
+  status: CacheStatusSnapshot;
   isOnline: boolean;
   pollIntervalMs: number;
   lastPollAt: number | undefined;
@@ -46,7 +49,7 @@ const STATUS_LABELS: Record<string, string> = {
 // inferred `remoteName` first (e.g. `"mini"` for a container, `"exposed/StatsCard"`
 // for an exposed module); falls back to the `bundleUrl` last path segment so
 // rows never render as blank text when inference lands on an empty string.
-function displayName({remoteName, bundleUrl}: RemoteCacheEntry): string {
+function displayName({remoteName, bundleUrl}: CacheStatusRemoteEntry): string {
   const lastSegment = (raw: string): string => {
     const parts = raw.split('/').filter(Boolean);
     const last = parts.pop() ?? '';

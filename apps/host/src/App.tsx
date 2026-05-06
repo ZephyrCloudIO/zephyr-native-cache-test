@@ -21,9 +21,12 @@ import {Placeholder} from './components/Placeholder';
 import {SourceOverlay} from './components/SourceOverlay';
 import {Tappable} from './components/Tappable';
 import {Toast, UpdateBar} from './components/Toast';
-import {useCacheStatus, type RemoteCacheEntry} from './hooks/useCacheStatus';
 import {useNetworkStatus} from './hooks/useNetworkStatus';
-import {NativeMFECache} from 'zephyr-native-cache';
+import {
+  NativeMFECache,
+  useCacheStatus,
+  type CacheStatusRemoteEntry,
+} from 'zephyr-native-cache';
 
 // mini remote — StatsCard eager, rest lazy
 // @ts-ignore
@@ -42,9 +45,9 @@ const CacheInfo = React.lazy(() => import('nestedMini/CacheInfo'));
 const HydrationCard = React.lazy(() => import('nestedMini/HydrationCard'));
 
 function findEntry(
-  remotes: Record<string, RemoteCacheEntry>,
+  remotes: Record<string, CacheStatusRemoteEntry>,
   name: string,
-): RemoteCacheEntry | undefined {
+): CacheStatusRemoteEntry | undefined {
   return (
     remotes[name] ??
     Object.values(remotes).find(
