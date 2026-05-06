@@ -23,6 +23,8 @@ import {Tappable} from './components/Tappable';
 import {Toast, UpdateBar} from './components/Toast';
 import {useNetworkStatus} from './hooks/useNetworkStatus';
 import {
+  checkForUpdates,
+  clearCache,
   NativeMFECache,
   useCacheStatus,
   type CacheStatusRemoteEntry,
@@ -88,11 +90,11 @@ function App(): React.JSX.Element {
   }, [appOpacity]);
 
   const handleCheckUpdates = useCallback(() => {
-    (globalThis as any).__MFE_CHECK_UPDATES__?.();
+    checkForUpdates().catch(() => {});
   }, []);
 
   const handleClearCache = useCallback(() => {
-    (globalThis as any).__FEDERATION__?.__NATIVE__?.__CACHE_LAYER__?.clearCache?.();
+    clearCache().catch(() => {});
   }, []);
 
   const handleRestart = useCallback(() => {
