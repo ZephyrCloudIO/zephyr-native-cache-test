@@ -33,9 +33,10 @@ Version switching is driven by `REMOTE_VERSION=v1|v2|v3` — each remote's `metr
 
 **Cache layer wiring** — `apps/host/index.js` calls `register({ forceCacheInDev: true, pollIntervalMs: 15_000 })` before `AppRegistry.registerComponent`, which installs:
 
-- `globalThis.__FEDERATION__.__NATIVE__.__CACHE_LAYER__` — the `BundleCacheLayer` instance (implements the `ICacheLayer` contract consumed by `@module-federation/runtime`'s `asyncRequire`)
+- `globalThis.__ZEPHYR__.runtime.nativeCache.refs.cacheLayer` — the `BundleCacheLayer` instance
 - `globalThis.__FEDERATION__.__NATIVE__.__CACHE__` — the async bundle loader that `@module-federation/runtime`'s `asyncRequire` routes through
-- `globalThis.__MFE_CHECK_UPDATES__` / `__MFE_START_UPDATE_POLLING__` / `__MFE_STOP_UPDATE_POLLING__` — manual polling controls for the DevTools panel
+- `globalThis.__ZEPHYR__.runtime.nativeCache.controls` — control helpers (`checkForUpdates`, `startUpdatePolling`, `stopUpdatePolling`, `clearCache`)
+- `globalThis.__MFE_CHECK_UPDATES__` / `__MFE_START_UPDATE_POLLING__` / `__MFE_STOP_UPDATE_POLLING__` — backward-compatible global aliases used by the DevTools panel
 
 The runtime plugin registered in each Metro config (`withZephyr` + `zephyr-native-cache/src/runtime-plugin.ts`) hooks MF's `afterResolve` and `beforeInit` to extract bundle hashes from manifests and feed them to the cache layer for integrity verification and background polling.
 
