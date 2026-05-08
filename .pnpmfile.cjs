@@ -1,7 +1,6 @@
 /**
- * Strip integrity hashes for local file: tarball dependencies so that
- * pnpm always re-resolves them on install. Without this, pnpm trusts
- * the lockfile integrity and skips re-extraction when tarballs are rebuilt.
+ * Strip integrity hashes for local file: tarball dependencies so pnpm always
+ * re-resolves them when optional R&D tarballs are rebuilt from vendor/mf-core.
  */
 function afterAllResolved(lockfile, context) {
   const packages = lockfile.packages ?? {};

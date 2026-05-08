@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Build and pack @module-federation/* tarballs from mf-core submodule.
+# Build and pack @module-federation/* tarballs from the optional mf-core R&D submodule.
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 TARBALLS_DIR="$REPO_ROOT/tarballs"
@@ -19,13 +19,13 @@ MF_PACKAGES=(
 info() { echo "→ $*"; }
 error() { echo "✗ $*" >&2; exit 1; }
 
-# Derive stable tarball name from scoped package name
-# @module-federation/metro → module-federation-metro.tgz
+# Derive stable tarball name from scoped package name:
+# @module-federation/metro -> module-federation-metro.tgz
 stable_name() {
   echo "$1" | sed 's/@//g; s|/|-|g' | tr -s '-'
 }
 
-[[ -d "$MF_WT" ]] || error "mf-core submodule not found at $MF_WT — run: git submodule update --init"
+[[ -d "$MF_WT" ]] || error "mf-core submodule not found at $MF_WT — run: git submodule update --init --recursive"
 
 STAGING="$(mktemp -d)"
 trap 'rm -rf "$STAGING"' EXIT
@@ -55,7 +55,7 @@ for pkg in "${MF_PACKAGES[@]}"; do
   src=$(ls "$STAGING/"*"$(stable_name "$pkg")"* 2>/dev/null | head -1)
   [[ -n "$src" ]] || error "Could not find packed tarball for $pkg"
   mv "$src" "$TARBALLS_DIR/$name"
-  info "  $pkg → $name"
+  info "  $pkg -> $name"
 done
 
 info "Done."

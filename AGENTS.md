@@ -2,21 +2,21 @@
 
 Test harness for `zephyr-native-cache` — the native caching layer for Module Federation on Metro/React Native.
 
-## Submodules
+## Dependency model
 
-This repo uses one git submodule under `vendor/`:
+Federated dependencies are consumed directly from npm:
 
-| Submodule | Path             | Purpose                                                   |
-| --------- | ---------------- | --------------------------------------------------------- |
-| `mf-core` | `vendor/mf-core` | MF runtime fork with Metro cache layer compatibility (PR) |
+| Package                                                                   | Version                       |
+| ------------------------------------------------------------------------- | ----------------------------- |
+| `@module-federation/metro` / `metro-plugin-rnef` / `runtime` (and overrides for `error-codes`, `sdk`, `runtime-core`) | `0.0.0-main-20260508022256` (canary) |
+| `zephyr-native-cache`                                                     | `1.1.0`                       |
+| `zephyr-metro-plugin`                                                     | `1.1.0`                       |
 
-## Working in Submodules
+The `@module-federation/*` overrides live in `package.json` `pnpm.overrides` so transitive resolutions also land on the canary build.
 
-**Edit the submodule directly** — do NOT create a separate worktree for `mf-core` when working on cache-related changes.
+To bump any of these: edit the version in the root `package.json` (overrides) and the app `devDependencies` / `dependencies`, then run `pnpm install` followed by `pnpm dev:raw` (Metro cache reset).
 
-- `vendor/mf-core/packages/metro-core/` — MF runtime Metro integration
-
-`zephyr-native-cache` and `zephyr-metro-plugin` are consumed from npm canary versions.
+`vendor/mf-core` is an optional Module Federation R&D submodule. It is not used by default app installs or dev commands. Use `git submodule update --init --recursive` and `pnpm build:mf-core` only when intentionally producing local MF tarballs for an experiment.
 
 ## Test Apps
 

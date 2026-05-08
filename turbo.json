@@ -1,7 +1,7 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
-  "globalDependencies": [".gitmodules", ".env.e2e"],
+  "globalDependencies": [".env.e2e"],
   "globalPassThroughEnv": [
     "REMOTE_VERSION",
     "ZEPHYR_E2E",
@@ -20,19 +20,7 @@
       "persistent": true
     },
     "//#refresh": {
-      "cache": false,
-      "dependsOn": ["//#build:mf-core"]
-    },
-    "//#build:mf-core": {
-      "inputs": [".mf-core.state", "scripts/build-mf-core.sh"],
-      "outputs": [
-        "tarballs/module-federation-error-codes.tgz",
-        "tarballs/module-federation-sdk.tgz",
-        "tarballs/module-federation-runtime-core.tgz",
-        "tarballs/module-federation-runtime.tgz",
-        "tarballs/module-federation-metro.tgz",
-        "tarballs/module-federation-metro-plugin-rnef.tgz"
-      ]
+      "cache": false
     }
   }
 }
