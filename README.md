@@ -17,7 +17,7 @@ Federated dependencies are consumed directly from npm:
 
 `pnpm install` is the bootstrap step for dependency setup.
 
-The `vendor/mf-core` submodule is available for Module Federation R&D. It is not part of the default dependency resolution path; use `pnpm build:mf-core` only when intentionally producing local MF tarballs for an experiment.
+The `vendor/mf-core` submodule is available for Module Federation R&D. It is not part of the default dependency resolution path; use `pnpm build:mf-core` only when intentionally producing local MF tarballs for an experiment. See [MF Core Submodule Workflow](./docs/mf-core-submodule.md).
 
 ## Architecture
 
