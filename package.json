@@ -9,8 +9,7 @@
     "dev:v2": "bash scripts/check-ports.sh && REMOTE_VERSION=v2 turbo run dev",
     "dev:v3": "bash scripts/check-ports.sh && REMOTE_VERSION=v3 turbo run dev",
     "dev:cached": "bash scripts/check-ports.sh && turbo run dev:cached",
-    "dev:raw": "bash scripts/check-ports.sh && bash scripts/vendor-state.sh && turbo run dev",
-    "build:mf-core": "bash scripts/build-mf-core.sh",
+    "dev:raw": "bash scripts/check-ports.sh && turbo run dev",
     "refresh": "pnpm install",
     "run:ios": "bash scripts/check-native-cache.sh && cd apps/host && pnpm exec rnef run:ios",
     "e2e": "node --import tsx scripts/e2e-ota.tsx",
@@ -35,10 +34,12 @@
   },
   "pnpm": {
     "overrides": {
-      "@module-federation/error-codes": "file:./tarballs/module-federation-error-codes.tgz",
-      "@module-federation/sdk": "file:./tarballs/module-federation-sdk.tgz",
-      "@module-federation/runtime-core": "file:./tarballs/module-federation-runtime-core.tgz",
-      "@module-federation/runtime": "file:./tarballs/module-federation-runtime.tgz"
+      "@module-federation/error-codes": "0.0.0-main-20260508022256",
+      "@module-federation/metro": "0.0.0-main-20260508022256",
+      "@module-federation/metro-plugin-rnef": "0.0.0-main-20260508022256",
+      "@module-federation/sdk": "0.0.0-main-20260508022256",
+      "@module-federation/runtime-core": "0.0.0-main-20260508022256",
+      "@module-federation/runtime": "0.0.0-main-20260508022256"
     },
     "onlyBuiltDependencies": [
       "esbuild"

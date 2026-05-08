@@ -4,13 +4,18 @@ Test repo for validating the `zephyr-native-cache` integration with React Native
 
 Validates the cache integration using:
 
-- **mf-core** [#4576](https://github.com/module-federation/core/pull/4576) — SHA-256 manifest hashes + ICacheLayer runtime contract
-- **zephyr-native-cache** `0.0.0-canary.57` — published canary package
-- **zephyr-metro-plugin** `0.0.0-canary.57` — published canary package
+- **@module-federation/\*** `0.0.0-main-20260508022256` — canary build with SHA-256 manifest hashes + ICacheLayer runtime contract ([#4576](https://github.com/module-federation/core/pull/4576))
+- **zephyr-native-cache** `1.1.0` — published npm release
+- **zephyr-metro-plugin** `1.1.0` — published npm release
 
 ### Dependency model
 
-`zephyr-native-cache` and `zephyr-metro-plugin` are consumed directly from npm canary versions. `mf-core` is still iterated locally through the `vendor/mf-core` submodule and packed into local MF tarballs.
+All federated dependencies are consumed directly from npm:
+
+- `@module-federation/metro`, `@module-federation/metro-plugin-rnef`, `@module-federation/runtime` (and the `error-codes` / `sdk` / `runtime-core` / `runtime` overrides) are pinned to canary `0.0.0-main-20260508022256`.
+- `zephyr-native-cache` and `zephyr-metro-plugin` are pinned to `1.1.0`.
+
+There is no longer a vendored MF source tree or local tarball pipeline — `pnpm install` is the only bootstrap step.
 
 ## Architecture
 
@@ -26,8 +31,8 @@ Version switching is driven by `REMOTE_VERSION=v1|v2|v3` — each remote's `metr
 
 **Cache layer wiring** — `apps/host/index.js` calls `register({ forceCacheInDev: true, pollIntervalMs: 15_000 })` before `AppRegistry.registerComponent`, which installs:
 
-- `globalThis.__FEDERATION__.__NATIVE__.__CACHE_LAYER__` — the `BundleCacheLayer` instance (implements the `ICacheLayer` contract consumed by mf-core's `asyncRequire`)
-- `globalThis.__FEDERATION__.__NATIVE__.__CACHE__` — the async bundle loader that mf-core's `asyncRequire` routes through
+- `globalThis.__FEDERATION__.__NATIVE__.__CACHE_LAYER__` — the `BundleCacheLayer` instance (implements the `ICacheLayer` contract consumed by `@module-federation/runtime`'s `asyncRequire`)
+- `globalThis.__FEDERATION__.__NATIVE__.__CACHE__` — the async bundle loader that `@module-federation/runtime`'s `asyncRequire` routes through
 - `globalThis.__MFE_CHECK_UPDATES__` / `__MFE_START_UPDATE_POLLING__` / `__MFE_STOP_UPDATE_POLLING__` — manual polling controls for the DevTools panel
 
 The runtime plugin registered in each Metro config (`withZephyr` + `zephyr-native-cache/src/runtime-plugin.ts`) hooks MF's `afterResolve` and `beforeInit` to extract bundle hashes from manifests and feed them to the cache layer for integrity verification and background polling.
@@ -73,17 +78,9 @@ Exact versions listed are what the repo has been tested against; stated minimums
 ### Clone
 
 ```bash
-git clone --recurse-submodules git@github.com:<org>/zephyr-native-cache-test.git
+git clone git@github.com:<org>/zephyr-native-cache-test.git
 cd zephyr-native-cache-test
 ```
-
-If you cloned without `--recurse-submodules`:
-
-```bash
-git submodule update --init --recursive
-```
-
-`.gitmodules` pins `mf-core` to the working branch (`feat/native-cache-hashes`) — no manual branch checkout needed.
 
 ### First-run bootstrap
 
@@ -93,16 +90,9 @@ Run a standard install:
 pnpm install
 ```
 
-`scripts/dev.sh` still handles `mf-core` tarball rebuilds when that submodule changes. Zephyr packages are resolved from npm canary versions, so no local Zephyr tarball bootstrap is needed.
+That's it — every federated dependency is on npm. There is no submodule, no tarball pack step, and no `build:mf-core` task to run.
 
-**Explicit (for debugging setup issues):**
-
-```bash
-pnpm build:mf-core         # pack 6 @module-federation/* tarballs from vendor/mf-core
-pnpm install               # refresh workspace dependencies
-```
-
-**iOS (native builds):** in `apps/host`, one-time Bundler setup, then pods on every vendor rebuild:
+**iOS (native builds):** in `apps/host`, one-time Bundler setup, then pods after dependency changes:
 
 ```bash
 cd apps/host
@@ -120,23 +110,15 @@ pnpm pods                  # installs / updates CocoaPods
 pnpm dev
 ```
 
-This is the smart default. It checks `vendor/mf-core` state, decides whether an MF rebuild is needed, and launches all three Metro dev servers. On a cold start or after changing `mf-core` it runs the build pipeline and resets Metro's transformer cache. On subsequent runs with unchanged `mf-core` it skips straight to launching Metro with a warm cache.
-
-The full pipeline (when a rebuild is needed):
-
-1. `build:mf-core` — builds and packs MF tarballs from `vendor/mf-core`
-2. `refresh` — `pnpm install` to unpack updated tarballs into node_modules
-3. `dev` — starts all three Metro servers with `--reset-cache`
-
-Turbo caches the MF build task based on submodule state (commit SHA + uncommitted changes). When nothing changed, builds resolve instantly from cache and Metro reuses its transformer cache — saving significant startup time.
+Checks for busy Metro ports (8081-8083), prompts to free them, then launches all three Metro dev servers via turbo with a warm cache.
 
 Explicit subcommands:
 
 | Command | What it does |
 | --- | --- |
 | `pnpm dev:v1` / `dev:v2` / `dev:v3` | Pin the remotes to a specific version bundle (via `REMOTE_VERSION`) and always reset Metro's cache. Use these when demoing OTA updates locally without going through the Zephyr e2e flow. `mini` falls back to v2 for v3 since it has no v3 content. |
-| `pnpm dev:cached` | Skip builds entirely, launch Metro with warm cache. |
-| `pnpm dev:raw` | Force the full MF build pipeline + Metro cache reset (what `pnpm dev` runs when `mf-core` changed). |
+| `pnpm dev:cached` | Run the port check, then launch Metro directly with a warm cache. |
+| `pnpm dev:raw` | Run the full `turbo run dev` pipeline (Metro with `--reset-cache`). Use after `pnpm install` bumps an MF or Zephyr dependency. |
 
 If any Metro ports (8081-8083) are already in use, the dev script will show which processes hold them and prompt to kill before continuing.
 
@@ -167,36 +149,31 @@ In Metro/device logs, look for:
 
 ### Making changes
 
-Edit MF source directly in the submodule:
-
-- `vendor/mf-core/` — metro-core plugin, asyncRequire, cache interface
-
-After editing, restart `pnpm dev` — it detects the changes, rebuilds MF tarballs, reinstalls, and resets Metro's cache automatically.
+All MF source lives in published npm packages now. To experiment with a different MF build, bump the canary version pinned in `package.json` (root `pnpm.overrides`) and the app `devDependencies`, then `pnpm install` and `pnpm dev:raw`.
 
 Key files:
 
 | File | What it does |
 | ---- | ------------ |
-| `vendor/mf-core/packages/metro-core/src/modules/metroCorePlugin.ts` | afterResolve hook — extracts hashes from manifest, registers with cache layer |
-| `vendor/mf-core/packages/metro-core/src/modules/asyncRequire.ts` | Routes bundle loading through cache handler when registered |
 | `apps/host/index.js` | Entry point — calls `register()` before app startup |
+| `apps/*/metro.config.js` | Wires `withZephyr` + the runtime plugin into Metro |
 
 ## Project structure
 
 ```
 zephyr-native-cache-test/
-├── vendor/
-│   └── mf-core/              # git submodule → module-federation/core PR #4576
 ├── scripts/
-│   ├── dev.sh                 # smart entrypoint — port check, vendor state, mode selection
+│   ├── dev.sh                 # smart entrypoint — port check + turbo dev
 │   ├── check-ports.sh         # detects busy Metro ports and prompts to kill
-│   ├── vendor-state.sh        # generates submodule state hashes for turbo cache keys
-│   ├── build-mf-core.sh       # builds + packs 6 @module-federation/* tarballs
-├── tarballs/                  # .tgz artifacts for MF packages (gitignored)
+│   ├── check-native-cache.sh  # invalidates rnef build cache on native input changes
+│   ├── build-e2e-versions.sh  # builds v1/v2/v3 remote bundles for OTA fixtures
+│   └── e2e-ota*.tsx           # OTA e2e orchestrator (mocked + Zephyr flows)
 ├── apps/
 │   ├── host/                  # port 8081
 │   ├── mini/                  # port 8082
 │   └── nested-mini/           # port 8083
-├── turbo.json                 # pipeline: build → refresh → dev
-└── package.json               # pnpm overrides for transitive MF deps
+├── packages/
+│   └── zephyr-metro-rnef-plugin/  # local rnef plugin wrapper around zephyr-metro-plugin
+├── turbo.json                 # pipeline: refresh → dev
+└── package.json               # pnpm overrides pin @module-federation/* canary
 ```
