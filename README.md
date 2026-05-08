@@ -8,7 +8,7 @@ Validates the cache integration using:
 - **zephyr-native-cache** `1.1.0` — published npm release
 - **zephyr-metro-plugin** `1.1.0` — published npm release
 
-### Dependency model
+## Dependency model
 
 Federated dependencies are consumed directly from npm:
 
@@ -160,7 +160,7 @@ Key files:
 
 ## Project structure
 
-```
+```text
 zephyr-native-cache-test/
 ├── scripts/
 │   ├── dev.sh                 # smart entrypoint — port check + turbo dev
