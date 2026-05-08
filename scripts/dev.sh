@@ -6,8 +6,7 @@ set -euo pipefail
 # 2. Launch all Metro dev servers via turbo (`dev:cached`).
 #
 # All federated dependencies (`@module-federation/*`, `zephyr-native-cache`,
-# `zephyr-metro-plugin`) are consumed from npm — no local vendor/tarball
-# bootstrap is needed anymore.
+# `zephyr-metro-plugin`) are consumed from npm.
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 

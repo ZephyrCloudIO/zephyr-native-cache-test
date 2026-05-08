@@ -10,12 +10,12 @@ Validates the cache integration using:
 
 ### Dependency model
 
-All federated dependencies are consumed directly from npm:
+Federated dependencies are consumed directly from npm:
 
 - `@module-federation/metro`, `@module-federation/metro-plugin-rnef`, `@module-federation/runtime` (and the `error-codes` / `sdk` / `runtime-core` / `runtime` overrides) are pinned to canary `0.0.0-main-20260508022256`.
 - `zephyr-native-cache` and `zephyr-metro-plugin` are pinned to `1.1.0`.
 
-There is no longer a vendored MF source tree or local tarball pipeline — `pnpm install` is the only bootstrap step.
+`pnpm install` is the bootstrap step for dependency setup.
 
 ## Architecture
 
@@ -90,7 +90,7 @@ Run a standard install:
 pnpm install
 ```
 
-That's it — every federated dependency is on npm. There is no submodule, no tarball pack step, and no `build:mf-core` task to run.
+That's it — every federated dependency is resolved from npm.
 
 **iOS (native builds):** in `apps/host`, one-time Bundler setup, then pods after dependency changes:
 

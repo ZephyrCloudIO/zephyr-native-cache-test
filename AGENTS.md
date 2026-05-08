@@ -4,7 +4,7 @@ Test harness for `zephyr-native-cache` — the native caching layer for Module F
 
 ## Dependency model
 
-All federated dependencies are consumed directly from npm — there are no git submodules and no local tarball pipeline:
+Federated dependencies are consumed directly from npm:
 
 | Package                                                                   | Version                       |
 | ------------------------------------------------------------------------- | ----------------------------- |
