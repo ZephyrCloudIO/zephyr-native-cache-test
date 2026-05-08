@@ -31,7 +31,7 @@ Three React Native apps using Module Federation over Metro (RN 0.80, new-arch / 
 
 Version switching is driven by `REMOTE_VERSION=v1|v2|v3` — each remote's `metro.config.js` maps that to the source prefix that gets exposed at build/serve time. See [Development](#development) for the `dev:v*` scripts.
 
-**Cache layer wiring** — `apps/host/index.js` calls `register({ forceCacheInDev: true, pollIntervalMs: 15_000 })` before `AppRegistry.registerComponent`, which installs:
+**Cache layer wiring** — `apps/host/index.js` calls `ZephyrNativeCache.register({ forceCacheInDev: true, pollIntervalMs: 15_000 })` before `AppRegistry.registerComponent`, which installs:
 
 - `globalThis.__ZEPHYR__.runtime.nativeCache.refs.cacheLayer` — the `BundleCacheLayer` instance
 - `globalThis.__FEDERATION__.__NATIVE__.__CACHE__` — the async bundle loader that `@module-federation/runtime`'s `asyncRequire` routes through

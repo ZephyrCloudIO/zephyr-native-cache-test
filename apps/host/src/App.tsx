@@ -23,9 +23,7 @@ import {Tappable} from './components/Tappable';
 import {Toast, UpdateBar} from './components/Toast';
 import {useNetworkStatus} from './hooks/useNetworkStatus';
 import {
-  checkForUpdates,
-  clearCache,
-  NativeMFECache,
+  ZephyrNativeCache,
   useCacheStatus,
   type CacheStatusRemoteEntry,
 } from 'zephyr-native-cache';
@@ -90,15 +88,15 @@ function App(): React.JSX.Element {
   }, [appOpacity]);
 
   const handleCheckUpdates = useCallback(() => {
-    checkForUpdates().catch(() => {});
+    ZephyrNativeCache.checkForUpdates().catch(() => {});
   }, []);
 
   const handleClearCache = useCallback(() => {
-    clearCache().catch(() => {});
+    ZephyrNativeCache.clearCache().catch(() => {});
   }, []);
 
   const handleRestart = useCallback(() => {
-    NativeMFECache?.restart();
+    ZephyrNativeCache.reloadApp();
   }, []);
 
   const handleToggleSources = useCallback(() => {
