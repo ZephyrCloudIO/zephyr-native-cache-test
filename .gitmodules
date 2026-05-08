@@ -1,0 +1,4 @@
+[submodule "vendor/mf-core"]
+	path = vendor/mf-core
+	url = git@github.com:jbroma/module-federation-core.git
+	branch = feat/native-cache-hashes

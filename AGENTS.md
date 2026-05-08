@@ -16,6 +16,8 @@ The `@module-federation/*` overrides live in `package.json` `pnpm.overrides` so 
 
 To bump any of these: edit the version in the root `package.json` (overrides) and the app `devDependencies` / `dependencies`, then run `pnpm install` followed by `pnpm dev:raw` (Metro cache reset).
 
+`vendor/mf-core` is an optional Module Federation R&D submodule. It is not used by default app installs or dev commands. Use `git submodule update --init --recursive` and `pnpm build:mf-core` only when intentionally producing local MF tarballs for an experiment.
+
 ## Test Apps
 
 Host and remote apps live in `apps/`. Use them to verify cache behavior end-to-end (cache-hit, downloaded, skipped, polling).

@@ -17,6 +17,8 @@ Federated dependencies are consumed directly from npm:
 
 `pnpm install` is the bootstrap step for dependency setup.
 
+The `vendor/mf-core` submodule is available for Module Federation R&D. It is not part of the default dependency resolution path; use `pnpm build:mf-core` only when intentionally producing local MF tarballs for an experiment.
+
 ## Architecture
 
 Three React Native apps using Module Federation over Metro (RN 0.80, new-arch / bridgeless enabled on both iOS and Android):
@@ -149,7 +151,16 @@ In Metro/device logs, look for:
 
 ### Making changes
 
-All MF source lives in published npm packages now. To experiment with a different MF build, bump the canary version pinned in `package.json` (root `pnpm.overrides`) and the app `devDependencies`, then `pnpm install` and `pnpm dev:raw`.
+MF source for the apps is consumed from published npm packages. To experiment with a different MF build, bump the canary version pinned in `package.json` (root `pnpm.overrides`) and the app `devDependencies`, then `pnpm install` and `pnpm dev:raw`.
+
+For local MF R&D against the submodule:
+
+```bash
+git submodule update --init --recursive
+pnpm build:mf-core
+```
+
+`pnpm build:mf-core` packs the MF packages from `vendor/mf-core` into `tarballs/`. To consume those tarballs, temporarily point the relevant `@module-federation/*` specs or root overrides at the generated `file:` tarballs, run `pnpm install`, then use `pnpm dev:raw`.
 
 Key files:
 
@@ -162,12 +173,16 @@ Key files:
 
 ```text
 zephyr-native-cache-test/
+├── vendor/
+│   └── mf-core/              # optional Module Federation R&D submodule
 ├── scripts/
 │   ├── dev.sh                 # smart entrypoint — port check + turbo dev
 │   ├── check-ports.sh         # detects busy Metro ports and prompts to kill
 │   ├── check-native-cache.sh  # invalidates rnef build cache on native input changes
+│   ├── build-mf-core.sh       # packs optional local MF tarballs from vendor/mf-core
 │   ├── build-e2e-versions.sh  # builds v1/v2/v3 remote bundles for OTA fixtures
 │   └── e2e-ota*.tsx           # OTA e2e orchestrator (mocked + Zephyr flows)
+├── tarballs/                  # generated local MF package tarballs
 ├── apps/
 │   ├── host/                  # port 8081
 │   ├── mini/                  # port 8082

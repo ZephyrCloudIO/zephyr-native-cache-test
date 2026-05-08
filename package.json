@@ -10,6 +10,7 @@
     "dev:v3": "bash scripts/check-ports.sh && REMOTE_VERSION=v3 turbo run dev",
     "dev:cached": "bash scripts/check-ports.sh && turbo run dev:cached",
     "dev:raw": "bash scripts/check-ports.sh && turbo run dev",
+    "build:mf-core": "bash scripts/build-mf-core.sh",
     "refresh": "pnpm install",
     "run:ios": "bash scripts/check-native-cache.sh && cd apps/host && pnpm exec rnef run:ios",
     "e2e": "node --import tsx scripts/e2e-ota.tsx",
