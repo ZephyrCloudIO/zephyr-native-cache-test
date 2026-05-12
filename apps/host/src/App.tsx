@@ -88,11 +88,15 @@ function App(): React.JSX.Element {
   }, [appOpacity]);
 
   const handleCheckUpdates = useCallback(() => {
-    ZephyrNativeCache.checkForUpdates().catch(() => {});
+    ZephyrNativeCache.checkForUpdates().catch(error => {
+      console.warn('[cache] Failed to check for updates', error);
+    });
   }, []);
 
   const handleClearCache = useCallback(() => {
-    ZephyrNativeCache.clearCache().catch(() => {});
+    ZephyrNativeCache.clearCache().catch(error => {
+      console.warn('[cache] Failed to clear cache', error);
+    });
   }, []);
 
   const handleRestart = useCallback(() => {

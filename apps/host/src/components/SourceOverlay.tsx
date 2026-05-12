@@ -34,7 +34,7 @@ export function SourceOverlay({
   const sourceText = isNotLoaded
     ? 'not loaded'
     : entry
-      ? SOURCE_LABELS[entry.status]
+      ? SOURCE_LABELS[entry.status] ?? entry.status
       : origin === 'host'
         ? 'local component'
         : '';
