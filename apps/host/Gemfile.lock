@@ -68,7 +68,7 @@ GEM
       mutex_m
     i18n (1.14.8)
       concurrent-ruby (~> 1.0)
-    json (2.7.6)
+    json (2.19.5)
     logger (1.7.0)
     minitest (5.25.4)
     molinillo (0.8.0)
@@ -121,4 +121,4 @@ RUBY VERSION
    ruby 3.4.9p82
 
 BUNDLED WITH
-   2.4.20
+   2.6.1
