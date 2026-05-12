@@ -38,7 +38,7 @@ Version switching is driven by `REMOTE_VERSION=v1|v2|v3` — each remote's `metr
 - `globalThis.__ZEPHYR__.runtime.nativeCache.controls` — control helpers (`checkForUpdates`, `startUpdatePolling`, `stopUpdatePolling`, `clearCache`)
 - `globalThis.__MFE_CHECK_UPDATES__` / `__MFE_START_UPDATE_POLLING__` / `__MFE_STOP_UPDATE_POLLING__` — backward-compatible global aliases used by the DevTools panel
 
-The runtime plugin registered in each Metro config (`withZephyr` + `zephyr-native-cache/src/runtime-plugin.ts`) hooks MF's `afterResolve` and `beforeInit` to extract bundle hashes from manifests and feed them to the cache layer for integrity verification and background polling.
+The host Metro config registers `zephyr-native-cache/src/runtime-plugin.ts`, which hooks MF's `afterResolve` and `beforeInit` to extract bundle hashes from manifests and feed them to the cache layer for integrity verification and background polling. Remote Metro configs use `withZephyr` during E2E publishing to generate Zephyr manifests.
 
 ## Setup
 
@@ -167,7 +167,7 @@ Key files:
 
 | File | What it does |
 | ---- | ------------ |
-| `apps/host/index.js` | Entry point — calls `register()` before app startup |
+| `apps/host/index.js` | Entry point — calls `ZephyrNativeCache.register()` before app startup |
 | `apps/*/metro.config.js` | Wires `withZephyr` + the runtime plugin into Metro |
 
 ## Project structure
