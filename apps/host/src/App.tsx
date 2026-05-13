@@ -22,11 +22,8 @@ import {SourceOverlay} from './components/SourceOverlay';
 import {Tappable} from './components/Tappable';
 import {Toast, UpdateBar} from './components/Toast';
 import {useNetworkStatus} from './hooks/useNetworkStatus';
-import {
-  ZephyrNativeCache,
-  useCacheStatus,
-  type CacheStatusRemoteEntry,
-} from 'zephyr-native-cache';
+import {ZephyrNativeCache, type CacheStatusRemoteEntry} from 'zephyr-native-cache';
+import {useCacheStatus} from 'zephyr-native-cache/react';
 
 // mini remote — StatsCard eager, rest lazy
 // @ts-ignore

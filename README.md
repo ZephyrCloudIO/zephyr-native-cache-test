@@ -5,15 +5,15 @@ Test repo for validating the `zephyr-native-cache` integration with React Native
 Validates the cache integration using:
 
 - **@module-federation/\*** `0.0.0-main-20260508022256` — canary build with SHA-256 manifest hashes + ICacheLayer runtime contract ([#4576](https://github.com/module-federation/core/pull/4576))
-- **zephyr-native-cache** `1.1.0` — published npm release
-- **zephyr-metro-plugin** `1.1.0` — published npm release
+- **zephyr-native-cache** `0.0.0-canary.60` — canary build
+- **zephyr-metro-plugin** `0.0.0-canary.60` — canary build
 
 ## Dependency model
 
 Federated dependencies are consumed directly from npm:
 
 - `@module-federation/metro`, `@module-federation/metro-plugin-rnef`, `@module-federation/runtime` (and the `error-codes` / `sdk` / `runtime-core` / `runtime` overrides) are pinned to canary `0.0.0-main-20260508022256`.
-- `zephyr-native-cache` and `zephyr-metro-plugin` are pinned to `1.1.0`.
+- `zephyr-native-cache` and `zephyr-metro-plugin` are pinned to `0.0.0-canary.60`.
 
 `pnpm install` is the bootstrap step for dependency setup.
 
