@@ -5,15 +5,15 @@ Test repo for validating the `zephyr-native-cache` integration with React Native
 Validates the cache integration using:
 
 - **@module-federation/\*** `0.0.0-main-20260508022256` — canary build with SHA-256 manifest hashes + ICacheLayer runtime contract ([#4576](https://github.com/module-federation/core/pull/4576))
-- **zephyr-native-cache** `1.1.0` — published npm release
-- **zephyr-metro-plugin** `1.1.0` — published npm release
+- **zephyr-native-cache** `0.0.0-canary.60` — canary build
+- **zephyr-metro-plugin** `0.0.0-canary.60` — canary build
 
 ## Dependency model
 
 Federated dependencies are consumed directly from npm:
 
 - `@module-federation/metro`, `@module-federation/metro-plugin-rnef`, `@module-federation/runtime` (and the `error-codes` / `sdk` / `runtime-core` / `runtime` overrides) are pinned to canary `0.0.0-main-20260508022256`.
-- `zephyr-native-cache` and `zephyr-metro-plugin` are pinned to `1.1.0`.
+- `zephyr-native-cache` and `zephyr-metro-plugin` are pinned to `0.0.0-canary.60`.
 
 `pnpm install` is the bootstrap step for dependency setup.
 
@@ -31,13 +31,14 @@ Three React Native apps using Module Federation over Metro (RN 0.80, new-arch / 
 
 Version switching is driven by `REMOTE_VERSION=v1|v2|v3` — each remote's `metro.config.js` maps that to the source prefix that gets exposed at build/serve time. See [Development](#development) for the `dev:v*` scripts.
 
-**Cache layer wiring** — `apps/host/index.js` calls `register({ forceCacheInDev: true, pollIntervalMs: 15_000 })` before `AppRegistry.registerComponent`, which installs:
+**Cache layer wiring** — `apps/host/index.js` calls `ZephyrNativeCache.register({ forceCacheInDev: true, pollIntervalMs: 15_000 })` before `AppRegistry.registerComponent`, which installs:
 
-- `globalThis.__FEDERATION__.__NATIVE__.__CACHE_LAYER__` — the `BundleCacheLayer` instance (implements the `ICacheLayer` contract consumed by `@module-federation/runtime`'s `asyncRequire`)
+- `globalThis.__ZEPHYR__.runtime.nativeCache.refs.cacheLayer` — the `BundleCacheLayer` instance
 - `globalThis.__FEDERATION__.__NATIVE__.__CACHE__` — the async bundle loader that `@module-federation/runtime`'s `asyncRequire` routes through
-- `globalThis.__MFE_CHECK_UPDATES__` / `__MFE_START_UPDATE_POLLING__` / `__MFE_STOP_UPDATE_POLLING__` — manual polling controls for the DevTools panel
+- `globalThis.__ZEPHYR__.runtime.nativeCache.controls` — control helpers (`checkForUpdates`, `startUpdatePolling`, `stopUpdatePolling`, `clearCache`)
+- `globalThis.__MFE_CHECK_UPDATES__` / `__MFE_START_UPDATE_POLLING__` / `__MFE_STOP_UPDATE_POLLING__` — backward-compatible global aliases used by the DevTools panel
 
-The runtime plugin registered in each Metro config (`withZephyr` + `zephyr-native-cache/src/runtime-plugin.ts`) hooks MF's `afterResolve` and `beforeInit` to extract bundle hashes from manifests and feed them to the cache layer for integrity verification and background polling.
+The host Metro config registers `zephyr-native-cache/src/runtime-plugin.ts`, which hooks MF's `afterResolve` and `beforeInit` to extract bundle hashes from manifests and feed them to the cache layer for integrity verification and background polling. Remote Metro configs use `withZephyr` during E2E publishing to generate Zephyr manifests.
 
 ## Setup
 
@@ -166,7 +167,7 @@ Key files:
 
 | File | What it does |
 | ---- | ------------ |
-| `apps/host/index.js` | Entry point — calls `register()` before app startup |
+| `apps/host/index.js` | Entry point — calls `ZephyrNativeCache.register()` before app startup |
 | `apps/*/metro.config.js` | Wires `withZephyr` + the runtime plugin into Metro |
 
 ## Project structure

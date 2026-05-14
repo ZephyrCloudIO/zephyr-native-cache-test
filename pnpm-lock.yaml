@@ -52,8 +52,8 @@ importers:
         specifier: 0.80.0
         version: 0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0)
       zephyr-native-cache:
-        specifier: 1.1.0
-        version: 1.1.0(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))(react@19.1.0)
+        specifier: 0.0.0-canary.60
+        version: 0.0.0-canary.60(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))(react@19.1.0)
     devDependencies:
       '@babel/core':
         specifier: ^7.25.2
@@ -128,8 +128,8 @@ importers:
         specifier: 5.0.4
         version: 5.0.4
       zephyr-metro-plugin:
-        specifier: 1.1.0
-        version: 1.1.0(@module-federation/metro@0.0.0-main-20260508022256(@babel/types@7.29.0)(metro-config@0.82.5)(metro-file-map@0.82.5)(metro-resolver@0.82.5)(metro-source-map@0.82.5)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))(react@19.1.0)(typescript@5.0.4))(@rnef/tools@0.7.28)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))
+        specifier: 0.0.0-canary.60
+        version: 0.0.0-canary.60(@module-federation/metro@0.0.0-main-20260508022256(@babel/types@7.29.0)(metro-config@0.82.5)(metro-file-map@0.82.5)(metro-resolver@0.82.5)(metro-source-map@0.82.5)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))(react@19.1.0)(typescript@5.0.4))(@rnef/tools@0.7.28)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))
       zephyr-metro-rnef-plugin:
         specifier: workspace:*
         version: link:../../packages/zephyr-metro-rnef-plugin
@@ -222,8 +222,8 @@ importers:
         specifier: 5.0.4
         version: 5.0.4
       zephyr-metro-plugin:
-        specifier: 1.1.0
-        version: 1.1.0(@module-federation/metro@0.0.0-main-20260508022256(@babel/types@7.29.0)(metro-config@0.82.5)(metro-file-map@0.82.5)(metro-resolver@0.82.5)(metro-source-map@0.82.5)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))(react@19.1.0)(typescript@5.0.4))(@rnef/tools@0.7.28)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))
+        specifier: 0.0.0-canary.60
+        version: 0.0.0-canary.60(@module-federation/metro@0.0.0-main-20260508022256(@babel/types@7.29.0)(metro-config@0.82.5)(metro-file-map@0.82.5)(metro-resolver@0.82.5)(metro-source-map@0.82.5)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))(react@19.1.0)(typescript@5.0.4))(@rnef/tools@0.7.28)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))
       zephyr-metro-rnef-plugin:
         specifier: workspace:*
         version: link:../../packages/zephyr-metro-rnef-plugin
@@ -313,8 +313,8 @@ importers:
         specifier: 5.0.4
         version: 5.0.4
       zephyr-metro-plugin:
-        specifier: 1.1.0
-        version: 1.1.0(@module-federation/metro@0.0.0-main-20260508022256(@babel/types@7.29.0)(metro-config@0.82.5)(metro-file-map@0.82.5)(metro-resolver@0.82.5)(metro-source-map@0.82.5)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))(react@19.1.0)(typescript@5.0.4))(@rnef/tools@0.7.28)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))
+        specifier: 0.0.0-canary.60
+        version: 0.0.0-canary.60(@module-federation/metro@0.0.0-main-20260508022256(@babel/types@7.29.0)(metro-config@0.82.5)(metro-file-map@0.82.5)(metro-resolver@0.82.5)(metro-source-map@0.82.5)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))(react@19.1.0)(typescript@5.0.4))(@rnef/tools@0.7.28)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))
       zephyr-metro-rnef-plugin:
         specifier: workspace:*
         version: link:../../packages/zephyr-metro-rnef-plugin
@@ -328,8 +328,8 @@ importers:
         specifier: '*'
         version: 0.7.28
       zephyr-metro-plugin:
-        specifier: 1.1.0
-        version: 1.1.0(@module-federation/metro@0.0.0-main-20260508022256(@babel/types@7.29.0)(metro-config@0.82.5)(metro-file-map@0.82.5)(metro-resolver@0.82.5)(metro-source-map@0.82.5)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)(typescript@5.0.4))(@rnef/tools@0.7.28)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.2.5))
+        specifier: 0.0.0-canary.60
+        version: 0.0.0-canary.60(@module-federation/metro@0.0.0-main-20260508022256(@babel/types@7.29.0)(metro-config@0.82.5)(metro-file-map@0.82.5)(metro-resolver@0.82.5)(metro-source-map@0.82.5)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)(typescript@5.0.4))(@rnef/tools@0.7.28)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.2.5))
 
 packages:
 
@@ -4743,14 +4743,14 @@ packages:
   yoga-layout@3.2.1:
     resolution: {integrity: sha512-0LPOt3AxKqMdFBZA3HBAt/t/8vIKq7VaQYbuA8WxCgung+p9TVyKRYdpvCb80HcdTN2NkbIKbhNwKUfm3tQywQ==}
 
-  zephyr-agent@1.1.0:
-    resolution: {integrity: sha512-QuOH3Vw1TW9wFZs98akeRpw0PnNCz7RL4CG91KYl6UNvutUcvN90GKXaarQ11Ra+XsUE6qN0FhIjgKn+cQpz+A==}
+  zephyr-agent@0.0.0-canary.60:
+    resolution: {integrity: sha512-+wkx9WIZUoYZgISDVVRYyBdSV+jN1IhI0D/99t6X6bo7GcH9+YSKX+rn/36S6Ttjfejoz6ui3iF70J6XkMLADA==}
 
-  zephyr-edge-contract@1.1.0:
-    resolution: {integrity: sha512-SWvFp+pqbhddc0nj1oU6IoJtzJolzgGzxFuwz6v9aeSyOENSJfOx6Ul2he5+e0/qv+ZoctutxtUK6/761CgQLA==}
+  zephyr-edge-contract@0.0.0-canary.60:
+    resolution: {integrity: sha512-d7UUWiZwRWbyTLy6tTTKs3VqctJ8wq/vbtFGawr/1qP0o+7dFvIam5xrfqLEKpaCC7hJKJhsyhDv6VjKMJZW+A==}
 
-  zephyr-metro-plugin@1.1.0:
-    resolution: {integrity: sha512-kluLauuUMLp3EbhEhWkGOjo+hYqMFFFFHXdE5iU+eAy9GxsbWHxHSvvBaH1evJEN7uj5am7w9wYn+nMWHREBVg==}
+  zephyr-metro-plugin@0.0.0-canary.60:
+    resolution: {integrity: sha512-v4cRWnqdNJSKc2cv6QKNTlqiBnxWZUp2KQYNGsPpI/c1LOllfAwq3CYtyUgaV9E2AZjIPEuaTCpFfcOcEJPoqg==}
     peerDependencies:
       '@module-federation/metro': 0.0.0-main-20260508022256
       '@rnef/tools': ^0.7.28
@@ -4762,8 +4762,8 @@ packages:
       '@rnef/tools':
         optional: true
 
-  zephyr-native-cache@1.1.0:
-    resolution: {integrity: sha512-z0cT+wDovyQZX/XBWbYwsjKfpKMoZG4gzHAL1QT5EmOHK9MO/XWAmbDs5euqNs4vu7gT1n/h99S7rtFYSr731Q==}
+  zephyr-native-cache@0.0.0-canary.60:
+    resolution: {integrity: sha512-YUoMCzbHq4byrVQ0vW9DI6sJgCAg62ICOScRXTqy8/uQoT/nhTNPPRNq4N2EA0Jd2GfSJzJPAIxWJtrtin5F3Q==}
     peerDependencies:
       react: '>=19.0.0'
       react-native: '>=0.79.0'
@@ -10469,7 +10469,7 @@ snapshots:
 
   yoga-layout@3.2.1: {}
 
-  zephyr-agent@1.1.0:
+  zephyr-agent@0.0.0-canary.60:
     dependencies:
       '@toon-format/toon': 0.9.0
       axios: 1.16.0(debug@4.4.3)
@@ -10484,40 +10484,41 @@ snapshots:
       open: 10.2.0
       proper-lockfile: 4.1.2
       tslib: 2.8.1
-      zephyr-edge-contract: 1.1.0
+      zephyr-edge-contract: 0.0.0-canary.60
     transitivePeerDependencies:
       - supports-color
 
-  zephyr-edge-contract@1.1.0:
+  zephyr-edge-contract@0.0.0-canary.60:
     dependencies:
       tslib: 2.8.1
 
-  zephyr-metro-plugin@1.1.0(@module-federation/metro@0.0.0-main-20260508022256(@babel/types@7.29.0)(metro-config@0.82.5)(metro-file-map@0.82.5)(metro-resolver@0.82.5)(metro-source-map@0.82.5)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))(react@19.1.0)(typescript@5.0.4))(@rnef/tools@0.7.28)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0)):
+  zephyr-metro-plugin@0.0.0-canary.60(@module-federation/metro@0.0.0-main-20260508022256(@babel/types@7.29.0)(metro-config@0.82.5)(metro-file-map@0.82.5)(metro-resolver@0.82.5)(metro-source-map@0.82.5)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))(react@19.1.0)(typescript@5.0.4))(@rnef/tools@0.7.28)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0)):
     dependencies:
       metro: 0.82.5
       react-native: 0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0)
-      zephyr-agent: 1.1.0
-      zephyr-edge-contract: 1.1.0
+      zephyr-agent: 0.0.0-canary.60
+      zephyr-edge-contract: 0.0.0-canary.60
     optionalDependencies:
       '@module-federation/metro': 0.0.0-main-20260508022256(@babel/types@7.29.0)(metro-config@0.82.5)(metro-file-map@0.82.5)(metro-resolver@0.82.5)(metro-source-map@0.82.5)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))(react@19.1.0)(typescript@5.0.4)
       '@rnef/tools': 0.7.28
     transitivePeerDependencies:
       - supports-color
 
-  zephyr-metro-plugin@1.1.0(@module-federation/metro@0.0.0-main-20260508022256(@babel/types@7.29.0)(metro-config@0.82.5)(metro-file-map@0.82.5)(metro-resolver@0.82.5)(metro-source-map@0.82.5)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)(typescript@5.0.4))(@rnef/tools@0.7.28)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.2.5)):
+  zephyr-metro-plugin@0.0.0-canary.60(@module-federation/metro@0.0.0-main-20260508022256(@babel/types@7.29.0)(metro-config@0.82.5)(metro-file-map@0.82.5)(metro-resolver@0.82.5)(metro-source-map@0.82.5)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)(typescript@5.0.4))(@rnef/tools@0.7.28)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.2.5)):
     dependencies:
       metro: 0.82.5
       react-native: 0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.2.5)
-      zephyr-agent: 1.1.0
-      zephyr-edge-contract: 1.1.0
+      zephyr-agent: 0.0.0-canary.60
+      zephyr-edge-contract: 0.0.0-canary.60
     optionalDependencies:
       '@module-federation/metro': 0.0.0-main-20260508022256(@babel/types@7.29.0)(metro-config@0.82.5)(metro-file-map@0.82.5)(metro-resolver@0.82.5)(metro-source-map@0.82.5)(metro@0.82.5)(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)(typescript@5.0.4)
       '@rnef/tools': 0.7.28
     transitivePeerDependencies:
       - supports-color
 
-  zephyr-native-cache@1.1.0(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))(react@19.1.0):
+  zephyr-native-cache@0.0.0-canary.60(react-native@0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0))(react@19.1.0):
     dependencies:
       mitt: 3.0.1
       react: 19.1.0
       react-native: 0.80.0(@babel/core@7.29.0)(@react-native-community/cli@19.1.2(typescript@5.0.4))(@types/react@19.2.14)(react@19.1.0)
+      zephyr-edge-contract: 0.0.0-canary.60

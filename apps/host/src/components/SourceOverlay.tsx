@@ -1,6 +1,6 @@
 import React from 'react';
 import {Platform, StyleSheet, Text, View} from 'react-native';
-import type {RemoteCacheEntry} from '../hooks/useCacheStatus';
+import type {CacheStatusRemoteEntry} from 'zephyr-native-cache';
 import {versionColor} from '../version-palette';
 
 const ORIGINS = {
@@ -25,7 +25,7 @@ export function SourceOverlay({
 }: {
   origin: keyof typeof ORIGINS;
   name: string;
-  entry?: RemoteCacheEntry;
+  entry?: CacheStatusRemoteEntry;
   loading?: 'eager' | 'lazy' | 'on-demand';
   version?: string;
 }) {
@@ -34,7 +34,7 @@ export function SourceOverlay({
   const sourceText = isNotLoaded
     ? 'not loaded'
     : entry
-      ? SOURCE_LABELS[entry.status]
+      ? SOURCE_LABELS[entry.status] ?? entry.status
       : origin === 'host'
         ? 'local component'
         : '';

@@ -9,7 +9,7 @@ const VERSION = 'v1.0.0';
 const ACCENT = '#8b5cf6';
 
 function getFirstBundleHash(): string | undefined {
-  const hashes = (globalThis as any).__MFE_BUNDLE_HASHES__;
+  const hashes = globalThis.__ZEPHYR__?.runtime?.nativeCache?.refs?.bundleHashes;
   if (!hashes) return undefined;
   const keys = Object.keys(hashes);
   if (keys.length === 0) return undefined;

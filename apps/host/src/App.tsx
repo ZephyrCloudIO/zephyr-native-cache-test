@@ -21,9 +21,9 @@ import {Placeholder} from './components/Placeholder';
 import {SourceOverlay} from './components/SourceOverlay';
 import {Tappable} from './components/Tappable';
 import {Toast, UpdateBar} from './components/Toast';
-import {useCacheStatus, type RemoteCacheEntry} from './hooks/useCacheStatus';
 import {useNetworkStatus} from './hooks/useNetworkStatus';
-import {NativeMFECache} from 'zephyr-native-cache';
+import {ZephyrNativeCache, type CacheStatusRemoteEntry} from 'zephyr-native-cache';
+import {useCacheStatus} from 'zephyr-native-cache/react';
 
 // mini remote — StatsCard eager, rest lazy
 // @ts-ignore
@@ -42,9 +42,9 @@ const CacheInfo = React.lazy(() => import('nestedMini/CacheInfo'));
 const HydrationCard = React.lazy(() => import('nestedMini/HydrationCard'));
 
 function findEntry(
-  remotes: Record<string, RemoteCacheEntry>,
+  remotes: Record<string, CacheStatusRemoteEntry>,
   name: string,
-): RemoteCacheEntry | undefined {
+): CacheStatusRemoteEntry | undefined {
   return (
     remotes[name] ??
     Object.values(remotes).find(
@@ -85,15 +85,19 @@ function App(): React.JSX.Element {
   }, [appOpacity]);
 
   const handleCheckUpdates = useCallback(() => {
-    (globalThis as any).__MFE_CHECK_UPDATES__?.();
+    ZephyrNativeCache.checkForUpdates().catch(error => {
+      console.warn('[cache] Failed to check for updates', error);
+    });
   }, []);
 
   const handleClearCache = useCallback(() => {
-    (globalThis as any).__FEDERATION__?.__NATIVE__?.__CACHE_LAYER__?.clearCache?.();
+    ZephyrNativeCache.clearCache().catch(error => {
+      console.warn('[cache] Failed to clear cache', error);
+    });
   }, []);
 
   const handleRestart = useCallback(() => {
-    NativeMFECache?.restart();
+    ZephyrNativeCache.reloadApp();
   }, []);
 
   const handleToggleSources = useCallback(() => {
