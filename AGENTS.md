@@ -9,8 +9,8 @@ Federated dependencies are consumed directly from npm:
 | Package                                                                   | Version                       |
 | ------------------------------------------------------------------------- | ----------------------------- |
 | `@module-federation/metro` / `metro-plugin-rnef` / `runtime` (and overrides for `error-codes`, `sdk`, `runtime-core`) | `0.0.0-main-20260508022256` (canary) |
-| `zephyr-native-cache`                                                     | `0.0.0-canary.60`             |
-| `zephyr-metro-plugin`                                                     | `0.0.0-canary.60`             |
+| `zephyr-native-cache`                                                     | `0.0.0-canary.62`             |
+| `zephyr-metro-plugin`                                                     | `0.0.0-canary.62`             |
 
 The `@module-federation/*` overrides live in `package.json` `pnpm.overrides` so transitive resolutions also land on the canary build.
 

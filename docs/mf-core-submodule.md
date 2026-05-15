@@ -14,7 +14,7 @@ pnpm dev
 The app manifests pin:
 
 - `@module-federation/metro`, `@module-federation/metro-plugin-rnef`, and `@module-federation/runtime` to `0.0.0-main-20260508022256`
-- `zephyr-native-cache` and `zephyr-metro-plugin` to `0.0.0-canary.60`
+- `zephyr-native-cache` and `zephyr-metro-plugin` to `0.0.0-canary.62`
 
 Root `pnpm.overrides` keeps transitive `@module-federation/*` packages aligned to the same canary.
 
