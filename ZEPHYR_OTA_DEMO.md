@@ -38,13 +38,12 @@ runtime polls the resolved manifest URL for changes.
 
 ## Before the first run
 
-1. **Log into the Zephyr dashboard** in the standard dev environment
-   (`https://api-dev.zephyr-cloud.io`, not a PR preview backend).
-2. **Get a personal access token** and export it as `ZE_SECRET_TOKEN` in your
-   shell (see `.env.e2e.example`).
-3. Decide on an **environment name** to use for the demo (suggest:
+1. **Log into Zephyr Cloud** using the standard production environment. The
+   E2E flow uses Zephyr's production endpoints by default and does not require
+   `ZE_API_GATE`, `ZE_API`, or `ZE_SECRET_TOKEN` environment variables.
+2. Decide on an **environment name** to use for the demo (suggest:
    `development` — often auto-created). Note it; you'll reuse it.
-4. Add a `zephyr:dependencies` block to `apps/host/package.json` pointing the
+3. Add a `zephyr:dependencies` block to `apps/host/package.json` pointing the
    host at that env:
    ```json
    "zephyr:dependencies": {
@@ -53,7 +52,7 @@ runtime polls the resolved manifest URL for changes.
    }
    ```
    (Replace `development` with your chosen env name.)
-5. **Have a device/simulator ready** (or don't — see below). Preflight will
+4. **Have a device/simulator ready** (or don't — see below). Preflight will
    verify that at least one Android emulator / iOS simulator is booted. If
    nothing is booted, it pauses and offers to boot one for you:
    - Android: picks the first AVD from `emulator -list-avds`. Override with

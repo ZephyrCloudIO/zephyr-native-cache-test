@@ -76,7 +76,10 @@ Exact versions listed are what the repo has been tested against; stated minimums
 | Tool | Notes |
 | --- | --- |
 | **Maestro** | Install via [maestro.mobile.dev](https://maestro.mobile.dev). Verify with `maestro --version`. |
-| **Zephyr token** *(Zephyr flow only)* | Copy `.env.e2e.example` → `.env.e2e` and fill in `ZE_SECRET_TOKEN` from the Zephyr dashboard. See [ZEPHYR_OTA_DEMO.md](./ZEPHYR_OTA_DEMO.md) for the full dashboard walkthrough. |
+
+The Zephyr-backed flow uses Zephyr's production endpoints by default. No
+`ZE_API_GATE`, `ZE_API`, or `ZE_SECRET_TOKEN` environment variables are
+required; authenticate through the normal Zephyr login flow if prompted.
 
 ### Clone
 

@@ -41,21 +41,8 @@ if (!PLATFORM) {
 
 // ── Preflight ──────────────────────────────────────────────────────────────
 
-const REQUIRED_ENV = ['ZE_API_GATE', 'ZE_API', 'ZE_SECRET_TOKEN'] as const;
-
 async function checkPreflight(log: (m: string) => void): Promise<void> {
-  const missing = REQUIRED_ENV.filter((k) => !process.env[k]);
-  if (missing.length > 0) {
-    throw new Error(
-      `Missing required env vars: ${missing.join(', ')}. See .env.e2e.example for the full list.`,
-    );
-  }
-  log('All required env vars set:');
-  for (const k of REQUIRED_ENV) {
-    const v = process.env[k]!;
-    const display = /TOKEN|SECRET|KEY|PASSWORD|AUTH/.test(k) ? '<set>' : v;
-    log(`  ${k}=${display}`);
-  }
+  log('Using Zephyr production defaults');
   await ensureDevice(log);
 }
 

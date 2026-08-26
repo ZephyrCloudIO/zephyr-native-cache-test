@@ -34,7 +34,7 @@ tarballs/*.tgz
 .native-cache.state
 .native-build.state
 
-# E2E env (copy of .env.e2e.example with real secrets — never commit)
+# Legacy local E2E env files may contain secrets
 .env.e2e
 
 # E2E test fixtures (built by scripts/build-e2e-versions.sh)
