@@ -35,12 +35,12 @@
   },
   "pnpm": {
     "overrides": {
-      "@module-federation/error-codes": "0.0.0-main-20260508022256",
-      "@module-federation/metro": "0.0.0-main-20260508022256",
-      "@module-federation/metro-plugin-rnef": "0.0.0-main-20260508022256",
-      "@module-federation/sdk": "0.0.0-main-20260508022256",
-      "@module-federation/runtime-core": "0.0.0-main-20260508022256",
-      "@module-federation/runtime": "0.0.0-main-20260508022256"
+      "@module-federation/error-codes": "2.9.0",
+      "@module-federation/metro": "2.9.0",
+      "@module-federation/metro-plugin-rnef": "2.9.0",
+      "@module-federation/sdk": "2.9.0",
+      "@module-federation/runtime-core": "2.9.0",
+      "@module-federation/runtime": "2.9.0"
     },
     "onlyBuiltDependencies": [
       "esbuild"

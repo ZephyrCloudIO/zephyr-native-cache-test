@@ -1,6 +1,6 @@
 # MF Core Submodule Workflow
 
-This repo consumes published npm packages by default. The `vendor/mf-core` git submodule is available for Module Federation R&D when you need to build and test local MF package changes before a canary is published.
+This repo consumes published npm packages by default. The `vendor/mf-core` git submodule is available for Module Federation R&D when you need to build and test local MF package changes before a release is published.
 
 ## Default Setup
 
@@ -13,10 +13,10 @@ pnpm dev
 
 The app manifests pin:
 
-- `@module-federation/metro`, `@module-federation/metro-plugin-rnef`, and `@module-federation/runtime` to `0.0.0-main-20260508022256`
-- `zephyr-native-cache` and `zephyr-metro-plugin` to `0.0.0-canary.62`
+- `@module-federation/metro`, `@module-federation/metro-plugin-rnef`, and `@module-federation/runtime` to `2.9.0`
+- `zephyr-native-cache` and `zephyr-metro-plugin` to `1.2.2`
 
-Root `pnpm.overrides` keeps transitive `@module-federation/*` packages aligned to the same canary.
+Root `pnpm.overrides` keeps transitive `@module-federation/*` packages aligned to the same release.
 
 ## Initialize The Submodule
 
@@ -101,7 +101,7 @@ pnpm -r list @module-federation/metro @module-federation/metro-plugin-rnef @modu
 
 ## Practical Rules
 
-- Use npm canaries for normal app work.
+- Use published npm releases for normal app work.
 - Use `vendor/mf-core` only for local MF source experiments.
 - Commit the submodule gitlink only when the repo should pin a new R&D commit.
 - Do not commit generated `tarballs/*.tgz` files.

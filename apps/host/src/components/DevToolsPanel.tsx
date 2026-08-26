@@ -3,7 +3,6 @@ import {
   Animated,
   Easing,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -174,7 +173,6 @@ export function DevToolsPanel({
 }: DevToolsPanelProps) {
   const animatedHeight = useRef(new Animated.Value(COLLAPSED_HEIGHT)).current;
   const secondsLeft = useCountdown(lastPollAt, pollIntervalMs);
-  const intervalSec = Math.round(pollIntervalMs / 1000);
 
   useEffect(() => {
     Animated.spring(animatedHeight, {

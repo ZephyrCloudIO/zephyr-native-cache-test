@@ -1,6 +1,6 @@
-import type {FederationRuntimePlugin} from '@module-federation/runtime';
+import type {ModuleFederationRuntimePlugin} from '@module-federation/runtime';
 
-export default function (): FederationRuntimePlugin {
+export default function (): ModuleFederationRuntimePlugin {
   return {
     name: 'custom-plugin-build',
     beforeLoadShare(args) {

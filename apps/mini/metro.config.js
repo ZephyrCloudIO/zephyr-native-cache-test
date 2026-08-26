@@ -64,10 +64,14 @@ const mfFlags = {
 
 async function buildZephyrConfig() {
   const {withZephyr} = require('zephyr-metro-plugin');
-  const zephyrMfConfig = await withZephyr()(mfConfig);
+  const baseConfig = mergeConfig(getDefaultConfig(__dirname), config);
+  const enhanced = await withZephyr({
+    name: mfConfig.name,
+    target: process.env.ZEPHYR_TARGET === 'android' ? 'android' : 'ios',
+  })(baseConfig);
   return withModuleFederation(
-    mergeConfig(getDefaultConfig(__dirname), config),
-    zephyrMfConfig,
+    enhanced,
+    mfConfig,
     mfFlags,
   );
 }
