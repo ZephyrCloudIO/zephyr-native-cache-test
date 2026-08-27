@@ -1,9 +1,11 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
+  "globalDependencies": [".env.e2e"],
   "globalPassThroughEnv": [
     "REMOTE_VERSION",
-    "ZEPHYR_E2E"
+    "ZEPHYR_E2E",
+    "ZE_SECRET_TOKEN"
   ],
   "tasks": {
     "dev": {

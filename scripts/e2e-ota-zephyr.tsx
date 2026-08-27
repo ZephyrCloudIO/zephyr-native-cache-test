@@ -42,7 +42,11 @@ if (!PLATFORM) {
 // ── Preflight ──────────────────────────────────────────────────────────────
 
 async function checkPreflight(log: (m: string) => void): Promise<void> {
+  if (!process.env.ZE_SECRET_TOKEN) {
+    throw new Error('Missing required env var: ZE_SECRET_TOKEN. See .env.e2e.example.');
+  }
   log('Using Zephyr production defaults');
+  log('ZE_SECRET_TOKEN=<set>');
   await ensureDevice(log);
 }
 

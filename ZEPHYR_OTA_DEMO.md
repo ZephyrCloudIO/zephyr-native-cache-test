@@ -38,9 +38,10 @@ runtime polls the resolved manifest URL for changes.
 
 ## Before the first run
 
-1. **Log into Zephyr Cloud** using the standard production environment. The
-   E2E flow uses Zephyr's production endpoints by default and does not require
-   `ZE_API_GATE`, `ZE_API`, or `ZE_SECRET_TOKEN` environment variables.
+1. **Create a personal access token** in the standard production Zephyr
+   dashboard. Copy `.env.e2e.example` to `.env.e2e` and set
+   `ZE_SECRET_TOKEN`. The flow uses production endpoints by default, so
+   `ZE_API_GATE` and `ZE_API` are not required.
 2. Decide on an **environment name** to use for the demo (suggest:
    `development` — often auto-created). Note it; you'll reuse it.
 3. Add a `zephyr:dependencies` block to `apps/host/package.json` pointing the

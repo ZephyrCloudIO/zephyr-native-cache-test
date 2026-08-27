@@ -16,7 +16,7 @@
     "e2e": "node --import tsx scripts/e2e-ota.tsx",
     "e2e:dev": "node --import tsx scripts/e2e-ota.tsx --dev",
     "e2e:demo": "node --import tsx scripts/e2e-ota.tsx --interactive",
-    "e2e:zephyr": "ZEPHYR_E2E=1 node --import tsx scripts/e2e-ota-zephyr.tsx",
+    "e2e:zephyr": "ZEPHYR_E2E=1 node --env-file-if-exists=.env.e2e --import tsx scripts/e2e-ota-zephyr.tsx",
     "xcode:zephyr": "bash scripts/xcode-zephyr.sh",
     "e2e:build": "bash scripts/build-e2e-versions.sh"
   },
