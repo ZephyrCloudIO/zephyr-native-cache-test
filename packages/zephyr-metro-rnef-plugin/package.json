@@ -14,8 +14,8 @@
   },
   "files": ["index.mjs", "index.d.ts"],
   "peerDependencies": {
-    "@module-federation/metro": "0.0.0-main-20260508022256",
+    "@module-federation/metro": "2.9.0",
     "@rnef/tools": "*",
-    "zephyr-metro-plugin": "0.0.0-canary.62"
+    "zephyr-metro-plugin": "1.2.4"
   }
 }

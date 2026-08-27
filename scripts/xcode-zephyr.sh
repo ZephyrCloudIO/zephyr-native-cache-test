@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Opens apps/host/ios in Xcode with ZEPHYR_E2E=1 and the Zephyr env vars
-# inherited from .env.e2e. Xcode passes the env down to its "Bundle React
-# Native code and images" build phase, where metro.config.js wires up
-# withZephyr() and needs ZE_SECRET_TOKEN to resolve.
+# Opens apps/host/ios in Xcode with ZEPHYR_E2E=1 and ZE_SECRET_TOKEN loaded
+# from .env.e2e. Xcode passes them down to its "Bundle React Native code and
+# images" build phase, where metro.config.js uses the production defaults.
 #
 # Usage: pnpm xcode:zephyr
 # After Xcode opens: set scheme to Release, pick a sim, ⌘R.
@@ -24,19 +23,14 @@ if [[ -f "$ENV_FILE" ]]; then
   # shellcheck source=/dev/null
   source "$ENV_FILE"
   set +a
-else
-  info "No .env.e2e — relying on existing shell env for ZE_* vars"
 fi
 
 export ZEPHYR_E2E=1
 
-missing=()
-for v in ZE_API_GATE ZE_API ZE_SECRET_TOKEN; do
-  [[ -n "${!v:-}" ]] || missing+=("$v")
-done
-[[ ${#missing[@]} -eq 0 ]] || error "Missing env vars: ${missing[*]}. See .env.e2e.example."
+[[ -n "${ZE_SECRET_TOKEN:-}" ]] || error "Missing ZE_SECRET_TOKEN. See .env.e2e.example."
 
-info "ZEPHYR_E2E=1"
+info "ZEPHYR_E2E=1 (Zephyr production defaults)"
+info "ZE_SECRET_TOKEN=<set>"
 info ""
 info "After Xcode opens:"
 info "  1. Product → Scheme → Edit Scheme → Run → Build Configuration: Release"

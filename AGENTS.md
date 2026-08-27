@@ -8,11 +8,11 @@ Federated dependencies are consumed directly from npm:
 
 | Package                                                                   | Version                       |
 | ------------------------------------------------------------------------- | ----------------------------- |
-| `@module-federation/metro` / `metro-plugin-rnef` / `runtime` (and overrides for `error-codes`, `sdk`, `runtime-core`) | `0.0.0-main-20260508022256` (canary) |
-| `zephyr-native-cache`                                                     | `0.0.0-canary.62`             |
-| `zephyr-metro-plugin`                                                     | `0.0.0-canary.62`             |
+| `@module-federation/metro` / `metro-plugin-rnef` / `runtime` (and overrides for `error-codes`, `sdk`, `runtime-core`) | `2.9.0` |
+| `zephyr-native-cache`                                                     | `1.2.4` |
+| `zephyr-metro-plugin`                                                     | `1.2.4` |
 
-The `@module-federation/*` overrides live in `package.json` `pnpm.overrides` so transitive resolutions also land on the canary build.
+The `@module-federation/*` overrides live in `package.json` `pnpm.overrides` so transitive resolutions stay aligned with the direct dependencies.
 
 To bump any of these: edit the version in the root `package.json` (overrides) and the app `devDependencies` / `dependencies`, then run `pnpm install` followed by `pnpm dev:raw` (Metro cache reset).
 

@@ -5,8 +5,6 @@
   "globalPassThroughEnv": [
     "REMOTE_VERSION",
     "ZEPHYR_E2E",
-    "ZE_API_GATE",
-    "ZE_API",
     "ZE_SECRET_TOKEN"
   ],
   "tasks": {

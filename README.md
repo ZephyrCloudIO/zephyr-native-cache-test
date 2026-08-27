@@ -4,16 +4,16 @@ Test repo for validating the `zephyr-native-cache` integration with React Native
 
 Validates the cache integration using:
 
-- **@module-federation/\*** `0.0.0-main-20260508022256` — canary build with SHA-256 manifest hashes + ICacheLayer runtime contract ([#4576](https://github.com/module-federation/core/pull/4576))
-- **zephyr-native-cache** `0.0.0-canary.62` — canary build
-- **zephyr-metro-plugin** `0.0.0-canary.62` — canary build
+- **@module-federation/\*** `2.9.0` — stable release with the native cache runtime contract
+- **zephyr-native-cache** `1.2.4`
+- **zephyr-metro-plugin** `1.2.4`
 
 ## Dependency model
 
 Federated dependencies are consumed directly from npm:
 
-- `@module-federation/metro`, `@module-federation/metro-plugin-rnef`, `@module-federation/runtime` (and the `error-codes` / `sdk` / `runtime-core` / `runtime` overrides) are pinned to canary `0.0.0-main-20260508022256`.
-- `zephyr-native-cache` and `zephyr-metro-plugin` are pinned to `0.0.0-canary.62`.
+- `@module-federation/metro`, `@module-federation/metro-plugin-rnef`, `@module-federation/runtime` (and the `error-codes` / `sdk` / `runtime-core` / `runtime` overrides) are pinned to `2.9.0`.
+- `zephyr-native-cache` and `zephyr-metro-plugin` are pinned to `1.2.4`.
 
 `pnpm install` is the bootstrap step for dependency setup.
 
@@ -38,7 +38,7 @@ Version switching is driven by `REMOTE_VERSION=v1|v2|v3` — each remote's `metr
 - `globalThis.__ZEPHYR__.runtime.nativeCache.controls` — control helpers (`checkForUpdates`, `startUpdatePolling`, `stopUpdatePolling`, `clearCache`)
 - `globalThis.__MFE_CHECK_UPDATES__` / `__MFE_START_UPDATE_POLLING__` / `__MFE_STOP_UPDATE_POLLING__` — backward-compatible global aliases used by the DevTools panel
 
-The host Metro config registers `zephyr-native-cache/src/runtime-plugin.ts`, which hooks MF's `afterResolve` and `beforeInit` to extract bundle hashes from manifests and feed them to the cache layer for integrity verification and background polling. Remote Metro configs use `withZephyr` during E2E publishing to generate Zephyr manifests.
+The host Metro config registers the public `zephyr-native-cache/runtime-plugin` export, which hooks MF's `afterResolve` and `beforeInit` to extract bundle hashes from manifests and feed them to the cache layer for integrity verification and background polling. Remote Metro configs use `withZephyr` during E2E publishing to generate Zephyr manifests.
 
 ## Setup
 
@@ -76,7 +76,11 @@ Exact versions listed are what the repo has been tested against; stated minimums
 | Tool | Notes |
 | --- | --- |
 | **Maestro** | Install via [maestro.mobile.dev](https://maestro.mobile.dev). Verify with `maestro --version`. |
-| **Zephyr token** *(Zephyr flow only)* | Copy `.env.e2e.example` → `.env.e2e` and fill in `ZE_SECRET_TOKEN` from the Zephyr dashboard. See [ZEPHYR_OTA_DEMO.md](./ZEPHYR_OTA_DEMO.md) for the full dashboard walkthrough. |
+
+The Zephyr-backed flow uses Zephyr's production endpoints by default, so
+`ZE_API_GATE` and `ZE_API` are not required. Copy `.env.e2e.example` to
+`.env.e2e` and set `ZE_SECRET_TOKEN` to a personal access token from the Zephyr
+dashboard.
 
 ### Clone
 
@@ -152,7 +156,7 @@ In Metro/device logs, look for:
 
 ### Making changes
 
-MF source for the apps is consumed from published npm packages. To experiment with a different MF build, bump the canary version pinned in `package.json` (root `pnpm.overrides`) and the app `devDependencies`, then `pnpm install` and `pnpm dev:raw`.
+MF source for the apps is consumed from published npm packages. To test a different MF release, update the version pinned in `package.json` (root `pnpm.overrides`) and the app `devDependencies`, then run `pnpm install` and `pnpm dev:raw`.
 
 For local MF R&D against the submodule:
 
@@ -191,5 +195,5 @@ zephyr-native-cache-test/
 ├── packages/
 │   └── zephyr-metro-rnef-plugin/  # local rnef plugin wrapper around zephyr-metro-plugin
 ├── turbo.json                 # pipeline: refresh → dev
-└── package.json               # pnpm overrides pin @module-federation/* canary
+└── package.json               # pnpm overrides align @module-federation/* versions
 ```
