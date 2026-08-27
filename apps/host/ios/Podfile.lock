@@ -2124,7 +2124,7 @@ PODS:
     - SocketRocket
   - SocketRocket (0.7.1)
   - Yoga (0.0.0)
-  - zephyr-native-cache (1.2.2):
+  - zephyr-native-cache (1.2.4):
     - boost
     - DoubleConversion
     - fast_float
@@ -2458,7 +2458,7 @@ SPEC CHECKSUMS:
   ReactCommon: b028d09a66e60ebd83ca59d8cc9a1216360db147
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: 0c4b7d2aacc910a1f702694fa86be830386f4ceb
-  zephyr-native-cache: 8a8e1b50b65f89f9eda329f1196609a66879975f
+  zephyr-native-cache: bc82b9f4fc80434cf412386e8a6d4e911242beab
 
 PODFILE CHECKSUM: d7ddd7fd39d49e0dd5d1205cb5dc83483092e5fb
 

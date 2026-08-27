@@ -9,8 +9,8 @@ Federated dependencies are consumed directly from npm:
 | Package                                                                   | Version                       |
 | ------------------------------------------------------------------------- | ----------------------------- |
 | `@module-federation/metro` / `metro-plugin-rnef` / `runtime` (and overrides for `error-codes`, `sdk`, `runtime-core`) | `2.9.0` |
-| `zephyr-native-cache`                                                     | `1.2.2` |
-| `zephyr-metro-plugin`                                                     | `1.2.2` |
+| `zephyr-native-cache`                                                     | `1.2.4` |
+| `zephyr-metro-plugin`                                                     | `1.2.4` |
 
 The `@module-federation/*` overrides live in `package.json` `pnpm.overrides` so transitive resolutions stay aligned with the direct dependencies.
 

@@ -5,15 +5,15 @@ Test repo for validating the `zephyr-native-cache` integration with React Native
 Validates the cache integration using:
 
 - **@module-federation/\*** `2.9.0` — stable release with the native cache runtime contract
-- **zephyr-native-cache** `1.2.2`
-- **zephyr-metro-plugin** `1.2.2`
+- **zephyr-native-cache** `1.2.4`
+- **zephyr-metro-plugin** `1.2.4`
 
 ## Dependency model
 
 Federated dependencies are consumed directly from npm:
 
 - `@module-federation/metro`, `@module-federation/metro-plugin-rnef`, `@module-federation/runtime` (and the `error-codes` / `sdk` / `runtime-core` / `runtime` overrides) are pinned to `2.9.0`.
-- `zephyr-native-cache` and `zephyr-metro-plugin` are pinned to `1.2.2`.
+- `zephyr-native-cache` and `zephyr-metro-plugin` are pinned to `1.2.4`.
 
 `pnpm install` is the bootstrap step for dependency setup.
 

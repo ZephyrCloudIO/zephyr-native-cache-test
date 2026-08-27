@@ -16,6 +16,6 @@
   "peerDependencies": {
     "@module-federation/metro": "2.9.0",
     "@rnef/tools": "*",
-    "zephyr-metro-plugin": "1.2.2"
+    "zephyr-metro-plugin": "1.2.4"
   }
 }
