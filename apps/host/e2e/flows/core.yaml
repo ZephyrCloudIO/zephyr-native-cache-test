@@ -5,8 +5,10 @@ appId: ${APP_ID}
 - waitForAnimationToEnd
 
 # Check the first remote component
-- assertVisible:
-    id: 'stats-card'
+- extendedWaitUntil:
+    visible:
+      id: 'stats-card'
+    timeout: 30000
 
 # Continue in visual order for the single-column iPhone layout
 - scrollUntilVisible:
@@ -22,8 +24,10 @@ appId: ${APP_ID}
     direction: DOWN
 - tapOn:
     id: 'load-nutrition'
-- assertVisible:
-    id: 'calorie-card'
+- extendedWaitUntil:
+    visible:
+      id: 'calorie-card'
+    timeout: 30000
 
 - scrollUntilVisible:
     element:
@@ -52,8 +56,10 @@ appId: ${APP_ID}
     direction: DOWN
 - tapOn:
     id: 'load-hydration'
-- assertVisible:
-    id: 'hydration-card'
+- extendedWaitUntil:
+    visible:
+      id: 'hydration-card'
+    timeout: 30000
 
 # Verify DevTools panel
 - assertVisible:

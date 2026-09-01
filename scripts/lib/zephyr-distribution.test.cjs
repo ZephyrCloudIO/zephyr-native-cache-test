@@ -46,3 +46,36 @@ test('keeps DEMO aliases isolated to the existing E2E mode', async () => {
     true,
   );
 });
+
+test('inlines only the public E2E flag into application bundles', () => {
+  const appRoot = require('node:path').resolve(__dirname, '../../apps/host');
+  const babel = require(require.resolve('@babel/core', {paths: [appRoot]}));
+  const plugin = require('../../apps/host/babel-plugin-inline-zephyr-e2e');
+  const source =
+    'const values = [process.env.ZEPHYR_E2E, process.env.ZE_SECRET_TOKEN];';
+
+  process.env.ZEPHYR_E2E = '1';
+  const e2e = babel.transformSync(source, {plugins: [plugin]}).code;
+  assert.match(e2e, /\["1", process\.env\.ZE_SECRET_TOKEN\]/);
+
+  delete process.env.ZEPHYR_E2E;
+  const release = babel.transformSync(source, {plugins: [plugin]}).code;
+  assert.match(release, /\["0", process\.env\.ZE_SECRET_TOKEN\]/);
+});
+
+test('host Babel config emits the E2E polling interval without runtime env access', () => {
+  const path = require('node:path');
+  const appRoot = path.resolve(__dirname, '../../apps/host');
+  const babel = require(require.resolve('@babel/core', {paths: [appRoot]}));
+
+  process.env.ZEPHYR_E2E = '1';
+  const output = babel.transformFileSync(path.join(appRoot, 'index.js'), {
+    babelrc: false,
+    configFile: path.join(appRoot, 'babel.config.js'),
+    envName: 'production',
+  }).code;
+  delete process.env.ZEPHYR_E2E;
+
+  assert.doesNotMatch(output, /process\.env\.ZEPHYR_E2E/);
+  assert.match(output, /pollIntervalMs="1"==='1'\?15000:300000/);
+});

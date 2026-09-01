@@ -76,10 +76,11 @@ directly to `xcodebuild`.
 | Poor/high-latency network | Bounded actions, no duplicate operation or crash |
 | VoiceOver and Reduce Motion | Ordered controls, meaningful labels, no essential animation |
 
-`apps/host/e2e/flows/first-launch-offline.yaml` proves that the local shell
-survives unavailable remotes when the fixture servers are stopped. It is not a
-substitute for disabling all device networking; complete the fresh-install and
-cached-install offline rows manually on the release candidate.
+`apps/host/e2e/flows/first-launch-offline.yaml` can exercise the local shell
+after an operator has stopped the fixture servers and installed the Release
+app. The flow does not establish that precondition and is not a substitute for
+disabling all device networking; complete the fresh-install and cached-install
+offline rows manually on the release candidate.
 
 ## Rollback
 

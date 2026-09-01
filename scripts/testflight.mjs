@@ -13,11 +13,17 @@ function fail(message) {
   throw new Error(message);
 }
 
+function environmentWithoutSecret() {
+  const environment = {...process.env};
+  delete environment.ZE_SECRET_TOKEN;
+  return environment;
+}
+
 function run(command, args, options = {}) {
   const result = spawnSync(command, args, {
     cwd: ROOT,
     encoding: 'utf8',
-    env: process.env,
+    env: options.env ?? environmentWithoutSecret(),
     stdio: options.capture ? 'pipe' : 'inherit',
   });
   if (result.status !== 0) {
@@ -120,7 +126,9 @@ async function archive() {
     process.argv[3] ?? join(ROOT, 'build/testflight', `ZephyrHealth-${VERSION}-${build}.xcarchive`),
   );
   await mkdir(resolve(archivePath, '..'), {recursive: true});
-  run('xcodebuild', xcodeArgs(['clean', 'archive'], archivePath));
+  run('xcodebuild', xcodeArgs(['clean', 'archive'], archivePath), {
+    env: process.env,
+  });
   console.log(`Archive created at ${archivePath}`);
 }
 
@@ -254,7 +262,7 @@ function publishRemotes() {
     '--filter',
     'cache-test-nested-mini',
     'publish:testflight:ios',
-  ]);
+  ], {env: process.env});
 }
 
 const action = process.argv[2];
