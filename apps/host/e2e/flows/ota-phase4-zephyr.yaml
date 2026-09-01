@@ -1,4 +1,4 @@
-appId: com.mf.example.host
+appId: ${APP_ID}
 ---
 # Phase 4 (Zephyr variant): partial fix — nested-mini v3 deployed.
 # Orchestrator waits for polling to show `update-toast`; this flow then
@@ -19,20 +19,20 @@ appId: com.mf.example.host
     id: 'update-bar-restart'
 
 - waitForAnimationToEnd
-- extendedWaitUntil:
-    visible:
+- scrollUntilVisible:
+    element:
       id: 'stats-card'
+    direction: UP
     timeout: 20000
 
 - assertVisible:
     id: 'stats-card-version'
     text: 'v2'
 
-- assertVisible:
-    id: 'activity-feed'
-- assertVisible:
-    id: 'activity-feed-version'
-    text: 'v3'
+- scrollUntilVisible:
+    element:
+      id: 'cache-info'
+    direction: DOWN
 - assertVisible:
     id: 'cache-info'
 - assertVisible:
@@ -40,3 +40,12 @@ appId: com.mf.example.host
     text: 'v3'
 - assertNotVisible:
     id: 'error-CacheInfo'
+- scrollUntilVisible:
+    element:
+      id: 'activity-feed'
+    direction: DOWN
+- assertVisible:
+    id: 'activity-feed'
+- assertVisible:
+    id: 'activity-feed-version'
+    text: 'v3'

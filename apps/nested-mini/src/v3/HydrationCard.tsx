@@ -41,9 +41,9 @@ export default function HydrationCard({
           );
         })}
       </View>
-      <Text style={styles.lastDrink}>Last drink: 2:30pm</Text>
+      <Text style={styles.lastDrink}>Fictional entry: 2:30pm</Text>
       <Text style={styles.hint}>
-        {GOAL - GLASSES} more to reach your daily goal
+        Fictional progress: {GOAL - GLASSES} remaining
       </Text>
     </View>
   );

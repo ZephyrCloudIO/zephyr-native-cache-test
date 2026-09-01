@@ -31,7 +31,7 @@ export default function HydrationCard({
         ))}
       </View>
       <Text style={styles.hint}>
-        {GOAL - GLASSES} more to reach your daily goal
+        Fictional progress: {GOAL - GLASSES} remaining
       </Text>
     </View>
   );

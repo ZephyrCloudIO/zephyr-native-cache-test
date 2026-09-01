@@ -441,7 +441,7 @@ const taskDefs: TaskDef[] = [
     title: 'Phase 1 — baseline',
     run: async (log) => {
       await pause('Ready to launch the app', log);
-      await exec(`maestro --platform ${PLATFORM} test ${join(FLOWS, 'ota-phase1-zephyr.yaml')}`, log, { cwd: ROOT });
+      await exec(`maestro --platform ${PLATFORM} test -e APP_ID=${process.env.APP_ID ?? 'com.mf.example.host'} ${join(FLOWS, 'ota-phase1-zephyr.yaml')}`, log, { cwd: ROOT });
     },
   },
   {
@@ -473,7 +473,7 @@ const taskDefs: TaskDef[] = [
     title: 'Phase 2 — update + crash',
     run: async (log) => {
       await pauseForUpdateToast(log, 'v2');
-      await exec(`maestro --platform ${PLATFORM} test ${join(FLOWS, 'ota-phase2-zephyr.yaml')}`, log, { cwd: ROOT });
+      await exec(`maestro --platform ${PLATFORM} test -e APP_ID=${process.env.APP_ID ?? 'com.mf.example.host'} ${join(FLOWS, 'ota-phase2-zephyr.yaml')}`, log, { cwd: ROOT });
     },
   },
   {
@@ -494,7 +494,7 @@ const taskDefs: TaskDef[] = [
     title: 'Phase 3 — rollback',
     run: async (log) => {
       await pauseForUpdateToast(log, 'nested-mini rollback to v1');
-      await exec(`maestro --platform ${PLATFORM} test ${join(FLOWS, 'ota-phase3-zephyr.yaml')}`, log, { cwd: ROOT });
+      await exec(`maestro --platform ${PLATFORM} test -e APP_ID=${process.env.APP_ID ?? 'com.mf.example.host'} ${join(FLOWS, 'ota-phase3-zephyr.yaml')}`, log, { cwd: ROOT });
     },
   },
   {
@@ -523,7 +523,7 @@ const taskDefs: TaskDef[] = [
     title: 'Phase 4 — partial update',
     run: async (log) => {
       await pauseForUpdateToast(log, 'nested-mini v3');
-      await exec(`maestro --platform ${PLATFORM} test ${join(FLOWS, 'ota-phase4-zephyr.yaml')}`, log, { cwd: ROOT });
+      await exec(`maestro --platform ${PLATFORM} test -e APP_ID=${process.env.APP_ID ?? 'com.mf.example.host'} ${join(FLOWS, 'ota-phase4-zephyr.yaml')}`, log, { cwd: ROOT });
     },
   },
   {

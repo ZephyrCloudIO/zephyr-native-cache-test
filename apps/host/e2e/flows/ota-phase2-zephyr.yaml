@@ -1,4 +1,4 @@
-appId: com.mf.example.host
+appId: ${APP_ID}
 ---
 # Phase 2 (Zephyr variant): v2 deployed to real Zephyr edge.
 # Mini: improved components. Nested-mini: CacheInfo crashes.
@@ -12,20 +12,29 @@ appId: com.mf.example.host
     id: 'update-toast-restart'
 
 - waitForAnimationToEnd
-- extendedWaitUntil:
-    visible:
+- scrollUntilVisible:
+    element:
       id: 'stats-card'
+    direction: UP
     timeout: 20000
 
 - assertVisible:
     id: 'stats-card-version'
     text: 'v2'
 
+- scrollUntilVisible:
+    element:
+      id: 'error-CacheInfo'
+    direction: DOWN
+- assertVisible:
+    id: 'error-CacheInfo'
+
+- scrollUntilVisible:
+    element:
+      id: 'activity-feed'
+    direction: DOWN
 - assertVisible:
     id: 'activity-feed'
 - assertVisible:
     id: 'activity-feed-version'
     text: 'v2'
-
-- assertVisible:
-    id: 'error-CacheInfo'

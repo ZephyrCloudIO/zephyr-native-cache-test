@@ -1,0 +1,46 @@
+{
+  "host": {
+    "gitSha": "replace-with-full-sha",
+    "bundleId": "replace-with-reserved-id",
+    "version": "1.0.0",
+    "build": "1",
+    "xcodeVersion": "26.3"
+  },
+  "remotes": {
+    "mini": {
+      "applicationUid": "cache-test-mini.zephyr-native-cache-test.zephyrcloudio",
+      "environment": "testflight",
+      "immutableVersionId": "replace-me",
+      "selectorManifestUrl": "https://replace-me",
+      "immutableManifestUrl": "https://replace-me",
+      "artifactHashes": {},
+      "rollbackVersionId": "replace-me"
+    },
+    "nestedMini": {
+      "applicationUid": "cache-test-nested-mini.zephyr-native-cache-test.zephyrcloudio",
+      "environment": "testflight",
+      "immutableVersionId": "replace-me",
+      "selectorManifestUrl": "https://replace-me",
+      "immutableManifestUrl": "https://replace-me",
+      "artifactHashes": {},
+      "rollbackVersionId": "replace-me"
+    }
+  },
+  "changeSummary": "replace-me",
+  "approval": {
+    "approvedBy": "replace-me",
+    "approvedAtUtc": "replace-me"
+  },
+  "validation": {
+    "repositoryGates": "pending",
+    "archiveVerification": "pending",
+    "internalTestFlight": "pending",
+    "deviceEvidence": []
+  },
+  "publicUrls": {
+    "support": "https://replace-me",
+    "privacy": "https://replace-me"
+  },
+  "uploadedAtUtc": null,
+  "expiresAtUtc": null
+}

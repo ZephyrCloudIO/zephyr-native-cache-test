@@ -16,7 +16,6 @@ import {Button} from './Button';
 
 interface DevToolsPanelProps {
   status: CacheStatusSnapshot;
-  isOnline: boolean;
   pollIntervalMs: number;
   lastPollAt: number | undefined;
   showSources: boolean;
@@ -161,7 +160,6 @@ function useCountdown(lastPollAt: number | undefined, pollIntervalMs: number) {
 
 export function DevToolsPanel({
   status,
-  isOnline,
   pollIntervalMs,
   lastPollAt,
   showSources,
@@ -194,12 +192,9 @@ export function DevToolsPanel({
         lastPollAt={lastPollAt}
       />
       {/* Handle */}
-      <View style={styles.handle} testID="devtools-panel-handle">
+      <View style={styles.handle}>
         <View style={styles.statusInfo}>
-          <View style={[styles.netDot, {backgroundColor: isOnline ? '#22c55e' : '#ef4444'}]} />
-          <Text style={[styles.dimLabel, styles.mono]}>
-            {isOnline ? 'online' : 'offline'}
-          </Text>
+          <Text style={[styles.dimLabel, styles.mono]}>module cache</Text>
           {status.pollingEnabled && (
             <>
               <Text style={[styles.dimLabel, styles.mono]}>·</Text>
@@ -214,11 +209,17 @@ export function DevToolsPanel({
           )}
         </View>
         <View style={styles.quickActions}>
-          <Button onPress={onToggleExpanded} style={styles.quickButton}>
+          <Button
+            onPress={onToggleExpanded}
+            style={styles.quickButton}
+            accessibilityLabel={expanded ? 'Collapse module diagnostics' : 'Expand module diagnostics'}
+            testID="devtools-panel-handle">
             <Text style={styles.quickIcon}>⌞⌝</Text>
           </Button>
           <Button
             onPress={onToggleSources}
+            accessibilityLabel={showSources ? 'Hide module sources' : 'Show module sources'}
+            testID="devtools-toggle-sources"
             style={[
               styles.quickButton,
               showSources && styles.quickButtonActive,
@@ -235,6 +236,7 @@ export function DevToolsPanel({
             onPress={onCheckUpdates}
             style={styles.quickButton}
             disabled={status.isPolling}
+            accessibilityLabel="Check for module updates"
             testID="devtools-check-updates">
             <Text
               style={[
@@ -244,7 +246,11 @@ export function DevToolsPanel({
               ↻
             </Text>
           </Button>
-          <Button onPress={onClearCache} style={styles.quickButton}>
+          <Button
+            onPress={onClearCache}
+            style={styles.quickButton}
+            accessibilityLabel="Clear downloaded module cache"
+            testID="devtools-clear-cache">
             <Text style={[styles.quickIcon, styles.quickIconDanger]}>✕</Text>
           </Button>
         </View>
@@ -255,16 +261,6 @@ export function DevToolsPanel({
         <ScrollView style={styles.content} testID="devtools-panel-expanded">
           {/* Status */}
           <Text style={styles.sectionTitle}>STATUS</Text>
-          <View style={styles.statusRow}>
-            <Text style={styles.statusKey}>Network</Text>
-            <Text
-              style={[
-                styles.statusValue,
-                {color: isOnline ? '#22c55e' : '#ef4444'},
-              ]}>
-              {isOnline ? 'online' : 'offline'}
-            </Text>
-          </View>
           {status.lastPollAt && (
             <View style={styles.statusRow}>
               <Text style={styles.statusKey}>Last check</Text>
@@ -332,6 +328,7 @@ export function DevToolsPanel({
           <View style={styles.controls}>
             <Button
               onPress={onToggleSources}
+              accessibilityLabel={showSources ? 'Hide module sources' : 'Show module sources'}
               style={[
                 styles.controlButton,
                 showSources && styles.controlButtonActive,
@@ -346,6 +343,7 @@ export function DevToolsPanel({
             </Button>
             <Button
               onPress={onCheckUpdates}
+              accessibilityLabel="Check for module updates"
               style={styles.controlButton}
               disabled={status.isPolling}>
               <Text
@@ -358,6 +356,7 @@ export function DevToolsPanel({
             </Button>
             <Button
               onPress={onClearCache}
+              accessibilityLabel="Clear downloaded module cache"
               style={[styles.controlButton, styles.destructiveButton]}>
               <Text style={styles.destructiveText}>Clear</Text>
             </Button>
@@ -406,11 +405,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
   },
-  netDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-  },
   dimLabel: {
     color: '#6b7280',
   },
@@ -431,8 +425,8 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   quickButton: {
-    width: 32,
-    height: 32,
+    width: 44,
+    height: 44,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.08)',

@@ -33,13 +33,22 @@ export function UpdateBar({visible, onRestart, onExpand}: UpdateBarProps) {
 
   return (
     <Animated.View style={[barStyles.container, {height, opacity}]} testID="update-bar">
-      <Button onPress={onExpand} style={barStyles.content} accessible={false}>
-        <View style={barStyles.dot} />
-        <Text style={[barStyles.text, barStyles.mono]}>Update available</Text>
-        <Button onPress={onRestart} style={barStyles.button} testID="update-bar-restart">
+      <View style={barStyles.content}>
+        <Button
+          onPress={onExpand}
+          style={barStyles.expand}
+          accessibilityLabel="Show update details">
+          <View style={barStyles.dot} />
+          <Text style={[barStyles.text, barStyles.mono]}>Update available</Text>
+        </Button>
+        <Button
+          onPress={onRestart}
+          style={barStyles.button}
+          accessibilityLabel="Restart to apply module update"
+          testID="update-bar-restart">
           <Text style={[barStyles.buttonText, barStyles.mono]}>Restart</Text>
         </Button>
-      </Button>
+      </View>
     </Animated.View>
   );
 }
@@ -56,6 +65,12 @@ const barStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
+  },
+  expand: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    minHeight: 40,
   },
   dot: {
     width: 8,

@@ -12,10 +12,10 @@
     "dev:cached": "rnef start --client-logs",
     "start": "rnef start --reset-cache --client-logs",
     "pods": "(cd ios && bundle install && (bundle exec pod install || bundle exec pod update))",
-    "test": "jest",
+    "test": "node ../../scripts/run-jest.cjs",
     "adbreverse": "pnpm --filter cache-test-mini --filter cache-test-nested-mini run adbreverse",
-    "e2e:run:ios": "maestro --platform=ios test e2e",
-    "e2e:run:android": "maestro --platform=android test e2e"
+    "e2e:run:ios": "maestro --platform=ios test -e APP_ID=com.mf.example.host e2e",
+    "e2e:run:android": "maestro --platform=android test -e APP_ID=com.mf.example.host e2e"
   },
   "dependencies": {
     "lodash": "4.18.1",
@@ -24,8 +24,8 @@
     "zephyr-native-cache": "1.2.4"
   },
   "zephyr:dependencies": {
-    "mini": "zephyr:cache-test-mini@DEMO",
-    "nestedMini": "zephyr:cache-test-nested-mini@DEMO"
+    "mini": "zephyr:cache-test-mini.zephyr-native-cache-test.zephyrcloudio@testflight",
+    "nestedMini": "zephyr:cache-test-nested-mini.zephyr-native-cache-test.zephyrcloudio@testflight"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

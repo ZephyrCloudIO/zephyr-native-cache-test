@@ -262,13 +262,13 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = MFExampleHost/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = MFExampleHost;
+				INFOPLIST_KEY_CFBundleDisplayName = "Zephyr Health";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -278,6 +278,7 @@
 				PRODUCT_NAME = MFExampleHost;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -290,13 +291,13 @@
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				INFOPLIST_FILE = MFExampleHost/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = MFExampleHost;
+				INFOPLIST_KEY_CFBundleDisplayName = "Zephyr Health";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -305,6 +306,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.mf.example.host;
 				PRODUCT_NAME = MFExampleHost;
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;

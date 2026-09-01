@@ -1,9 +1,11 @@
 import React from 'react';
 import {Platform, StyleSheet, Text, View} from 'react-native';
+import {Button} from './Button';
 
 interface Props {
   name: string;
   children: React.ReactNode;
+  onRetry?: () => void;
 }
 
 interface State {
@@ -25,14 +27,22 @@ export class ErrorBoundary extends React.Component<Props, State> {
           <View style={styles.header}>
             <Text style={styles.icon}>!</Text>
             <View style={styles.headerText}>
-              <Text style={styles.title}>Component crashed</Text>
+              <Text style={styles.title}>Sample card unavailable</Text>
               <Text style={[styles.name, styles.mono]}>{this.props.name}</Text>
             </View>
           </View>
-          {this.state.error && (
+          {__DEV__ && this.state.error && (
             <Text style={[styles.message, styles.mono]} numberOfLines={3}>
               {this.state.error.message}
             </Text>
+          )}
+          {this.props.onRetry && (
+            <Button
+              style={styles.retry}
+              accessibilityLabel={`Retry ${this.props.name}`}
+              onPress={this.props.onRetry}>
+              <Text style={styles.retryText}>Restart and retry</Text>
+            </Button>
           )}
         </View>
       );
@@ -89,6 +99,19 @@ const styles = StyleSheet.create({
     fontSize: 10,
     marginTop: 10,
     lineHeight: 14,
+  },
+  retry: {
+    minHeight: 44,
+    marginTop: 12,
+    borderRadius: 8,
+    backgroundColor: 'rgba(139, 92, 246, 0.18)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  retryText: {
+    color: '#c4b5fd',
+    fontSize: 12,
+    fontWeight: '600',
   },
   mono: {
     fontFamily: Platform.select({ios: 'Menlo', default: 'monospace'}),

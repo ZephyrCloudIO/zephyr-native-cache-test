@@ -37,6 +37,9 @@ tarballs/*.tgz
 # E2E authentication (copy of .env.e2e.example with a real token)
 .env.e2e
 
+# TestFlight build authentication and local release configuration
+.env.testflight
+
 # E2E test fixtures (built by scripts/build-e2e-versions.sh)
 e2e-fixtures/
 

@@ -1,9 +1,8 @@
-import React, {useRef} from 'react';
+import React from 'react';
 import {
-  Animated,
   Pressable,
   StyleSheet,
-  Vibration,
+  View,
   type PressableProps,
   type StyleProp,
   type ViewStyle,
@@ -15,58 +14,17 @@ interface ButtonProps extends Omit<PressableProps, 'style'> {
 }
 
 export function Button({style, children, onPress, disabled, ...rest}: ButtonProps) {
-  const scale = useRef(new Animated.Value(1)).current;
-  const opacity = useRef(new Animated.Value(1)).current;
-
-  const handlePressIn = () => {
-    Vibration.vibrate(3);
-    Animated.parallel([
-      Animated.spring(scale, {
-        toValue: 0.95,
-        useNativeDriver: true,
-        tension: 200,
-        friction: 10,
-      }),
-      Animated.timing(opacity, {
-        toValue: 0.7,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  };
-
-  const handlePressOut = () => {
-    Animated.parallel([
-      Animated.spring(scale, {
-        toValue: 1,
-        useNativeDriver: true,
-        tension: 200,
-        friction: 10,
-      }),
-      Animated.timing(opacity, {
-        toValue: 1,
-        duration: 150,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  };
-
   return (
     <Pressable
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
       onPress={onPress}
       disabled={disabled}
+      accessibilityRole="button"
+      accessibilityState={{disabled: !!disabled}}
       style={{flex: StyleSheet.flatten(style)?.flex as number | undefined}}
       {...rest}>
-      <Animated.View
-        style={[
-          style,
-          {transform: [{scale}], opacity},
-          disabled && disabledStyle.view,
-        ]}>
+      <View pointerEvents="none" style={[style, disabled && disabledStyle.view]}>
         {children}
-      </Animated.View>
+      </View>
     </Pressable>
   );
 }
