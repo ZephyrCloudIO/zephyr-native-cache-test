@@ -1,23 +1,27 @@
 import React, {useEffect, useState} from 'react';
 import {
   ActivityIndicator,
+  ScrollView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
-import ZephyrNativeCache from 'zephyr-native-cache';
+import ZephyrNativeCache, {useCacheStatus} from 'zephyr-native-cache';
 import {Button} from './components/Button';
 import {Header} from './components/Header';
+import {MoodCard, WeeklyGoals} from './components/HostCards';
 
 const TIMEOUT_MS = 8_000;
 
-export default function Fallback() {
-  const [timedOut, setTimedOut] = useState(false);
+export default function Fallback({failed = false}: {failed?: boolean}) {
+  const [timedOut, setTimedOut] = useState(failed);
+  const {status} = useCacheStatus();
 
   useEffect(() => {
+    if (failed) return;
     const timer = setTimeout(() => setTimedOut(true), TIMEOUT_MS);
     return () => clearTimeout(timer);
-  }, []);
+  }, [failed]);
 
   return (
     <View style={styles.container} testID="app-shell">
@@ -27,7 +31,9 @@ export default function Fallback() {
           Fictional sample data for demonstration only. Not medical advice or health monitoring.
         </Text>
       </View>
-      <View style={styles.content} testID={timedOut ? 'startup-modules-unavailable' : 'startup-loading'}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        testID={timedOut ? 'startup-modules-unavailable' : 'startup-loading'}>
         {timedOut ? (
           <>
             <Text style={styles.title}>Sample modules are unavailable</Text>
@@ -48,7 +54,17 @@ export default function Fallback() {
             <Text style={styles.label}>Loading sample modules...</Text>
           </>
         )}
-      </View>
+        <View style={styles.diagnostics} testID="startup-diagnostics">
+          <Text style={styles.diagnosticsTitle}>Module diagnostics</Text>
+          <Text style={styles.diagnosticsText}>
+            {Object.keys(status.remotes).length} module entries observed. Full controls become available after startup.
+          </Text>
+        </View>
+        <View style={styles.localCards}>
+          <WeeklyGoals />
+          <MoodCard />
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -59,8 +75,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#09090b',
   },
   content: {
-    flex: 1,
-    justifyContent: 'center',
+    flexGrow: 1,
     alignItems: 'center',
     padding: 32,
   },
@@ -101,5 +116,30 @@ const styles = StyleSheet.create({
   retryText: {
     color: '#ffffff',
     fontWeight: '700',
+  },
+  diagnostics: {
+    alignSelf: 'stretch',
+    backgroundColor: '#0f0f13',
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 12,
+    borderWidth: 1,
+    marginTop: 24,
+    padding: 14,
+  },
+  diagnosticsTitle: {
+    color: '#f4f4f5',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  diagnosticsText: {
+    color: '#a1a1aa',
+    fontSize: 12,
+    lineHeight: 17,
+    marginTop: 4,
+  },
+  localCards: {
+    alignSelf: 'stretch',
+    gap: 12,
+    marginTop: 12,
   },
 });

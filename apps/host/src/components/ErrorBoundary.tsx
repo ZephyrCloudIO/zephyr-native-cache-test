@@ -6,12 +6,22 @@ interface Props {
   name: string;
   children: React.ReactNode;
   onRetry?: () => void;
+  fallback?: React.ReactNode;
 }
 
 interface State {
   hasError: boolean;
   error: Error | null;
 }
+
+const DISPLAY_NAMES: Record<string, string> = {
+  ActivityFeed: 'Sample workouts',
+  CacheInfo: 'Sample sleep',
+  CalorieCard: 'Sample nutrition',
+  DeployCard: 'Sample steps',
+  HydrationCard: 'Sample hydration',
+  StatsCard: 'Sample heart rate',
+};
 
 export class ErrorBoundary extends React.Component<Props, State> {
   state: State = {hasError: false, error: null};
@@ -22,13 +32,15 @@ export class ErrorBoundary extends React.Component<Props, State> {
 
   render() {
     if (this.state.hasError) {
+      if (this.props.fallback) return this.props.fallback;
+      const displayName = DISPLAY_NAMES[this.props.name] ?? this.props.name;
       return (
         <View style={styles.card} testID={`error-${this.props.name}`}>
           <View style={styles.header}>
             <Text style={styles.icon}>!</Text>
             <View style={styles.headerText}>
               <Text style={styles.title}>Sample card unavailable</Text>
-              <Text style={[styles.name, styles.mono]}>{this.props.name}</Text>
+              <Text style={styles.name}>{displayName}</Text>
             </View>
           </View>
           {__DEV__ && this.state.error && (
@@ -39,7 +51,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
           {this.props.onRetry && (
             <Button
               style={styles.retry}
-              accessibilityLabel={`Retry ${this.props.name}`}
+              accessibilityLabel={`Retry ${displayName}`}
               onPress={this.props.onRetry}>
               <Text style={styles.retryText}>Restart and retry</Text>
             </Button>

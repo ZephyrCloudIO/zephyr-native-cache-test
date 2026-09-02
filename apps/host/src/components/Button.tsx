@@ -13,13 +13,20 @@ interface ButtonProps extends Omit<PressableProps, 'style'> {
   children: React.ReactNode;
 }
 
-export function Button({style, children, onPress, disabled, ...rest}: ButtonProps) {
+export function Button({
+  style,
+  children,
+  onPress,
+  disabled,
+  accessibilityState,
+  ...rest
+}: ButtonProps) {
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled}
       accessibilityRole="button"
-      accessibilityState={{disabled: !!disabled}}
+      accessibilityState={{...accessibilityState, disabled: !!disabled}}
       style={{flex: StyleSheet.flatten(style)?.flex as number | undefined}}
       {...rest}>
       <View pointerEvents="none" style={[style, disabled && disabledStyle.view]}>

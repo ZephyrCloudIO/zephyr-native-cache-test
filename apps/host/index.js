@@ -4,6 +4,7 @@ import React from 'react';
 import {AppRegistry} from 'react-native';
 import {name as appName} from './app.json';
 import {ErrorBoundary} from './src/components/ErrorBoundary';
+import Fallback from './src/Fallback';
 
 const pollIntervalMs = process.env.ZEPHYR_E2E === '1' ? 15_000 : 300_000;
 ZephyrNativeCache.register({forceCacheInDev: true, pollIntervalMs});
@@ -16,7 +17,11 @@ const AsyncApp = withAsyncStartup(
 function Root() {
   return React.createElement(
     ErrorBoundary,
-    {name: 'Application', onRetry: () => ZephyrNativeCache.reloadApp()},
+    {
+      name: 'Application',
+      onRetry: () => ZephyrNativeCache.reloadApp(),
+      fallback: React.createElement(Fallback, {failed: true}),
+    },
     React.createElement(AsyncApp),
   );
 }

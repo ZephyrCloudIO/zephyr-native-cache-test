@@ -11,18 +11,42 @@
       "applicationUid": "cache-test-mini.zephyr-native-cache-test.zephyrcloudio",
       "environment": "testflight",
       "immutableVersionId": "replace-me",
+      "buildHash": "replace-me",
       "selectorManifestUrl": "https://replace-me",
+      "selectorManifestFinalUrl": "https://replace-me",
       "immutableManifestUrl": "https://replace-me",
-      "artifactHashes": {},
+      "immutableManifestFinalUrl": "https://replace-me/version/replace-me/mf-manifest.json",
+      "selectorManifestSha256": "replace-me",
+      "immutableManifestSha256": "replace-me",
+      "allowedExposes": ["CalorieCard", "DeployCard", "StatsCard"],
+      "artifactHashes": {
+        "https://replace-me/mini.bundle": "replace-me",
+        "https://replace-me/exposed/CalorieCard.bundle?modulesOnly=true&runModule=false": "replace-me",
+        "https://replace-me/exposed/DeployCard.bundle?modulesOnly=true&runModule=false": "replace-me",
+        "https://replace-me/exposed/StatsCard.bundle?modulesOnly=true&runModule=false": "replace-me",
+        "https://replace-me/shared/lodash.bundle?modulesOnly=true&runModule=false": "replace-me"
+      },
       "rollbackVersionId": "replace-me"
     },
     "nestedMini": {
       "applicationUid": "cache-test-nested-mini.zephyr-native-cache-test.zephyrcloudio",
       "environment": "testflight",
       "immutableVersionId": "replace-me",
+      "buildHash": "replace-me",
       "selectorManifestUrl": "https://replace-me",
+      "selectorManifestFinalUrl": "https://replace-me",
       "immutableManifestUrl": "https://replace-me",
-      "artifactHashes": {},
+      "immutableManifestFinalUrl": "https://replace-me/version/replace-me/mf-manifest.json",
+      "selectorManifestSha256": "replace-me",
+      "immutableManifestSha256": "replace-me",
+      "allowedExposes": ["ActivityFeed", "CacheInfo", "HydrationCard"],
+      "artifactHashes": {
+        "https://replace-me/nestedMini.bundle": "replace-me",
+        "https://replace-me/exposed/ActivityFeed.bundle?modulesOnly=true&runModule=false": "replace-me",
+        "https://replace-me/exposed/CacheInfo.bundle?modulesOnly=true&runModule=false": "replace-me",
+        "https://replace-me/exposed/HydrationCard.bundle?modulesOnly=true&runModule=false": "replace-me",
+        "https://replace-me/shared/lodash.bundle?modulesOnly=true&runModule=false": "replace-me"
+      },
       "rollbackVersionId": "replace-me"
     }
   },
@@ -36,6 +60,18 @@
     "archiveVerification": "pending",
     "internalTestFlight": "pending",
     "deviceEvidence": []
+  },
+  "archive": {
+    "archiveInfoSha256": null,
+    "appInfoSha256": null,
+    "appExecutableSha256": null,
+    "mainBundleSha256": null,
+    "resourceTreeSha256": null,
+    "executables": {},
+    "executableUuids": [],
+    "signingIdentity": null,
+    "teamId": null,
+    "createdAtUtc": null
   },
   "publicUrls": {
     "support": "https://replace-me",

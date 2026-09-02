@@ -11,3 +11,11 @@ appId: ${APP_ID}
 - assertVisible: 'This removes all cached modules. A network connection may be required after restart.'
 - tapOn: 'Cancel'
 - assertNotVisible: 'Clear downloaded modules?'
+- tapOn:
+    id: 'devtools-clear-cache'
+- tapOn: 'Clear cache'
+- extendedWaitUntil:
+    visible:
+      id: 'cache-operation-message'
+      text: 'Downloaded module cache cleared. Restart before testing again.'
+    timeout: 10000

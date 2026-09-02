@@ -1,5 +1,5 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {Animated, Easing, Platform, Pressable, StyleSheet, Text, View} from 'react-native';
+import React from 'react';
+import {Platform, Pressable, StyleSheet, Text, View} from 'react-native';
 
 import {Button} from './Button';
 
@@ -12,27 +12,10 @@ interface UpdateBarProps {
 }
 
 export function UpdateBar({visible, onRestart, onExpand}: UpdateBarProps) {
-  const height = useRef(new Animated.Value(0)).current;
-  const opacity = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(height, {
-        toValue: visible ? 40 : 0,
-        duration: 300,
-        easing: Easing.inOut(Easing.ease),
-        useNativeDriver: false,
-      }),
-      Animated.timing(opacity, {
-        toValue: visible ? 1 : 0,
-        duration: 200,
-        useNativeDriver: false,
-      }),
-    ]).start();
-  }, [visible, height, opacity]);
+  if (!visible) return null;
 
   return (
-    <Animated.View style={[barStyles.container, {height, opacity}]} testID="update-bar">
+    <View style={barStyles.container} testID="update-bar">
       <View style={barStyles.content}>
         <Button
           onPress={onExpand}
@@ -49,12 +32,13 @@ export function UpdateBar({visible, onRestart, onExpand}: UpdateBarProps) {
           <Text style={[barStyles.buttonText, barStyles.mono]}>Restart</Text>
         </Button>
       </View>
-    </Animated.View>
+    </View>
   );
 }
 
 const barStyles = StyleSheet.create({
   container: {
+    minHeight: 44,
     backgroundColor: '#0f0f13',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(139, 92, 246, 0.2)',
@@ -70,7 +54,7 @@ const barStyles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 40,
+    minHeight: 44,
   },
   dot: {
     width: 8,
@@ -90,6 +74,8 @@ const barStyles = StyleSheet.create({
     borderRadius: 6,
     paddingHorizontal: 12,
     paddingVertical: 5,
+    minHeight: 44,
+    justifyContent: 'center',
   },
   buttonText: {
     color: '#ffffff',
@@ -110,52 +96,25 @@ interface ToastProps {
 }
 
 export function Toast({visible, onRestart, onDismiss}: ToastProps) {
-  const translateY = useRef(new Animated.Value(-300)).current;
-  const backdropOpacity = useRef(new Animated.Value(0)).current;
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    if (visible) {
-      setMounted(true);
-      Animated.parallel([
-        Animated.spring(translateY, {
-          toValue: 0,
-          useNativeDriver: true,
-          tension: 80,
-          friction: 12,
-        }),
-        Animated.timing(backdropOpacity, {
-          toValue: 1,
-          duration: 250,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    } else if (mounted) {
-      Animated.parallel([
-        Animated.timing(translateY, {
-          toValue: -300,
-          duration: 350,
-          useNativeDriver: true,
-        }),
-        Animated.timing(backdropOpacity, {
-          toValue: 0,
-          duration: 350,
-          useNativeDriver: true,
-        }),
-      ]).start(() => setMounted(false));
-    }
-  }, [visible, mounted, translateY, backdropOpacity]);
-
-  if (!mounted) return null;
+  if (!visible) return null;
 
   return (
-    <View style={toastStyles.root} pointerEvents="box-none">
-      <Animated.View
-        style={[toastStyles.backdrop, {opacity: backdropOpacity}]}
-        pointerEvents={visible ? 'auto' : 'none'}>
-        <Pressable style={StyleSheet.absoluteFill} onPress={onDismiss} />
-      </Animated.View>
-      <Animated.View style={[toastStyles.card, {transform: [{translateY}]}]} testID="update-toast">
+    <View
+      style={toastStyles.root}
+      accessibilityViewIsModal
+      pointerEvents="box-none">
+      <View style={toastStyles.backdrop}>
+        <Pressable
+          accessibilityLabel="Dismiss module update"
+          accessibilityRole="button"
+          style={StyleSheet.absoluteFill}
+          onPress={onDismiss}
+        />
+      </View>
+      <View
+        accessibilityLiveRegion="assertive"
+        style={toastStyles.card}
+        testID="update-toast">
         <View style={toastStyles.content}>
           <View style={toastStyles.iconContainer}>
             <Text style={toastStyles.icon}>↓</Text>
@@ -177,7 +136,7 @@ export function Toast({visible, onRestart, onDismiss}: ToastProps) {
             <Text style={toastStyles.primaryText}>Restart</Text>
           </Button>
         </View>
-      </Animated.View>
+      </View>
     </View>
   );
 }
@@ -247,6 +206,8 @@ const toastStyles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 10,
     alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 44,
   },
   primaryText: {
     color: '#ffffff',
@@ -261,6 +222,8 @@ const toastStyles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.1)',
     paddingVertical: 10,
     alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 44,
   },
   secondaryText: {
     color: '#6b7280',

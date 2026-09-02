@@ -8,6 +8,10 @@ appId: ${APP_ID}
     timeout: 15000
 - assertVisible:
     id: 'demo-notice'
+- extendedWaitUntil:
+    visible:
+      id: 'error-StatsCard'
+    timeout: 30000
 - scrollUntilVisible:
     element:
       id: 'host-info'

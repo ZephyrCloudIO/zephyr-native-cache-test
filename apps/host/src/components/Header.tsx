@@ -7,7 +7,7 @@ interface HeaderProps {}
 
 export function Header(_props: HeaderProps) {
   const now = new Date();
-  let dateStr = 'English (U.S.)';
+  let dateStr = 'Today';
   try {
     dateStr = now.toLocaleDateString('en-US', {
       weekday: 'long',
@@ -18,7 +18,12 @@ export function Header(_props: HeaderProps) {
 
   return (
     <View style={styles.container}>
-      <Image source={logo} style={styles.bgLogo} resizeMode="contain" />
+      <Image
+        source={logo}
+        style={styles.bgLogo}
+        resizeMode="contain"
+        accessible={false}
+      />
       <View style={styles.content}>
         <Text style={styles.title}>
           Zephyr <Text style={styles.titleAccent}>Health</Text>

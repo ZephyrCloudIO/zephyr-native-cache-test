@@ -27,7 +27,7 @@ Three React Native apps using Module Federation over Metro (RN 0.80, new-arch / 
 | ------------ | ---- | ---- |
 | `host`       | 8081 | Health-dashboard UI that loads every exposed remote module. Registers the native cache layer on startup. |
 | `mini`       | 8082 | Remote. Exposes `StatsCard`, `DeployCard`, `CalorieCard`. Source lives under `src/` (v1), `src/v2/` (v2). No v3 — falls back to v2 for v3 demos. |
-| `nested-mini`| 8083 | Remote. Exposes `ActivityFeed`, `CacheInfo`, `HydrationCard`. Also *consumes* `mini/info` to exercise nested remote loading. Source under `src/`, `src/v2/`, `src/v3/` (only `CacheInfo` has v3 content). |
+| `nested-mini`| 8083 | Remote. Exposes `ActivityFeed`, `CacheInfo`, `HydrationCard`. Source under `src/`, `src/v2/`, and `src/v3/`. |
 
 Version switching is driven by `REMOTE_VERSION=v1|v2|v3` — each remote's `metro.config.js` maps that to the source prefix that gets exposed at build/serve time. See [Development](#development) for the `dev:v*` scripts.
 
@@ -138,7 +138,7 @@ For the full Zephyr-backed OTA demo (publish → pin in dashboard → verify wit
 The distributable iOS host is branded **Zephyr Health**. TestFlight builds use
 the explicit `ZEPHYR_DISTRIBUTION=testflight` mode and do not reuse the DEMO
 E2E selector. See [`docs/testflight-release.md`](./docs/testflight-release.md)
-for prerequisites, publishing, archive verification, upload, rollback, device
+for prerequisites, publishing, archive/IPA verification, upload, rollback, device
 checks, and build-number handling. Remote-change rules and beta privacy behavior
 are documented in [`docs/remote-release-policy.md`](./docs/remote-release-policy.md)
 and [`docs/testflight-privacy.md`](./docs/testflight-privacy.md).

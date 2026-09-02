@@ -9,6 +9,8 @@ treatment, or real health monitoring.
 - No login or user account is required.
 - The app does not request HealthKit, location, camera, microphone, contacts, photos, advertising, or tracking access.
 - The host requests Zephyr Cloud manifests and JavaScript bundles over HTTPS.
+- The TestFlight plist does not permit local-network ATS exceptions; local
+  networking remains available only to ordinary development/E2E builds.
 - Downloaded modules and cache metadata are stored in the app container.
 - The diagnostics panel displays module cache and update state to the tester.
 - The app does not make a third-party connectivity probe. In particular, it does not poll Google.

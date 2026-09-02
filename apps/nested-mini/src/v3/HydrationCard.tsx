@@ -17,7 +17,7 @@ export default function HydrationCard({
   return (
     <View style={styles.card} testID={testID}>
       <View style={styles.labelRow}>
-        <Text style={styles.label}>Hydration</Text>
+        <Text style={styles.label}>Sample Hydration</Text>
         <Text testID="hydration-card-version" style={styles.version}>{VERSION}</Text>
       </View>
       <View style={styles.header}>
