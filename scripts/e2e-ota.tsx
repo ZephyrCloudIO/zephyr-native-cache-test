@@ -24,7 +24,6 @@ const HOST = join(ROOT, 'apps/host');
 const FLOWS = join(HOST, 'e2e/flows');
 const SERVE = join(ROOT, 'apps/mini/node_modules/.bin/serve');
 const CDN_SETTLE_MS = 2_000;
-const APP_ID = process.env.APP_ID ?? 'com.mf.example.host';
 
 // ── Args ───────────────────────────────────────────────────────────────────
 
@@ -43,6 +42,10 @@ if (!PLATFORM) {
   console.error('Usage: pnpm e2e <ios|android> [--dev] [--interactive]');
   process.exit(1);
 }
+
+const APP_ID =
+  process.env.APP_ID ??
+  (PLATFORM === 'ios' ? 'io.zephyr-cloud.health' : 'com.mf.example.host');
 
 // ── Mocked-flow helpers ────────────────────────────────────────────────────
 

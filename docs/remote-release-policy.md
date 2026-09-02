@@ -1,9 +1,8 @@
 # TestFlight remote release policy
 
 The `testflight` environments serve only the predefined Zephyr Health sample
-cards reviewed with the host. Every move requires a retained immutable version,
-artifact-hash verification, approval, a release-record update, and a rehearsed
-rollback target.
+cards reviewed with the host. Every move requires artifact-hash verification,
+approval, and a known-good rollback target in Zephyr deployment history.
 
 | Allowed after approval without a host build | Requires a new host build and Beta App Review |
 | --- | --- |

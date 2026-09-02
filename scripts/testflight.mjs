@@ -6,20 +6,18 @@ import {
   lstatSync,
   mkdirSync,
   mkdtempSync,
-  realpathSync,
   readdirSync,
   readFileSync,
+  renameSync,
   rmSync,
   statSync,
+  writeFileSync,
 } from 'node:fs';
 import {mkdir} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
-import {join, relative, resolve} from 'node:path';
+import {basename, dirname, join, relative, resolve} from 'node:path';
 import zephyrConfig from '../apps/host/zephyr.config.mjs';
-import {
-  logicalArtifactMap,
-  manifestArtifactMap,
-} from './lib/remote-artifacts.mjs';
+import {manifestArtifactMap} from './lib/remote-artifacts.mjs';
 
 const ROOT = resolve(import.meta.dirname, '..');
 const WORKSPACE = join(ROOT, 'apps/host/ios/MFExampleHost.xcworkspace');
@@ -267,6 +265,14 @@ function appInfoDigest(info) {
   return sha256(Buffer.from(JSON.stringify(canonicalJson(info))));
 }
 
+function selectedXcodeVersion() {
+  return run('xcodebuild', ['-version'], {capture: true}).trim();
+}
+
+function remoteSnapshotDigest(snapshot) {
+  return sha256(Buffer.from(JSON.stringify(canonicalJson(snapshot.remotes))));
+}
+
 function requireCleanReleaseWorktree() {
   const allowedUntracked = new Set([
     'TESTFLIGHT_PUBLISH_PLAN.md',
@@ -281,138 +287,73 @@ function requireCleanReleaseWorktree() {
   }
 }
 
-function loadReleaseRecord({forArchive = false} = {}) {
-  requireArtifactEnvironment({team: false});
-  const configuredPath = process.env.TESTFLIGHT_RELEASE_RECORD;
-  if (!configuredPath) fail('Set TESTFLIGHT_RELEASE_RECORD to the approved candidate record');
-  const path = resolve(ROOT, configuredPath);
-  if (!existsSync(path)) fail(`Release record not found: ${path}`);
-  if (
-    !realpathSync(path).startsWith(
-      `${realpathSync(join(ROOT, 'docs/releases/testflight'))}/`,
-    ) ||
-    path.endsWith('.example.json') ||
-    !lstatSync(path).isFile() ||
-    lstatSync(path).isSymbolicLink()
-  ) {
-    fail('Release record must be a regular, non-example file under docs/releases/testflight');
-  }
-  const recordRelativePath = path.slice(ROOT.length + 1);
-  run('git', ['ls-files', '--error-unmatch', recordRelativePath], {
-    message: 'Release record must be committed',
-  });
-  const source = readFileSync(path, 'utf8');
-  const committedSource = run('git', ['show', `HEAD:${recordRelativePath}`], {
-    capture: true,
-    message: 'Unable to read committed release record',
-  });
-  if (source !== committedSource) fail('Release record differs from committed HEAD');
-  if (/replace-me|https:\/\/replace-me/i.test(source)) {
-    fail('Release record still contains placeholder values');
-  }
-  const record = JSON.parse(source);
-  const build = getBuildNumber();
-  if (record.host?.bundleId !== process.env.IOS_BUNDLE_ID) fail('Release record bundle ID mismatch');
-  if (record.host?.version !== VERSION || record.host?.build !== build) {
-    fail('Release record version/build mismatch');
-  }
-  if (!/^[a-f0-9]{40}$/i.test(record.host?.gitSha ?? '')) {
-    fail('Release record must contain a full source Git SHA');
-  }
-  run('git', ['merge-base', '--is-ancestor', record.host.gitSha, 'HEAD'], {
-    message: 'Release record source Git SHA is not an ancestor of HEAD',
-  });
-  const changesSinceSource = run(
-    'git',
-    ['diff', '--name-only', `${record.host.gitSha}..HEAD`],
-    {capture: true},
-  )
-    .split(/\r?\n/)
-    .filter(Boolean)
-    .filter(changed => changed !== recordRelativePath);
-  if (changesSinceSource.length > 0) {
-    fail('Code changed after the source Git SHA recorded for this release');
-  }
-  if (
-    typeof record.changeSummary !== 'string' ||
-    record.changeSummary.trim().length < 5 ||
-    !record.approval?.approvedBy ||
-    !Number.isFinite(Date.parse(record.approval?.approvedAtUtc)) ||
-    typeof record.host?.xcodeVersion !== 'string'
-  ) {
-    fail('Release record change summary, Xcode version, and approval are required');
-  }
-  const currentXcode = run('xcodebuild', ['-version'], {capture: true}).match(
-    /Xcode ([^\n]+)/,
-  )?.[1];
-  if (record.host.xcodeVersion !== currentXcode) {
-    fail('Release record Xcode version does not match the selected toolchain');
-  }
-  if (forArchive && record.validation?.repositoryGates !== 'passed') {
-    fail('Release record repository gates must be marked passed before archive');
-  }
+function remoteSnapshotPath() {
+  return join(ROOT, 'build/testflight/remote-snapshot.json');
+}
 
-  const expected = {
+function archiveEvidencePath(archivePath) {
+  return join(
+    ROOT,
+    'build/testflight/evidence',
+    `${basename(archivePath, '.xcarchive')}.json`,
+  );
+}
+
+function loadLocalJson(path, label) {
+  if (!existsSync(path)) fail(`${label} not found: ${path}`);
+  return JSON.parse(readFileSync(path, 'utf8'));
+}
+
+function loadRemoteSnapshot() {
+  return loadLocalJson(
+    remoteSnapshotPath(),
+    'Remote snapshot; run pnpm testflight:verify-remotes first',
+  );
+}
+
+function loadArchiveEvidence(archivePath) {
+  return loadLocalJson(
+    archiveEvidencePath(archivePath),
+    'Bound archive evidence was not generated with this archive',
+  );
+}
+
+function writeLocalJson(path, value) {
+  mkdirSync(resolve(path, '..'), {recursive: true});
+  const temporary = `${path}.${process.pid}.tmp`;
+  try {
+    writeFileSync(temporary, `${JSON.stringify(value, null, 2)}\n`, {
+      mode: 0o600,
+    });
+    renameSync(temporary, path);
+  } finally {
+    rmSync(temporary, {force: true});
+  }
+}
+
+function configuredRemoteRequirements() {
+  const requirements = {
     mini: {
-      uid: 'cache-test-mini.zephyr-native-cache-test.zephyrcloudio',
+      applicationUid: 'cache-test-mini.zephyr-native-cache-test.zephyrcloudio',
+      manifestUrl: process.env.ZEPHYR_MINI_MANIFEST_URL,
+      manifestName: 'MFExampleMini',
       exposes: ['CalorieCard', 'DeployCard', 'StatsCard'],
     },
     nestedMini: {
-      uid: 'cache-test-nested-mini.zephyr-native-cache-test.zephyrcloudio',
+      applicationUid:
+        'cache-test-nested-mini.zephyr-native-cache-test.zephyrcloudio',
+      manifestUrl: process.env.ZEPHYR_NESTED_MINI_MANIFEST_URL,
+      manifestName: 'MFExampleNestedMini',
       exposes: ['ActivityFeed', 'CacheInfo', 'HydrationCard'],
     },
   };
-  if (
-    JSON.stringify(Object.keys(record.remotes ?? {}).sort()) !==
-    JSON.stringify(Object.keys(expected).sort())
-  ) {
-    fail('Release record must contain exactly the approved remote pair');
+  for (const [alias, requirement] of Object.entries(requirements)) {
+    if (!requirement.manifestUrl) {
+      fail(`Set the public ${alias} TestFlight manifest URL in .env.testflight`);
+    }
+    validatePublicZephyrUrl(requirement.manifestUrl);
   }
-  for (const [alias, requirement] of Object.entries(expected)) {
-    const remote = record.remotes?.[alias];
-    if (remote?.applicationUid !== requirement.uid || remote?.environment !== 'testflight') {
-      fail(`Release record ${alias} identity mismatch`);
-    }
-    for (const field of ['immutableVersionId', 'buildHash', 'selectorManifestUrl', 'selectorManifestFinalUrl', 'immutableManifestUrl', 'immutableManifestFinalUrl', 'selectorManifestSha256', 'immutableManifestSha256', 'rollbackVersionId']) {
-      if (!remote[field]) fail(`Release record ${alias}.${field} is required`);
-    }
-    if (!/^[a-f0-9]{64}$/i.test(remote.buildHash)) {
-      fail(`Release record ${alias}.buildHash must be a SHA-256 value`);
-    }
-    for (const field of [
-      'selectorManifestUrl',
-      'selectorManifestFinalUrl',
-      'immutableManifestUrl',
-      'immutableManifestFinalUrl',
-    ]) {
-      validatePublicZephyrUrl(remote[field]);
-    }
-    const immutableSegments = validatePublicZephyrUrl(
-      remote.immutableManifestFinalUrl,
-    ).pathname
-      .split('/')
-      .filter(Boolean)
-      .map(segment => decodeURIComponent(segment));
-    if (!immutableSegments.includes(remote.immutableVersionId)) {
-      fail(`Release record ${alias} immutable URL must encode its immutable version ID`);
-    }
-    if (remote.rollbackVersionId === remote.immutableVersionId) {
-      fail(`Release record ${alias} rollback version must differ from the candidate`);
-    }
-    if (!Array.isArray(remote.allowedExposes) || JSON.stringify([...remote.allowedExposes].sort()) !== JSON.stringify(requirement.exposes)) {
-      fail(`Release record ${alias} expose set mismatch`);
-    }
-    if (
-      !remote.artifactHashes ||
-      Object.keys(remote.artifactHashes).length < remote.allowedExposes.length + 2
-    ) {
-      fail(`Release record ${alias} must hash its container, exposed, and shared artifacts`);
-    }
-    for (const url of Object.keys(remote.artifactHashes)) {
-      validatePublicZephyrUrl(url, {artifact: true});
-    }
-  }
-  return record;
+  return requirements;
 }
 
 async function fetchPublicHttps(input) {
@@ -439,71 +380,51 @@ async function fetchPublicHttps(input) {
   fail(`Too many redirects while fetching ${input}`);
 }
 
-async function verifyRemoteRecord(record = loadReleaseRecord()) {
-  for (const [alias, remote] of Object.entries(record.remotes)) {
-    const selector = await fetchPublicHttps(remote.selectorManifestUrl);
-    const immutable = await fetchPublicHttps(remote.immutableManifestUrl);
-    if (
-      selector.finalUrl !== new URL(remote.selectorManifestFinalUrl).toString() ||
-      immutable.finalUrl !== new URL(remote.immutableManifestFinalUrl).toString()
-    ) {
-      fail(`${alias} manifest redirect target changed`);
-    }
-    if (sha256(selector.bytes) !== remote.selectorManifestSha256) {
-      fail(`${alias} selector manifest hash mismatch`);
-    }
-    if (sha256(immutable.bytes) !== remote.immutableManifestSha256) {
-      fail(`${alias} immutable manifest hash mismatch`);
-    }
-    const selectorManifest = JSON.parse(selector.bytes.toString('utf8'));
-    const immutableManifest = JSON.parse(immutable.bytes.toString('utf8'));
-    const expectedManifestName = alias === 'mini' ? 'MFExampleMini' : 'MFExampleNestedMini';
-    if (
-      selectorManifest.name !== expectedManifestName ||
-      immutableManifest.name !== expectedManifestName
-    ) {
+async function resolveRemoteSnapshot({persist = false} = {}) {
+  const snapshot = {
+    generatedAtUtc: new Date().toISOString(),
+    remotes: {},
+  };
+  for (const [alias, requirement] of Object.entries(
+    configuredRemoteRequirements(),
+  )) {
+    const response = await fetchPublicHttps(requirement.manifestUrl);
+    const manifest = JSON.parse(response.bytes.toString('utf8'));
+    if (manifest.name !== requirement.manifestName) {
       fail(`${alias} manifest application identity mismatch`);
     }
-    const exposes = (immutableManifest.exposes ?? [])
-      .map(expose => expose.name)
-      .sort();
-    if (JSON.stringify(exposes) !== JSON.stringify([...remote.allowedExposes].sort())) {
+    const exposes = (manifest.exposes ?? []).map(expose => expose.name).sort();
+    if (JSON.stringify(exposes) !== JSON.stringify(requirement.exposes)) {
       fail(`${alias} manifest exposes an unapproved module set`);
     }
-    const selectorGraph = manifestArtifactMap(selectorManifest, selector.finalUrl);
-    const immutableGraph = manifestArtifactMap(
-      immutableManifest,
-      immutable.finalUrl,
-    );
-    if (
-      selectorGraph.buildHash !== remote.buildHash ||
-      immutableGraph.buildHash !== remote.buildHash ||
-      JSON.stringify(logicalArtifactMap(selectorGraph.artifacts)) !==
-        JSON.stringify(logicalArtifactMap(immutableGraph.artifacts))
-    ) {
-      fail(`${alias} selector and immutable manifests do not identify the same build`);
-    }
-    const recordedArtifacts = Object.fromEntries(
-      Object.entries(remote.artifactHashes)
-        .map(([url, hash]) => [new URL(url).toString(), hash])
-        .sort(([left], [right]) => left.localeCompare(right)),
-    );
-    const derivedArtifacts = Object.fromEntries(
-      Object.entries(selectorGraph.artifacts).sort(([left], [right]) =>
-        left.localeCompare(right),
-      ),
-    );
-    if (JSON.stringify(recordedArtifacts) !== JSON.stringify(derivedArtifacts)) {
-      fail(`${alias} recorded artifacts do not exactly match the live selector manifest`);
-    }
-    for (const [url, expectedHash] of Object.entries(remote.artifactHashes)) {
-      if (!/^[a-f0-9]{64}$/i.test(expectedHash)) fail(`${alias} has an invalid artifact hash`);
+    const graph = manifestArtifactMap(manifest, response.finalUrl);
+    for (const [url, expectedHash] of Object.entries(graph.artifacts)) {
+      validatePublicZephyrUrl(url, {artifact: true});
       const artifact = await fetchPublicHttps(url);
-      if (sha256(artifact.bytes) !== expectedHash) fail(`${alias} artifact hash mismatch: ${url}`);
+      if (sha256(artifact.bytes) !== expectedHash) {
+        fail(`${alias} artifact hash mismatch: ${url}`);
+      }
     }
+    snapshot.remotes[alias] = {
+      applicationUid: requirement.applicationUid,
+      selectorManifestUrl: new URL(requirement.manifestUrl).toString(),
+      finalManifestUrl: response.finalUrl,
+      manifestSha256: sha256(response.bytes),
+      buildHash: graph.buildHash,
+      artifacts: graph.artifacts,
+    };
   }
-  console.log('TestFlight remote manifests and executable artifacts are valid');
-  return record;
+  if (persist) writeLocalJson(remoteSnapshotPath(), snapshot);
+  console.log('TestFlight environment manifests and executable artifacts are valid');
+  return snapshot;
+}
+
+function snapshotsMatch(left, right) {
+  const withoutTimestamp = snapshot => ({remotes: snapshot.remotes});
+  return (
+    JSON.stringify(withoutTimestamp(left)) ===
+    JSON.stringify(withoutTimestamp(right))
+  );
 }
 
 function showBuildSettings() {
@@ -528,8 +449,7 @@ function showBuildSettings() {
 
 async function archive() {
   requireCleanReleaseWorktree();
-  const record = loadReleaseRecord({forArchive: true});
-  await verifyRemoteRecord(record);
+  const before = await resolveRemoteSnapshot({persist: true});
   showBuildSettings();
   const build = getBuildNumber();
   const archivePath = resolve(
@@ -540,7 +460,11 @@ async function archive() {
   run('xcodebuild', xcodeArgs(['clean', 'archive'], archivePath), {
     env: process.env,
   });
-  await verifyRemoteRecord(record);
+  const after = await resolveRemoteSnapshot();
+  if (!snapshotsMatch(before, after)) {
+    fail('TestFlight environments changed while the archive was being created');
+  }
+  writeBoundArchiveEvidence(archivePath, before);
   console.log(`Archive created at ${archivePath}`);
 }
 
@@ -737,13 +661,7 @@ function readCodeSignEntitlements(appPath) {
   return parsePlistText(plist, 'Unable to parse code-signing entitlements');
 }
 
-function printArchiveEvidence() {
-  requireArtifactEnvironment();
-  const build = getBuildNumber();
-  const archivePath = resolve(
-    getArchiveArgument() ??
-      join(ROOT, 'build/testflight', `ZephyrHealth-${VERSION}-${build}.xcarchive`),
-  );
+function collectArchiveEvidence(archivePath) {
   const appPath = findHostApp(archivePath);
   const info = parsePlist(join(appPath, 'Info.plist'));
   const archiveInfoPath = join(archivePath, 'Info.plist');
@@ -754,36 +672,85 @@ function printArchiveEvidence() {
       /[a-f0-9-]{36}/gi,
     ) ?? []
   ).map(uuid => uuid.toUpperCase());
-  console.log(
-    JSON.stringify(
-      {
-        archiveInfoSha256: sha256(readFileSync(archiveInfoPath)),
-        appInfoSha256: appInfoDigest(info),
-        appExecutableSha256: sha256(readFileSync(executable)),
-        mainBundleSha256: sha256(readFileSync(join(appPath, 'main.jsbundle'))),
-        resourceTreeSha256: resourceTreeDigest(
-          appPath,
-          info,
-        ),
-        executables: normalizedExecutableEvidence(appPath, info),
-        executableUuids,
-        signingIdentity: archiveInfo.ApplicationProperties?.SigningIdentity,
-        teamId: archiveInfo.ApplicationProperties?.Team,
-        createdAtUtc: statSync(archivePath).birthtime.toISOString(),
-      },
-      null,
-      2,
-    ),
+  return {
+    archiveInfoSha256: sha256(readFileSync(archiveInfoPath)),
+    appInfoSha256: appInfoDigest(info),
+    appExecutableSha256: sha256(readFileSync(executable)),
+    mainBundleSha256: sha256(readFileSync(join(appPath, 'main.jsbundle'))),
+    resourceTreeSha256: resourceTreeDigest(appPath, info),
+    executables: normalizedExecutableEvidence(appPath, info),
+    executableUuids,
+    signingIdentity: archiveInfo.ApplicationProperties?.SigningIdentity,
+    teamId: archiveInfo.ApplicationProperties?.Team,
+    createdAtUtc: statSync(archivePath).birthtime.toISOString(),
+  };
+}
+
+function writeBoundArchiveEvidence(archivePath, remoteSnapshot) {
+  const path = archiveEvidencePath(archivePath);
+  if (existsSync(path)) fail(`Refusing to overwrite archive evidence: ${path}`);
+  const evidence = {
+    schemaVersion: 1,
+    archivePath: resolve(archivePath),
+    gitSha: run('git', ['rev-parse', 'HEAD'], {capture: true}).trim(),
+    xcodeVersion: selectedXcodeVersion(),
+    bundleId: process.env.IOS_BUNDLE_ID,
+    teamId: process.env.APPLE_TEAM_ID,
+    version: VERSION,
+    build: getBuildNumber(),
+    remoteSnapshot,
+    remoteSnapshotSha256: remoteSnapshotDigest(remoteSnapshot),
+    archive: collectArchiveEvidence(archivePath),
+  };
+  writeLocalJson(path, evidence);
+  return evidence;
+}
+
+function validateBoundArchiveEvidence(evidence, archivePath) {
+  const expectedGitSha = run('git', ['rev-parse', 'HEAD'], {capture: true}).trim();
+  if (
+    evidence.schemaVersion !== 1 ||
+    evidence.archivePath !== resolve(archivePath) ||
+    evidence.gitSha !== expectedGitSha ||
+    evidence.xcodeVersion !== selectedXcodeVersion() ||
+    evidence.bundleId !== process.env.IOS_BUNDLE_ID ||
+    evidence.teamId !== process.env.APPLE_TEAM_ID ||
+    evidence.version !== VERSION ||
+    evidence.build !== getBuildNumber() ||
+    evidence.remoteSnapshotSha256 !==
+      remoteSnapshotDigest(evidence.remoteSnapshot)
+  ) {
+    fail('Archive evidence does not match the current source/release identity');
+  }
+  return evidence;
+}
+
+function printArchiveEvidence() {
+  requireArtifactEnvironment();
+  const build = getBuildNumber();
+  const archivePath = resolve(
+    getArchiveArgument() ??
+      join(ROOT, 'build/testflight', `ZephyrHealth-${VERSION}-${build}.xcarchive`),
   );
+  const evidence = validateBoundArchiveEvidence(
+    loadArchiveEvidence(archivePath),
+    archivePath,
+  );
+  console.log(JSON.stringify(evidence, null, 2));
 }
 
 async function verifyArchive() {
   requireArtifactEnvironment();
-  const record = loadReleaseRecord({forArchive: true});
   const build = getBuildNumber();
   const archivePath = resolve(
     getArchiveArgument() ?? join(ROOT, 'build/testflight', `ZephyrHealth-${VERSION}-${build}.xcarchive`),
   );
+  const boundEvidence = validateBoundArchiveEvidence(
+    loadArchiveEvidence(archivePath),
+    archivePath,
+  );
+  const remoteSnapshot = boundEvidence.remoteSnapshot;
+  const archiveEvidence = boundEvidence.archive;
   const appPath = findHostApp(archivePath);
   const info = parsePlist(
     join(appPath, 'Info.plist'),
@@ -888,7 +855,6 @@ async function verifyArchive() {
   ) {
     fail('Archive dSYM UUID mismatch');
   }
-  const archiveEvidence = record.archive ?? {};
   if (
     archiveEvidence.archiveInfoSha256 !==
       sha256(readFileSync(join(archivePath, 'Info.plist'))) ||
@@ -905,7 +871,7 @@ async function verifyArchive() {
     archiveEvidence.signingIdentity !== properties.SigningIdentity ||
     archiveEvidence.teamId !== process.env.APPLE_TEAM_ID
   ) {
-    fail('Release record archive identity does not match the archive');
+    fail('Local archive evidence does not match the archive');
   }
 
   const files = walk(archivePath);
@@ -915,7 +881,7 @@ async function verifyArchive() {
     'sntryu_', '.env.testflight', '.env.e2e',
   ];
   if (process.env.ZE_SECRET_TOKEN) forbidden.push(process.env.ZE_SECRET_TOKEN);
-  const required = Object.values(record.remotes).flatMap(remote => [
+  const required = Object.values(remoteSnapshot.remotes).flatMap(remote => [
     remote.applicationUid,
     remote.selectorManifestUrl,
   ]);
@@ -952,7 +918,10 @@ async function verifyArchive() {
   for (const value of required) {
     if (!foundRequired.has(value)) fail(`Host app does not contain approved remote ${value}`);
   }
-  await verifyRemoteRecord(record);
+  const currentSnapshot = await resolveRemoteSnapshot();
+  if (!snapshotsMatch(remoteSnapshot, currentSnapshot)) {
+    fail('TestFlight environments changed after the archive was created');
+  }
   console.log(`Archive verification passed: ${archivePath}`);
 }
 
@@ -979,7 +948,6 @@ function findExportedIpa(exportPath) {
 
 async function exportArchive() {
   requireReleaseEnvironment();
-  loadReleaseRecord({forArchive: true});
   await verifyArchive();
   const build = getBuildNumber();
   const archivePath = resolve(
@@ -1002,12 +970,15 @@ async function exportArchive() {
     '-exportOptionsPlist',
     join(ROOT, 'apps/host/ios/ExportOptions-TestFlight.plist'),
   ]);
+  copyFileSync(
+    archiveEvidencePath(archivePath),
+    join(exportPath, 'archive-evidence.json'),
+  );
   console.log(`App Store Connect export created: ${findExportedIpa(exportPath)}`);
 }
 
 function verifyIpa() {
   requireArtifactEnvironment();
-  const record = loadReleaseRecord({forArchive: true});
   const build = getBuildNumber();
   const configured = getArchiveArgument();
   const defaultExport = join(
@@ -1019,6 +990,13 @@ function verifyIpa() {
     ? resolve(configured)
     : findExportedIpa(defaultExport);
   if (!existsSync(ipaPath) || !ipaPath.endsWith('.ipa')) fail(`IPA not found: ${ipaPath}`);
+  const boundEvidence = loadLocalJson(
+    join(dirname(ipaPath), 'archive-evidence.json'),
+    'Exported IPA has no bound archive evidence',
+  );
+  validateBoundArchiveEvidence(boundEvidence, boundEvidence.archivePath);
+  const remoteSnapshot = boundEvidence.remoteSnapshot;
+  const archiveEvidence = boundEvidence.archive;
   const output = mkdtempSync(join(tmpdir(), 'zephyr-health-ipa-'));
   try {
     run('ditto', ['-x', '-k', ipaPath, output]);
@@ -1046,14 +1024,14 @@ function verifyIpa() {
     if (
       executableUuids.length === 0 ||
       JSON.stringify([...executableUuids].sort()) !==
-        JSON.stringify([...(record.archive?.executableUuids ?? [])].sort()) ||
-      appInfoDigest(info) !== record.archive?.appInfoSha256 ||
+        JSON.stringify([...(archiveEvidence.executableUuids ?? [])].sort()) ||
+      appInfoDigest(info) !== archiveEvidence.appInfoSha256 ||
       sha256(readFileSync(join(appPath, 'main.jsbundle'))) !==
-        record.archive?.mainBundleSha256 ||
+        archiveEvidence.mainBundleSha256 ||
       resourceTreeDigest(appPath, info) !==
-        record.archive?.resourceTreeSha256 ||
+        archiveEvidence.resourceTreeSha256 ||
       JSON.stringify(normalizedExecutableEvidence(appPath, info)) !==
-        JSON.stringify(record.archive?.executables ?? {})
+        JSON.stringify(archiveEvidence.executables ?? {})
     ) {
       fail('Exported IPA does not match the approved archive resources/UUIDs');
     }
@@ -1110,7 +1088,7 @@ function verifyIpa() {
     const text = walk(appPath)
       .map(file => readFileSync(file).toString('latin1'))
       .join('\n');
-    for (const remote of Object.values(record.remotes)) {
+    for (const remote of Object.values(remoteSnapshot.remotes)) {
       if (
         !text.includes(remote.applicationUid) ||
         !text.includes(remote.selectorManifestUrl)
@@ -1231,8 +1209,11 @@ function verifyAssets() {
 
 async function smokeTest() {
   requireArtifactEnvironment({team: false});
-  const record = loadReleaseRecord({forArchive: true});
-  await verifyRemoteRecord(record);
+  const remoteSnapshot = loadRemoteSnapshot();
+  const currentSnapshot = await resolveRemoteSnapshot();
+  if (!snapshotsMatch(remoteSnapshot, currentSnapshot)) {
+    fail('TestFlight environments changed after the candidate was built');
+  }
   const appPath = run(
     'xcrun',
     ['simctl', 'get_app_container', 'booted', process.env.IOS_BUNDLE_ID, 'app'],
@@ -1288,7 +1269,9 @@ try {
   if (action === 'preflight') requireReleaseEnvironment();
   else if (action === 'settings') showBuildSettings();
   else if (action === 'archive') await archive();
-  else if (action === 'verify-remotes') await verifyRemoteRecord();
+  else if (action === 'verify-remotes') {
+    await resolveRemoteSnapshot({persist: true});
+  }
   else if (action === 'verify-assets') verifyAssets();
   else if (action === 'archive-evidence') printArchiveEvidence();
   else if (action === 'export') await exportArchive();

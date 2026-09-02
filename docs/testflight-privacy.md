@@ -24,7 +24,7 @@ collected-data types.
 
 Remote updates are governed by `docs/remote-release-policy.md` and may not add
 permissions, identifiers, analytics, tracking, or data collection. The final
-public privacy-policy URL must be recorded in each release record.
+public privacy-policy URL must be configured in App Store Connect.
 
 Before upload, capture traffic for clean launch, cached launch, manual update,
 restart, offline launch, and rollback. Compare observed hosts and request data

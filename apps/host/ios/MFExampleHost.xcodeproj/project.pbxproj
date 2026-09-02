@@ -261,6 +261,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 766PLUYVHQ;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = "$(ZEPHYR_INFOPLIST_FILE)";
 				INFOPLIST_KEY_CFBundleDisplayName = "Zephyr Health";
@@ -275,7 +276,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.mf.example.host;
+				PRODUCT_BUNDLE_IDENTIFIER = "io.zephyr-cloud.health";
 				PRODUCT_NAME = MFExampleHost;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -292,6 +293,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 766PLUYVHQ;
 				INFOPLIST_FILE = "$(ZEPHYR_INFOPLIST_FILE)";
 				INFOPLIST_KEY_CFBundleDisplayName = "Zephyr Health";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
@@ -305,7 +307,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.mf.example.host;
+				PRODUCT_BUNDLE_IDENTIFIER = "io.zephyr-cloud.health";
 				PRODUCT_NAME = MFExampleHost;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;

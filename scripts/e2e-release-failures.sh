@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-APP_ID="${APP_ID:-com.mf.example.host}"
+APP_ID="${APP_ID:-io.zephyr-cloud.health}"
 
 for port in 8082 8083; do
   if lsof -nP -iTCP:"$port" -sTCP:LISTEN >/dev/null 2>&1; then
