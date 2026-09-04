@@ -85,6 +85,15 @@ function parsePlistText(source, message) {
   );
 }
 
+function parsePlistKey(path, key, message) {
+  const source = run(
+    'plutil',
+    ['-extract', key, 'xml1', '-o', '-', path],
+    {capture: true, message},
+  );
+  return parsePlistText(source, message);
+}
+
 function getBuildNumber() {
   const build = process.env.IOS_BUILD_NUMBER;
   if (!build || !/^[1-9]\d*$/.test(build)) {
@@ -682,7 +691,11 @@ function collectArchiveEvidence(archivePath) {
   const appPath = findHostApp(archivePath);
   const info = parsePlist(join(appPath, 'Info.plist'));
   const archiveInfoPath = join(archivePath, 'Info.plist');
-  const archiveInfo = parsePlist(archiveInfoPath);
+  const archiveProperties = parsePlistKey(
+    archiveInfoPath,
+    'ApplicationProperties',
+    'Unable to read archive application properties',
+  );
   const executable = join(appPath, info.CFBundleExecutable);
   const executableUuids = (
     run('dwarfdump', ['--uuid', executable], {capture: true}).match(
@@ -697,8 +710,8 @@ function collectArchiveEvidence(archivePath) {
     resourceTreeSha256: resourceTreeDigest(appPath, info),
     executables: normalizedExecutableEvidence(appPath, info),
     executableUuids,
-    signingIdentity: archiveInfo.ApplicationProperties?.SigningIdentity,
-    teamId: archiveInfo.ApplicationProperties?.Team,
+    signingIdentity: archiveProperties.SigningIdentity,
+    teamId: archiveProperties.Team,
     createdAtUtc: statSync(archivePath).birthtime.toISOString(),
   };
 }
@@ -822,8 +835,11 @@ async function verifyArchive({releaseTrack = 'external'} = {}) {
   }
   validateAppPrivacyAndTransport(info, appPath);
 
-  const archiveInfo = parsePlist(join(archivePath, 'Info.plist'));
-  const properties = archiveInfo.ApplicationProperties ?? {};
+  const properties = parsePlistKey(
+    join(archivePath, 'Info.plist'),
+    'ApplicationProperties',
+    'Unable to read archive application properties',
+  );
   if (properties.CFBundleIdentifier !== process.env.IOS_BUNDLE_ID) {
     fail('Archive application bundle ID mismatch');
   }
