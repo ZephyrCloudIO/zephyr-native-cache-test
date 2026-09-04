@@ -28,3 +28,8 @@ Required approval evidence:
 
 This policy reduces operational risk but does not remove Apple App Review
 Guideline 2.5.2 risk for downloaded executable JavaScript.
+
+Internal TestFlight builds may use the repository's `testflight:internal:*`
+workflow without independent manifest and artifact verification. Those builds
+are for team smoke testing only, must remain restricted to internal testers,
+and do not constitute approved external-release evidence.

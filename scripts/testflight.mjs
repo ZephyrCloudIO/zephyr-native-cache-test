@@ -176,7 +176,7 @@ function validatePublicZephyrUrl(input, {artifact = false} = {}) {
   return url;
 }
 
-function requireReleaseEnvironment() {
+function requireReleaseEnvironment({releaseTrack = 'external'} = {}) {
   requireArtifactEnvironment();
   if (process.env.ZEPHYR_DISTRIBUTION !== 'testflight') {
     fail('ZEPHYR_DISTRIBUTION must be testflight');
@@ -218,13 +218,18 @@ function requireReleaseEnvironment() {
   );
 
   const cacheVersion = hostPackage.dependencies?.['zephyr-native-cache'];
-  if (!APPROVED_CACHE_VERSIONS.has(cacheVersion)) {
+  if (
+    releaseTrack === 'external' &&
+    !APPROVED_CACHE_VERSIONS.has(cacheVersion)
+  ) {
     fail(
       `zephyr-native-cache ${cacheVersion} is not approved for external TestFlight; add an exact version only after fail-closed integrity and known-good promotion tests pass`,
     );
   }
 
-  console.log(`Preflight passed with Xcode ${major}, bundle ${process.env.IOS_BUNDLE_ID}`);
+  console.log(
+    `${releaseTrack === 'internal' ? 'Internal ' : ''}preflight passed with Xcode ${major}, bundle ${process.env.IOS_BUNDLE_ID}`,
+  );
 }
 
 function xcodeArgs(actions, archivePath) {
@@ -238,7 +243,9 @@ function xcodeArgs(actions, archivePath) {
     `DEVELOPMENT_TEAM=${process.env.APPLE_TEAM_ID}`,
     `CURRENT_PROJECT_VERSION=${build}`,
     'ZEPHYR_INFOPLIST_FILE=MFExampleHost/Info-TestFlight.plist',
-    'CODE_SIGN_STYLE=Automatic',
+    'CODE_SIGN_STYLE=Manual',
+    'CODE_SIGN_IDENTITY=Apple Distribution',
+    'PROVISIONING_PROFILE_SPECIFIER=Zephyr Health App',
   ];
   if (archivePath) args.push('-archivePath', archivePath);
   args.push(...(Array.isArray(actions) ? actions : [actions]));
@@ -275,6 +282,7 @@ function remoteSnapshotDigest(snapshot) {
 
 function requireCleanReleaseWorktree() {
   const allowedUntracked = new Set([
+    'IOS_SIGNING_RESTART_PLAN.md',
     'TESTFLIGHT_PUBLISH_PLAN.md',
     'TESTFLIGHT_REPOSITORY_WORK_SUMMARY.md',
   ]);
@@ -427,8 +435,8 @@ function snapshotsMatch(left, right) {
   );
 }
 
-function showBuildSettings() {
-  requireReleaseEnvironment();
+function showBuildSettings({releaseTrack = 'external'} = {}) {
+  requireReleaseEnvironment({releaseTrack});
   const build = getBuildNumber();
   const output = run('xcodebuild', xcodeArgs('-showBuildSettings'), {capture: true});
   const expected = {
@@ -439,6 +447,10 @@ function showBuildSettings() {
     TARGETED_DEVICE_FAMILY: '1',
     IPHONEOS_DEPLOYMENT_TARGET: '15.1',
     CONFIGURATION: 'Release',
+    CODE_SIGN_STYLE: 'Manual',
+    CODE_SIGN_IDENTITY: 'Apple Distribution',
+    DEVELOPMENT_TEAM: process.env.APPLE_TEAM_ID,
+    PROVISIONING_PROFILE_SPECIFIER: 'Zephyr Health App',
   };
   for (const [setting, value] of Object.entries(expected)) {
     const match = output.match(new RegExp(`^\\s*${setting} = (.+)$`, 'm'))?.[1]?.trim();
@@ -447,10 +459,13 @@ function showBuildSettings() {
   console.log('Release build settings are valid');
 }
 
-async function archive() {
+async function archive({releaseTrack = 'external'} = {}) {
   requireCleanReleaseWorktree();
-  const before = await resolveRemoteSnapshot({persist: true});
-  showBuildSettings();
+  const before =
+    releaseTrack === 'external'
+      ? await resolveRemoteSnapshot({persist: true})
+      : undefined;
+  showBuildSettings({releaseTrack});
   const build = getBuildNumber();
   const archivePath = resolve(
     getArchiveArgument() ?? join(ROOT, 'build/testflight', `ZephyrHealth-${VERSION}-${build}.xcarchive`),
@@ -460,11 +475,13 @@ async function archive() {
   run('xcodebuild', xcodeArgs(['clean', 'archive'], archivePath), {
     env: process.env,
   });
-  const after = await resolveRemoteSnapshot();
-  if (!snapshotsMatch(before, after)) {
-    fail('TestFlight environments changed while the archive was being created');
+  if (releaseTrack === 'external') {
+    const after = await resolveRemoteSnapshot();
+    if (!snapshotsMatch(before, after)) {
+      fail('TestFlight environments changed while the archive was being created');
+    }
   }
-  writeBoundArchiveEvidence(archivePath, before);
+  writeBoundArchiveEvidence(archivePath, {releaseTrack, remoteSnapshot: before});
   console.log(`Archive created at ${archivePath}`);
 }
 
@@ -686,11 +703,15 @@ function collectArchiveEvidence(archivePath) {
   };
 }
 
-function writeBoundArchiveEvidence(archivePath, remoteSnapshot) {
+function writeBoundArchiveEvidence(
+  archivePath,
+  {releaseTrack, remoteSnapshot},
+) {
   const path = archiveEvidencePath(archivePath);
   if (existsSync(path)) fail(`Refusing to overwrite archive evidence: ${path}`);
   const evidence = {
-    schemaVersion: 1,
+    schemaVersion: 2,
+    releaseTrack,
     archivePath: resolve(archivePath),
     gitSha: run('git', ['rev-parse', 'HEAD'], {capture: true}).trim(),
     xcodeVersion: selectedXcodeVersion(),
@@ -698,18 +719,33 @@ function writeBoundArchiveEvidence(archivePath, remoteSnapshot) {
     teamId: process.env.APPLE_TEAM_ID,
     version: VERSION,
     build: getBuildNumber(),
-    remoteSnapshot,
-    remoteSnapshotSha256: remoteSnapshotDigest(remoteSnapshot),
     archive: collectArchiveEvidence(archivePath),
   };
+  if (releaseTrack === 'external') {
+    evidence.remoteSnapshot = remoteSnapshot;
+    evidence.remoteSnapshotSha256 = remoteSnapshotDigest(remoteSnapshot);
+  }
   writeLocalJson(path, evidence);
   return evidence;
 }
 
-function validateBoundArchiveEvidence(evidence, archivePath) {
+function validateBoundArchiveEvidence(
+  evidence,
+  archivePath,
+  {releaseTrack = evidence.releaseTrack} = {},
+) {
   const expectedGitSha = run('git', ['rev-parse', 'HEAD'], {capture: true}).trim();
+  const remoteEvidenceIsValid =
+    releaseTrack === 'external'
+      ? evidence.remoteSnapshot &&
+        evidence.remoteSnapshotSha256 ===
+          remoteSnapshotDigest(evidence.remoteSnapshot)
+      : evidence.remoteSnapshot === undefined &&
+        evidence.remoteSnapshotSha256 === undefined;
   if (
-    evidence.schemaVersion !== 1 ||
+    evidence.schemaVersion !== 2 ||
+    !['internal', 'external'].includes(releaseTrack) ||
+    evidence.releaseTrack !== releaseTrack ||
     evidence.archivePath !== resolve(archivePath) ||
     evidence.gitSha !== expectedGitSha ||
     evidence.xcodeVersion !== selectedXcodeVersion() ||
@@ -717,8 +753,7 @@ function validateBoundArchiveEvidence(evidence, archivePath) {
     evidence.teamId !== process.env.APPLE_TEAM_ID ||
     evidence.version !== VERSION ||
     evidence.build !== getBuildNumber() ||
-    evidence.remoteSnapshotSha256 !==
-      remoteSnapshotDigest(evidence.remoteSnapshot)
+    !remoteEvidenceIsValid
   ) {
     fail('Archive evidence does not match the current source/release identity');
   }
@@ -739,7 +774,7 @@ function printArchiveEvidence() {
   console.log(JSON.stringify(evidence, null, 2));
 }
 
-async function verifyArchive() {
+async function verifyArchive({releaseTrack = 'external'} = {}) {
   requireArtifactEnvironment();
   const build = getBuildNumber();
   const archivePath = resolve(
@@ -748,6 +783,7 @@ async function verifyArchive() {
   const boundEvidence = validateBoundArchiveEvidence(
     loadArchiveEvidence(archivePath),
     archivePath,
+    {releaseTrack},
   );
   const remoteSnapshot = boundEvidence.remoteSnapshot;
   const archiveEvidence = boundEvidence.archive;
@@ -881,10 +917,13 @@ async function verifyArchive() {
     'sntryu_', '.env.testflight', '.env.e2e',
   ];
   if (process.env.ZE_SECRET_TOKEN) forbidden.push(process.env.ZE_SECRET_TOKEN);
-  const required = Object.values(remoteSnapshot.remotes).flatMap(remote => [
-    remote.applicationUid,
-    remote.selectorManifestUrl,
-  ]);
+  const required =
+    releaseTrack === 'external'
+      ? Object.values(remoteSnapshot.remotes).flatMap(remote => [
+          remote.applicationUid,
+          remote.selectorManifestUrl,
+        ])
+      : [];
   const foundRequired = new Set();
   for (const path of files) {
     const bytes = readFileSync(path);
@@ -918,9 +957,11 @@ async function verifyArchive() {
   for (const value of required) {
     if (!foundRequired.has(value)) fail(`Host app does not contain approved remote ${value}`);
   }
-  const currentSnapshot = await resolveRemoteSnapshot();
-  if (!snapshotsMatch(remoteSnapshot, currentSnapshot)) {
-    fail('TestFlight environments changed after the archive was created');
+  if (releaseTrack === 'external') {
+    const currentSnapshot = await resolveRemoteSnapshot();
+    if (!snapshotsMatch(remoteSnapshot, currentSnapshot)) {
+      fail('TestFlight environments changed after the archive was created');
+    }
   }
   console.log(`Archive verification passed: ${archivePath}`);
 }
@@ -946,9 +987,9 @@ function findExportedIpa(exportPath) {
   return ipas[0];
 }
 
-async function exportArchive() {
-  requireReleaseEnvironment();
-  await verifyArchive();
+async function exportArchive({releaseTrack = 'external'} = {}) {
+  requireReleaseEnvironment({releaseTrack});
+  await verifyArchive({releaseTrack});
   const build = getBuildNumber();
   const archivePath = resolve(
     getArchiveArgument() ??
@@ -977,7 +1018,7 @@ async function exportArchive() {
   console.log(`App Store Connect export created: ${findExportedIpa(exportPath)}`);
 }
 
-function verifyIpa() {
+function verifyIpa({releaseTrack = 'external'} = {}) {
   requireArtifactEnvironment();
   const build = getBuildNumber();
   const configured = getArchiveArgument();
@@ -994,7 +1035,9 @@ function verifyIpa() {
     join(dirname(ipaPath), 'archive-evidence.json'),
     'Exported IPA has no bound archive evidence',
   );
-  validateBoundArchiveEvidence(boundEvidence, boundEvidence.archivePath);
+  validateBoundArchiveEvidence(boundEvidence, boundEvidence.archivePath, {
+    releaseTrack,
+  });
   const remoteSnapshot = boundEvidence.remoteSnapshot;
   const archiveEvidence = boundEvidence.archive;
   const output = mkdtempSync(join(tmpdir(), 'zephyr-health-ipa-'));
@@ -1088,12 +1131,14 @@ function verifyIpa() {
     const text = walk(appPath)
       .map(file => readFileSync(file).toString('latin1'))
       .join('\n');
-    for (const remote of Object.values(remoteSnapshot.remotes)) {
-      if (
-        !text.includes(remote.applicationUid) ||
-        !text.includes(remote.selectorManifestUrl)
-      ) {
-        fail(`Exported IPA is missing approved remote ${remote.applicationUid}`);
+    if (releaseTrack === 'external') {
+      for (const remote of Object.values(remoteSnapshot.remotes)) {
+        if (
+          !text.includes(remote.applicationUid) ||
+          !text.includes(remote.selectorManifestUrl)
+        ) {
+          fail(`Exported IPA is missing approved remote ${remote.applicationUid}`);
+        }
       }
     }
     if (
@@ -1207,12 +1252,14 @@ function verifyAssets() {
   console.log('App icons, launch screen, and brand sources are valid');
 }
 
-async function smokeTest() {
+async function smokeTest({releaseTrack = 'external'} = {}) {
   requireArtifactEnvironment({team: false});
-  const remoteSnapshot = loadRemoteSnapshot();
-  const currentSnapshot = await resolveRemoteSnapshot();
-  if (!snapshotsMatch(remoteSnapshot, currentSnapshot)) {
-    fail('TestFlight environments changed after the candidate was built');
+  if (releaseTrack === 'external') {
+    const remoteSnapshot = loadRemoteSnapshot();
+    const currentSnapshot = await resolveRemoteSnapshot();
+    if (!snapshotsMatch(remoteSnapshot, currentSnapshot)) {
+      fail('TestFlight environments changed after the candidate was built');
+    }
   }
   const appPath = run(
     'xcrun',
@@ -1237,9 +1284,11 @@ async function smokeTest() {
   ]);
 }
 
-function openXcode() {
-  requireReleaseEnvironment();
-  console.log('Use pnpm testflight:archive for the authoritative release archive.');
+function openXcode({releaseTrack = 'external'} = {}) {
+  requireReleaseEnvironment({releaseTrack});
+  console.log(
+    `Use pnpm testflight:${releaseTrack === 'internal' ? 'internal:' : ''}archive for the authoritative release archive.`,
+  );
   const developerDir = run('xcode-select', ['-p'], {capture: true}).trim();
   const executable = resolve(developerDir, '../MacOS/Xcode');
   const child = spawn(executable, [WORKSPACE], {
@@ -1250,8 +1299,8 @@ function openXcode() {
   child.unref();
 }
 
-function publishRemotes() {
-  requireReleaseEnvironment();
+function publishRemotes({releaseTrack = 'external'} = {}) {
+  requireReleaseEnvironment({releaseTrack});
   if (!['v1', 'v2', 'v3'].includes(process.env.REMOTE_VERSION)) {
     fail('Set REMOTE_VERSION explicitly to v1, v2, or v3 before publishing');
   }
@@ -1267,20 +1316,47 @@ function publishRemotes() {
 const action = process.argv[2];
 try {
   if (action === 'preflight') requireReleaseEnvironment();
+  else if (action === 'preflight-internal') {
+    requireReleaseEnvironment({releaseTrack: 'internal'});
+  }
   else if (action === 'settings') showBuildSettings();
+  else if (action === 'settings-internal') {
+    showBuildSettings({releaseTrack: 'internal'});
+  }
   else if (action === 'archive') await archive();
+  else if (action === 'archive-internal') {
+    await archive({releaseTrack: 'internal'});
+  }
   else if (action === 'verify-remotes') {
     await resolveRemoteSnapshot({persist: true});
   }
   else if (action === 'verify-assets') verifyAssets();
   else if (action === 'archive-evidence') printArchiveEvidence();
   else if (action === 'export') await exportArchive();
+  else if (action === 'export-internal') {
+    await exportArchive({releaseTrack: 'internal'});
+  }
   else if (action === 'verify-ipa') verifyIpa();
+  else if (action === 'verify-ipa-internal') {
+    verifyIpa({releaseTrack: 'internal'});
+  }
   else if (action === 'verify-archive') await verifyArchive();
+  else if (action === 'verify-archive-internal') {
+    await verifyArchive({releaseTrack: 'internal'});
+  }
   else if (action === 'e2e') await smokeTest();
+  else if (action === 'e2e-internal') {
+    await smokeTest({releaseTrack: 'internal'});
+  }
   else if (action === 'xcode') openXcode();
+  else if (action === 'xcode-internal') {
+    openXcode({releaseTrack: 'internal'});
+  }
   else if (action === 'publish-remotes') publishRemotes();
-  else fail('Usage: testflight.mjs <preflight|settings|archive|archive-evidence|export|verify-ipa|verify-remotes|verify-assets|verify-archive|e2e|xcode|publish-remotes> [artifact-path]');
+  else if (action === 'publish-remotes-internal') {
+    publishRemotes({releaseTrack: 'internal'});
+  }
+  else fail('Usage: testflight.mjs <preflight[-internal]|settings[-internal]|archive[-internal]|archive-evidence|export[-internal]|verify-ipa[-internal]|verify-remotes|verify-assets|verify-archive[-internal]|e2e[-internal]|xcode[-internal]|publish-remotes[-internal]> [artifact-path]');
 } catch (error) {
   console.error(`TestFlight release check failed: ${error.message}`);
   process.exitCode = 1;

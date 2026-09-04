@@ -147,6 +147,12 @@ External TestFlight is currently blocked until the audited integrity and
 known-good retention gaps in `zephyr-native-cache@1.2.4` are fixed upstream and
 validated here.
 
+Internal TestFlight uploads can use the explicit `testflight:internal:*`
+commands documented in `docs/testflight-release.md`. That path relies on the
+Zephyr plugin/runtime, does not require public manifest URL inputs, and skips
+the external remote snapshot and native-cache approval gates. It must not be
+used for external tester groups.
+
 ### Run on iOS
 
 In a separate terminal:

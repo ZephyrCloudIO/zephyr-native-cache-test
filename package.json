@@ -32,7 +32,16 @@
     "testflight:archive-evidence": "node --env-file-if-exists=.env.testflight scripts/testflight.mjs archive-evidence",
     "testflight:export": "node --env-file-if-exists=.env.testflight scripts/testflight.mjs export",
     "testflight:verify-ipa": "node --env-file-if-exists=.env.testflight scripts/testflight.mjs verify-ipa",
-    "testflight:verify-archive": "node --env-file-if-exists=.env.testflight scripts/testflight.mjs verify-archive"
+    "testflight:verify-archive": "node --env-file-if-exists=.env.testflight scripts/testflight.mjs verify-archive",
+    "testflight:internal:preflight": "node --env-file-if-exists=.env.testflight scripts/testflight.mjs preflight-internal",
+    "testflight:internal:settings": "node --env-file-if-exists=.env.testflight scripts/testflight.mjs settings-internal",
+    "testflight:internal:publish-remotes": "node --env-file-if-exists=.env.testflight scripts/testflight.mjs publish-remotes-internal",
+    "testflight:internal:e2e": "node --env-file-if-exists=.env.testflight scripts/testflight.mjs e2e-internal",
+    "testflight:internal:xcode": "node --env-file-if-exists=.env.testflight scripts/testflight.mjs xcode-internal",
+    "testflight:internal:archive": "node --env-file-if-exists=.env.testflight scripts/testflight.mjs archive-internal",
+    "testflight:internal:export": "node --env-file-if-exists=.env.testflight scripts/testflight.mjs export-internal",
+    "testflight:internal:verify-ipa": "node --env-file-if-exists=.env.testflight scripts/testflight.mjs verify-ipa-internal",
+    "testflight:internal:verify-archive": "node --env-file-if-exists=.env.testflight scripts/testflight.mjs verify-archive-internal"
   },
   "devDependencies": {
     "@types/node": "^25.6.0",
