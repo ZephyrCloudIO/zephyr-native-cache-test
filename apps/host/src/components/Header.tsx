@@ -7,24 +7,29 @@ interface HeaderProps {}
 
 export function Header(_props: HeaderProps) {
   const now = new Date();
-  const hour = now.getHours();
-  const greeting =
-    hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
-  const dateStr = now.toLocaleDateString('en-US', {
-    weekday: 'long',
-    month: 'short',
-    day: 'numeric',
-  });
+  let dateStr = 'Today';
+  try {
+    dateStr = now.toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'short',
+      day: 'numeric',
+    });
+  } catch {}
 
   return (
     <View style={styles.container}>
-      <Image source={logo} style={styles.bgLogo} resizeMode="contain" />
+      <Image
+        source={logo}
+        style={styles.bgLogo}
+        resizeMode="contain"
+        accessible={false}
+      />
       <View style={styles.content}>
         <Text style={styles.title}>
           Zephyr <Text style={styles.titleAccent}>Health</Text>
         </Text>
         <Text style={styles.greeting}>
-          {greeting} — <Text style={styles.date}>{dateStr}</Text>
+          Demo dashboard - <Text style={styles.date}>{dateStr}</Text>
         </Text>
       </View>
       <View style={styles.accentLine} />

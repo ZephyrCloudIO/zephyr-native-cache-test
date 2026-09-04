@@ -4,8 +4,9 @@ import {platformAndroid} from '@rnef/platform-android';
 import {platformIOS} from '@rnef/platform-ios';
 import {pluginMetro} from '@rnef/plugin-metro';
 import {zephyrMetroRNEFPlugin} from 'zephyr-metro-plugin';
+import distribution from '../../scripts/lib/zephyr-distribution.cjs';
 
-const ZEPHYR_E2E = process.env.ZEPHYR_E2E === '1';
+const {isZephyrBuild} = distribution;
 
 /** @type {import('@rnef/config').Config} */
 export default {
@@ -14,5 +15,5 @@ export default {
     ios: platformIOS(),
     android: platformAndroid(),
   },
-  plugins: [ZEPHYR_E2E ? zephyrMetroRNEFPlugin() : pluginMetroModuleFederation()],
+  plugins: [isZephyrBuild() ? zephyrMetroRNEFPlugin() : pluginMetroModuleFederation()],
 };

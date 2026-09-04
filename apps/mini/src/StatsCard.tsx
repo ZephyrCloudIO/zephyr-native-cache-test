@@ -14,7 +14,7 @@ export default function StatsCard({
   return (
     <View style={styles.card} testID={testID}>
       <View style={styles.labelRow}>
-        <Text style={styles.label}>Heart Rate</Text>
+        <Text style={styles.label}>Sample Heart Rate</Text>
         <Text testID="stats-card-version" style={styles.version}>{VERSION}</Text>
       </View>
       <View style={styles.bpmRow}>
@@ -24,7 +24,7 @@ export default function StatsCard({
       <View style={styles.zones}>
         <View style={styles.zone}>
           <View style={[styles.zoneDot, {backgroundColor: '#22c55e'}]} />
-          <Text style={styles.zoneText}>Resting</Text>
+          <Text style={styles.zoneText}>Fictional value</Text>
         </View>
         <View style={styles.zone}>
           <View style={[styles.zoneDot, {backgroundColor: '#6b7280'}]} />

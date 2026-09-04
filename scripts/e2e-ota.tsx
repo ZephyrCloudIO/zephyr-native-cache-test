@@ -43,6 +43,10 @@ if (!PLATFORM) {
   process.exit(1);
 }
 
+const APP_ID =
+  process.env.APP_ID ??
+  (PLATFORM === 'ios' ? 'io.zephyr-cloud.health' : 'com.mf.example.host');
+
 // ── Mocked-flow helpers ────────────────────────────────────────────────────
 
 async function checkCDN(log: (m: string) => void): Promise<void> {
@@ -79,7 +83,7 @@ const taskDefs: TaskDef[] = [
   },
   {
     title: 'Build E2E fixtures (5 versions)',
-    skip: () => fixturesExist() && 'Fixtures cached',
+    skip: () => !process.env.CI && fixturesExist() && 'Fixtures cached',
     run: async (log) => { await exec(`bash scripts/build-e2e-versions.sh ${PLATFORM}`, log, { cwd: ROOT }); },
   },
   {
@@ -147,14 +151,14 @@ const taskDefs: TaskDef[] = [
       await checkCDN(log); log('App launched, initializing...'); await sleep(5000);
     },
   },
-  { title: 'Phase 1 — v1 baseline', run: async (log) => { await checkCDN(log); await exec(`maestro --platform ${PLATFORM} test ${join(FLOWS, 'ota-phase1.yaml')}`, log, { cwd: ROOT }); } },
+  { title: 'Phase 1 — v1 baseline', run: async (log) => { await checkCDN(log); await exec(`maestro --platform ${PLATFORM} test -e APP_ID=${APP_ID} ${join(FLOWS, 'ota-phase1.yaml')}`, log, { cwd: ROOT }); } },
   { title: 'Deploy v2 (both remotes)', run: async (log) => { swapCDN('mini-v2', 'mini-current', log); swapCDN('nested-v2', 'nested-current', log); } },
   {
     title: 'Phase 2 — update + crash',
     run: async (log) => {
       if (INTERACTIVE) await pause('Deployed v2 — ready to test update + crash recovery?', log);
       else { log('Waiting for CDN to settle...'); await sleep(CDN_SETTLE_MS); }
-      await checkCDN(log); await exec(`maestro --platform ${PLATFORM} test ${join(FLOWS, 'ota-phase2.yaml')}`, log, { cwd: ROOT });
+      await checkCDN(log); await exec(`maestro --platform ${PLATFORM} test -e APP_ID=${APP_ID} ${join(FLOWS, 'ota-phase2.yaml')}`, log, { cwd: ROOT });
     },
   },
   { title: 'Rollback nested-mini → v1', run: async (log) => { swapCDN('nested-v1', 'nested-current', log); } },
@@ -163,7 +167,7 @@ const taskDefs: TaskDef[] = [
     run: async (log) => {
       if (INTERACTIVE) await pause('Rolled back nested-mini to v1 — ready to test rollback?', log);
       else { log('Waiting for CDN to settle...'); await sleep(CDN_SETTLE_MS); }
-      await checkCDN(log); await exec(`maestro --platform ${PLATFORM} test ${join(FLOWS, 'ota-phase3.yaml')}`, log, { cwd: ROOT });
+      await checkCDN(log); await exec(`maestro --platform ${PLATFORM} test -e APP_ID=${APP_ID} ${join(FLOWS, 'ota-phase3.yaml')}`, log, { cwd: ROOT });
     },
   },
   { title: 'Deploy nested-mini v3', run: async (log) => { swapCDN('nested-v3', 'nested-current', log); } },
@@ -172,7 +176,7 @@ const taskDefs: TaskDef[] = [
     run: async (log) => {
       if (INTERACTIVE) await pause('Deployed nested-mini v3 — ready to test partial update?', log);
       else { log('Waiting for CDN to settle...'); await sleep(CDN_SETTLE_MS); }
-      await checkCDN(log); await exec(`maestro --platform ${PLATFORM} test ${join(FLOWS, 'ota-phase4.yaml')}`, log, { cwd: ROOT });
+      await checkCDN(log); await exec(`maestro --platform ${PLATFORM} test -e APP_ID=${APP_ID} ${join(FLOWS, 'ota-phase4.yaml')}`, log, { cwd: ROOT });
     },
   },
   {
@@ -180,6 +184,10 @@ const taskDefs: TaskDef[] = [
     // exits the moment Phase 4 finishes and the simulator app gets killed.
     title: '🎉 Success',
     run: async (log) => {
+      if (!INTERACTIVE) {
+        log('Mocked E2E complete; all four phases passed.');
+        return;
+      }
       await pause(
         [
           '🎉 **MOCKED E2E COMPLETE** — every phase passed',

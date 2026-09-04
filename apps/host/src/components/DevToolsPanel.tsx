@@ -1,7 +1,5 @@
-import React, {useEffect, useRef} from 'react';
+import React from 'react';
 import {
-  Animated,
-  Easing,
   Platform,
   ScrollView,
   StyleSheet,
@@ -16,7 +14,6 @@ import {Button} from './Button';
 
 interface DevToolsPanelProps {
   status: CacheStatusSnapshot;
-  isOnline: boolean;
   pollIntervalMs: number;
   lastPollAt: number | undefined;
   showSources: boolean;
@@ -25,6 +22,8 @@ interface DevToolsPanelProps {
   onCheckUpdates: () => void;
   onClearCache: () => void;
   onToggleSources: () => void;
+  controlsBusy: boolean;
+  hiddenByModal: boolean;
 }
 
 const COLLAPSED_HEIGHT = 46;
@@ -39,8 +38,8 @@ const STATUS_COLORS: Record<string, string> = {
 
 const STATUS_LABELS: Record<string, string> = {
   'cache-hit': 'cache',
-  downloaded: 'remote',
-  skipped: 'remote',
+  downloaded: 'downloaded',
+  skipped: 'unavailable',
   pending: 'pending',
 };
 
@@ -83,65 +82,22 @@ function relativeTime(timestamp: number | undefined): string {
 function PollProgressBar({
   pollingEnabled,
   isPolling,
-  pollIntervalMs,
-  lastPollAt,
 }: {
   pollingEnabled: boolean;
   isPolling: boolean;
-  pollIntervalMs: number;
-  lastPollAt: number | undefined;
 }) {
-  const width = useRef(new Animated.Value(0)).current;
-  const flash = useRef(new Animated.Value(0)).current;
-  const animRef = useRef<Animated.CompositeAnimation | null>(null);
-  const prevLastPollAt = useRef<number | undefined>(undefined);
-
-  useEffect(() => {
-    animRef.current?.stop();
-    if (!pollingEnabled || !lastPollAt) { width.setValue(0); flash.setValue(0); return; }
-    if (isPolling) {
-      Animated.timing(width, {toValue: 1, duration: 200, easing: Easing.out(Easing.ease), useNativeDriver: false}).start();
-      return;
-    }
-    const isNewPoll = prevLastPollAt.current !== undefined && prevLastPollAt.current !== lastPollAt;
-    prevLastPollAt.current = lastPollAt;
-    if (isNewPoll) {
-      width.setValue(1); flash.setValue(0);
-      animRef.current = Animated.sequence([
-        Animated.timing(flash, {toValue: 1, duration: 300, easing: Easing.out(Easing.ease), useNativeDriver: false}),
-        Animated.delay(400),
-        Animated.parallel([
-          Animated.timing(flash, {toValue: 0, duration: 500, easing: Easing.inOut(Easing.ease), useNativeDriver: false}),
-          Animated.timing(width, {toValue: 0, duration: 500, easing: Easing.inOut(Easing.ease), useNativeDriver: false}),
-        ]),
-        Animated.timing(width, {toValue: 1, duration: Math.max(pollIntervalMs - 1200, 0), easing: Easing.linear, useNativeDriver: false}),
-      ]);
-      animRef.current.start();
-    } else {
-      flash.setValue(0);
-      const elapsed = Date.now() - lastPollAt;
-      width.setValue(Math.min(elapsed / pollIntervalMs, 1));
-      animRef.current = Animated.timing(width, {toValue: 1, duration: Math.max(pollIntervalMs - elapsed, 0), easing: Easing.linear, useNativeDriver: false});
-      animRef.current.start();
-    }
-    return () => animRef.current?.stop();
-  }, [pollingEnabled, isPolling, pollIntervalMs, lastPollAt, width, flash]);
-
   if (!pollingEnabled) return null;
-  const bgColor = flash.interpolate({inputRange: [0, 1], outputRange: ['rgba(139, 92, 246, 0.4)', 'rgba(34, 197, 94, 0.8)']});
 
   return (
     <View style={pollBarStyles.track}>
-      <Animated.View
-        style={[pollBarStyles.fill, isPolling && pollBarStyles.fillActive, {backgroundColor: bgColor, width: width.interpolate({inputRange: [0, 1], outputRange: ['0%', '100%']})}]}
-      />
+      <View style={[pollBarStyles.fill, isPolling && pollBarStyles.fillActive]} />
     </View>
   );
 }
 
 const pollBarStyles = StyleSheet.create({
   track: {height: 2, backgroundColor: 'rgba(139, 92, 246, 0.1)', overflow: 'hidden'},
-  fill: {height: '100%', backgroundColor: 'rgba(139, 92, 246, 0.4)', borderRadius: 1},
+  fill: {height: '100%', width: '100%', backgroundColor: 'rgba(139, 92, 246, 0.4)', borderRadius: 1},
   fillActive: {backgroundColor: '#8b5cf6'},
 });
 
@@ -161,7 +117,6 @@ function useCountdown(lastPollAt: number | undefined, pollIntervalMs: number) {
 
 export function DevToolsPanel({
   status,
-  isOnline,
   pollIntervalMs,
   lastPollAt,
   showSources,
@@ -170,36 +125,28 @@ export function DevToolsPanel({
   onCheckUpdates,
   onClearCache,
   onToggleSources,
+  controlsBusy,
+  hiddenByModal,
 }: DevToolsPanelProps) {
-  const animatedHeight = useRef(new Animated.Value(COLLAPSED_HEIGHT)).current;
   const secondsLeft = useCountdown(lastPollAt, pollIntervalMs);
-
-  useEffect(() => {
-    Animated.spring(animatedHeight, {
-      toValue: expanded ? EXPANDED_HEIGHT : COLLAPSED_HEIGHT,
-      useNativeDriver: false,
-      tension: 80,
-      friction: 14,
-    }).start();
-  }, [expanded, animatedHeight]);
 
   const remoteEntries = Object.values(status.remotes);
 
   return (
-    <Animated.View style={[styles.container, {height: animatedHeight}]}>
+    <View
+      accessibilityElementsHidden={hiddenByModal}
+      style={[
+        styles.container,
+        {height: expanded ? EXPANDED_HEIGHT : COLLAPSED_HEIGHT},
+      ]}>
       <PollProgressBar
         pollingEnabled={status.pollingEnabled}
         isPolling={status.isPolling}
-        pollIntervalMs={pollIntervalMs}
-        lastPollAt={lastPollAt}
       />
       {/* Handle */}
-      <View style={styles.handle} testID="devtools-panel-handle">
+      <View style={styles.handle}>
         <View style={styles.statusInfo}>
-          <View style={[styles.netDot, {backgroundColor: isOnline ? '#22c55e' : '#ef4444'}]} />
-          <Text style={[styles.dimLabel, styles.mono]}>
-            {isOnline ? 'online' : 'offline'}
-          </Text>
+          <Text style={[styles.dimLabel, styles.mono]}>module cache</Text>
           {status.pollingEnabled && (
             <>
               <Text style={[styles.dimLabel, styles.mono]}>·</Text>
@@ -214,11 +161,19 @@ export function DevToolsPanel({
           )}
         </View>
         <View style={styles.quickActions}>
-          <Button onPress={onToggleExpanded} style={styles.quickButton}>
+          <Button
+            onPress={onToggleExpanded}
+            style={styles.quickButton}
+            accessibilityLabel={expanded ? 'Collapse module diagnostics' : 'Expand module diagnostics'}
+            accessibilityState={{expanded}}
+            testID="devtools-panel-handle">
             <Text style={styles.quickIcon}>⌞⌝</Text>
           </Button>
           <Button
             onPress={onToggleSources}
+            accessibilityLabel={showSources ? 'Hide module sources' : 'Show module sources'}
+            accessibilityState={{selected: showSources}}
+            testID="devtools-toggle-sources"
             style={[
               styles.quickButton,
               showSources && styles.quickButtonActive,
@@ -234,17 +189,23 @@ export function DevToolsPanel({
           <Button
             onPress={onCheckUpdates}
             style={styles.quickButton}
-            disabled={status.isPolling}
+            disabled={status.isPolling || controlsBusy}
+            accessibilityLabel="Check for module updates"
             testID="devtools-check-updates">
             <Text
               style={[
                 styles.quickIcon,
-                status.isPolling && styles.quickIconDisabled,
+                (status.isPolling || controlsBusy) && styles.quickIconDisabled,
               ]}>
               ↻
             </Text>
           </Button>
-          <Button onPress={onClearCache} style={styles.quickButton}>
+          <Button
+            onPress={onClearCache}
+            style={styles.quickButton}
+            disabled={controlsBusy || status.isPolling}
+            accessibilityLabel="Clear downloaded module cache"
+            testID="devtools-clear-cache">
             <Text style={[styles.quickIcon, styles.quickIconDanger]}>✕</Text>
           </Button>
         </View>
@@ -255,16 +216,6 @@ export function DevToolsPanel({
         <ScrollView style={styles.content} testID="devtools-panel-expanded">
           {/* Status */}
           <Text style={styles.sectionTitle}>STATUS</Text>
-          <View style={styles.statusRow}>
-            <Text style={styles.statusKey}>Network</Text>
-            <Text
-              style={[
-                styles.statusValue,
-                {color: isOnline ? '#22c55e' : '#ef4444'},
-              ]}>
-              {isOnline ? 'online' : 'offline'}
-            </Text>
-          </View>
           {status.lastPollAt && (
             <View style={styles.statusRow}>
               <Text style={styles.statusKey}>Last check</Text>
@@ -332,6 +283,8 @@ export function DevToolsPanel({
           <View style={styles.controls}>
             <Button
               onPress={onToggleSources}
+              accessibilityLabel={showSources ? 'Hide module sources' : 'Show module sources'}
+              accessibilityState={{selected: showSources}}
               style={[
                 styles.controlButton,
                 showSources && styles.controlButtonActive,
@@ -346,25 +299,28 @@ export function DevToolsPanel({
             </Button>
             <Button
               onPress={onCheckUpdates}
+              accessibilityLabel="Check for module updates"
               style={styles.controlButton}
-              disabled={status.isPolling}>
+              disabled={status.isPolling || controlsBusy}>
               <Text
                 style={[
                   styles.controlText,
-                  status.isPolling && styles.controlTextDisabled,
+                  (status.isPolling || controlsBusy) && styles.controlTextDisabled,
                 ]}>
                 Check Updates
               </Text>
             </Button>
             <Button
               onPress={onClearCache}
+              accessibilityLabel="Clear downloaded module cache"
+              disabled={controlsBusy || status.isPolling}
               style={[styles.controlButton, styles.destructiveButton]}>
-              <Text style={styles.destructiveText}>Clear</Text>
+              <Text style={styles.destructiveText}>Clear Cache</Text>
             </Button>
           </View>
         </ScrollView>
       )}
-    </Animated.View>
+    </View>
   );
 }
 
@@ -406,11 +362,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
   },
-  netDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-  },
   dimLabel: {
     color: '#6b7280',
   },
@@ -431,8 +382,8 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   quickButton: {
-    width: 32,
-    height: 32,
+    width: 44,
+    height: 44,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.08)',
@@ -536,6 +487,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingVertical: 10,
     alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 44,
   },
   controlButtonActive: {
     backgroundColor: 'rgba(139, 92, 246, 0.15)',

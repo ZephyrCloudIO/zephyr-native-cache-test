@@ -1,4 +1,4 @@
-appId: com.mf.example.host
+appId: ${APP_ID}
 ---
 # Phase 1 (Zephyr): cold launch — remote bundles are fetched from the
 # Zephyr CDN for the first time. `launchApp` is plain (no `clearState`)
@@ -20,22 +20,34 @@ appId: com.mf.example.host
 - assertVisible:
     id: 'stats-card-version'
     text: 'v1'
-- extendedWaitUntil:
-    visible:
-      id: 'deploy-card'
-    timeout: 15000
-
 # Nested-mini remote components
-- extendedWaitUntil:
-    visible:
-      id: 'activity-feed'
-    timeout: 15000
-- extendedWaitUntil:
-    visible:
+- scrollUntilVisible:
+    element:
       id: 'cache-info'
+    direction: DOWN
     timeout: 15000
+- assertVisible:
+    id: 'cache-info'
+- scrollUntilVisible:
+    element:
+      id: 'activity-feed'
+    direction: DOWN
+    timeout: 15000
+- assertVisible:
+    id: 'activity-feed'
+- scrollUntilVisible:
+    element:
+      id: 'deploy-card'
+    direction: DOWN
+    timeout: 15000
+- assertVisible:
+    id: 'deploy-card'
 
 # Host component
+- scrollUntilVisible:
+    element:
+      id: 'host-info'
+    direction: DOWN
 - assertVisible:
     id: 'host-info'
 

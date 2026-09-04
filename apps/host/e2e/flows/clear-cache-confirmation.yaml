@@ -1,0 +1,21 @@
+appId: ${APP_ID}
+---
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: 'app-shell'
+    timeout: 15000
+- tapOn:
+    id: 'devtools-clear-cache'
+- assertVisible: 'Clear downloaded modules?'
+- assertVisible: 'This removes all cached modules. A network connection may be required after restart.'
+- tapOn: 'Cancel'
+- assertNotVisible: 'Clear downloaded modules?'
+- tapOn:
+    id: 'devtools-clear-cache'
+- tapOn: 'Clear cache'
+- extendedWaitUntil:
+    visible:
+      id: 'cache-operation-message'
+      text: 'Downloaded module cache cleared. Restart before testing again.'
+    timeout: 10000

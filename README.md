@@ -27,11 +27,11 @@ Three React Native apps using Module Federation over Metro (RN 0.80, new-arch / 
 | ------------ | ---- | ---- |
 | `host`       | 8081 | Health-dashboard UI that loads every exposed remote module. Registers the native cache layer on startup. |
 | `mini`       | 8082 | Remote. Exposes `StatsCard`, `DeployCard`, `CalorieCard`. Source lives under `src/` (v1), `src/v2/` (v2). No v3 — falls back to v2 for v3 demos. |
-| `nested-mini`| 8083 | Remote. Exposes `ActivityFeed`, `CacheInfo`, `HydrationCard`. Also *consumes* `mini/info` to exercise nested remote loading. Source under `src/`, `src/v2/`, `src/v3/` (only `CacheInfo` has v3 content). |
+| `nested-mini`| 8083 | Remote. Exposes `ActivityFeed`, `CacheInfo`, `HydrationCard`. Source under `src/`, `src/v2/`, and `src/v3/`. |
 
 Version switching is driven by `REMOTE_VERSION=v1|v2|v3` — each remote's `metro.config.js` maps that to the source prefix that gets exposed at build/serve time. See [Development](#development) for the `dev:v*` scripts.
 
-**Cache layer wiring** — `apps/host/index.js` calls `ZephyrNativeCache.register({ forceCacheInDev: true, pollIntervalMs: 15_000 })` before `AppRegistry.registerComponent`, which installs:
+**Cache layer wiring** — `apps/host/index.js` calls `ZephyrNativeCache.register()` before `AppRegistry.registerComponent`, using a 15-second E2E polling interval and a five-minute normal interval. It installs:
 
 - `globalThis.__ZEPHYR__.runtime.nativeCache.refs.cacheLayer` — the `BundleCacheLayer` instance
 - `globalThis.__FEDERATION__.__NATIVE__.__CACHE__` — the async bundle loader that `@module-federation/runtime`'s `asyncRequire` routes through
@@ -132,6 +132,26 @@ If any Metro ports (8081-8083) are already in use, the dev script will show whic
 ### End-to-end OTA demo
 
 For the full Zephyr-backed OTA demo (publish → pin in dashboard → verify with Maestro), see [`ZEPHYR_OTA_DEMO.md`](./ZEPHYR_OTA_DEMO.md). Kick it off with `pnpm e2e:zephyr ios` or `pnpm e2e:zephyr android`.
+
+### TestFlight
+
+The distributable iOS host is branded **Zephyr Health**. TestFlight builds use
+the explicit `ZEPHYR_DISTRIBUTION=testflight` mode and do not reuse the DEMO
+E2E selector. See [`docs/testflight-release.md`](./docs/testflight-release.md)
+for prerequisites, publishing, archive/IPA verification, upload, rollback, device
+checks, and build-number handling. Remote-change rules and beta privacy behavior
+are documented in [`docs/remote-release-policy.md`](./docs/remote-release-policy.md)
+and [`docs/testflight-privacy.md`](./docs/testflight-privacy.md).
+
+External TestFlight is currently blocked until the audited integrity and
+known-good retention gaps in `zephyr-native-cache@1.2.4` are fixed upstream and
+validated here.
+
+Internal TestFlight uploads can use the explicit `testflight:internal:*`
+commands documented in `docs/testflight-release.md`. That path relies on the
+Zephyr plugin/runtime, does not require public manifest URL inputs, and skips
+the external remote snapshot and native-cache approval gates. It must not be
+used for external tester groups.
 
 ### Run on iOS
 

@@ -1,15 +1,27 @@
 import React from 'react';
 import {Platform, StyleSheet, Text, View} from 'react-native';
+import {Button} from './Button';
 
 interface Props {
   name: string;
   children: React.ReactNode;
+  onRetry?: () => void;
+  fallback?: React.ReactNode;
 }
 
 interface State {
   hasError: boolean;
   error: Error | null;
 }
+
+const DISPLAY_NAMES: Record<string, string> = {
+  ActivityFeed: 'Sample workouts',
+  CacheInfo: 'Sample sleep',
+  CalorieCard: 'Sample nutrition',
+  DeployCard: 'Sample steps',
+  HydrationCard: 'Sample hydration',
+  StatsCard: 'Sample heart rate',
+};
 
 export class ErrorBoundary extends React.Component<Props, State> {
   state: State = {hasError: false, error: null};
@@ -20,19 +32,29 @@ export class ErrorBoundary extends React.Component<Props, State> {
 
   render() {
     if (this.state.hasError) {
+      if (this.props.fallback) return this.props.fallback;
+      const displayName = DISPLAY_NAMES[this.props.name] ?? this.props.name;
       return (
         <View style={styles.card} testID={`error-${this.props.name}`}>
           <View style={styles.header}>
             <Text style={styles.icon}>!</Text>
             <View style={styles.headerText}>
-              <Text style={styles.title}>Component crashed</Text>
-              <Text style={[styles.name, styles.mono]}>{this.props.name}</Text>
+              <Text style={styles.title}>Sample card unavailable</Text>
+              <Text style={styles.name}>{displayName}</Text>
             </View>
           </View>
-          {this.state.error && (
+          {__DEV__ && this.state.error && (
             <Text style={[styles.message, styles.mono]} numberOfLines={3}>
               {this.state.error.message}
             </Text>
+          )}
+          {this.props.onRetry && (
+            <Button
+              style={styles.retry}
+              accessibilityLabel={`Retry ${displayName}`}
+              onPress={this.props.onRetry}>
+              <Text style={styles.retryText}>Restart and retry</Text>
+            </Button>
           )}
         </View>
       );
@@ -89,6 +111,19 @@ const styles = StyleSheet.create({
     fontSize: 10,
     marginTop: 10,
     lineHeight: 14,
+  },
+  retry: {
+    minHeight: 44,
+    marginTop: 12,
+    borderRadius: 8,
+    backgroundColor: 'rgba(139, 92, 246, 0.18)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  retryText: {
+    color: '#c4b5fd',
+    fontSize: 12,
+    fontWeight: '600',
   },
   mono: {
     fontFamily: Platform.select({ios: 'Menlo', default: 'monospace'}),

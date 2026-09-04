@@ -182,6 +182,7 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "set -e\nif [[ -f \"$PODS_ROOT/../.xcode.env\" ]]; then\nsource \"$PODS_ROOT/../.xcode.env\"\nfi\nif [[ -f \"$PODS_ROOT/../.xcode.env.local\" ]]; then\nsource \"$PODS_ROOT/../.xcode.env.local\"\nfi\nexport BUNDLE_COMMAND=\"bundle-mf-host\"\nexport CONFIG_CMD=\"dummy-workaround-value\"\nexport CLI_PATH=\"$(\"$NODE_BINARY\" --print \"require('path').dirname(require.resolve('@rnef/cli/package.json')) + '/dist/src/bin.js'\")\"\nWITH_ENVIRONMENT=\"$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"$REACT_NATIVE_PATH/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
+			showEnvVarsInLog = 0;
 		};
 		00EEFC60759A1932668264C0 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -259,26 +260,32 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 766PLUYVHQ;
 				ENABLE_BITCODE = NO;
-				INFOPLIST_FILE = MFExampleHost/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = MFExampleHost;
+				INFOPLIST_FILE = "$(ZEPHYR_INFOPLIST_FILE)";
+				INFOPLIST_KEY_CFBundleDisplayName = "Zephyr Health";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.mf.example.host;
+				PRODUCT_BUNDLE_IDENTIFIER = "io.zephyr-cloud.health";
 				PRODUCT_NAME = MFExampleHost;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
+				ZEPHYR_INFOPLIST_FILE = MFExampleHost/Info.plist;
 			};
 			name = Debug;
 		};
@@ -288,24 +295,33 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				INFOPLIST_FILE = MFExampleHost/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = MFExampleHost;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 766PLUYVHQ;
+				INFOPLIST_FILE = "$(ZEPHYR_INFOPLIST_FILE)";
+				INFOPLIST_KEY_CFBundleDisplayName = "Zephyr Health";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.mf.example.host;
+				PRODUCT_BUNDLE_IDENTIFIER = "io.zephyr-cloud.health";
 				PRODUCT_NAME = MFExampleHost;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Zephyr Health App";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
+				ZEPHYR_INFOPLIST_FILE = MFExampleHost/Info.plist;
 			};
 			name = Release;
 		};

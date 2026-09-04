@@ -1,4 +1,4 @@
-appId: com.mf.example.host
+appId: ${APP_ID}
 ---
 # Phase 3 (Zephyr variant): nested-mini rolled back to v1 (mini stays at v2).
 # The orchestrator now pauses until natural polling surfaces `update-toast`.
@@ -10,18 +10,27 @@ appId: com.mf.example.host
     id: 'update-toast-restart'
 
 - waitForAnimationToEnd
-- extendedWaitUntil:
-    visible:
+- scrollUntilVisible:
+    element:
       id: 'stats-card'
+    direction: UP
     timeout: 20000
 
 - assertVisible:
     id: 'stats-card-version'
     text: 'v2'
 
+- scrollUntilVisible:
+    element:
+      id: 'cache-info'
+    direction: DOWN
 - assertVisible:
     id: 'cache-info'
 - assertNotVisible:
     id: 'error-CacheInfo'
+- scrollUntilVisible:
+    element:
+      id: 'activity-feed'
+    direction: DOWN
 - assertVisible:
     id: 'activity-feed'

@@ -35,7 +35,7 @@ function Goal({
 export function WeeklyGoals() {
   return (
     <View style={cardStyles.card} testID="host-info">
-      <Text style={cardStyles.label}>Weekly Goals</Text>
+      <Text style={cardStyles.label}>Sample Weekly Goals</Text>
       <Goal label="Move" current={2840} target={3500} color="#ef4444" />
       <Goal label="Exercise" current={145} target={180} color="#22c55e" />
       <Goal label="Stand" current={9} target={12} color="#3b82f6" />
@@ -46,9 +46,9 @@ export function WeeklyGoals() {
 export function MoodCard() {
   return (
     <View style={cardStyles.card} testID="mood-card">
-      <Text style={cardStyles.label}>Mood</Text>
+      <Text style={cardStyles.label}>Sample Mood</Text>
       <Text style={moodStyles.emoji}>😊</Text>
-      <Text style={moodStyles.feeling}>Feeling great</Text>
+      <Text style={moodStyles.feeling}>Fictional mood example</Text>
       <View style={moodStyles.week}>
         {['😴', '😊', '😐', '😊', '😊', '🤩', '😊'].map((e, i) => (
           <Text key={i} style={moodStyles.day}>
