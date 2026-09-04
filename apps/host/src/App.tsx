@@ -55,7 +55,7 @@ const HydrationCard = React.lazy(() =>
 
 function App(): React.JSX.Element {
   const {status, latestUpdateEvent} = useCacheStatus();
-  const {width, fontScale} = useWindowDimensions();
+  const {fontScale} = useWindowDimensions();
   const [showSources, setShowSources] = useState(false);
   const [devToolsExpanded, setDevToolsExpanded] = useState(false);
   const [showCalorie, setShowCalorie] = useState(false);
@@ -203,7 +203,7 @@ function App(): React.JSX.Element {
           <View
             style={[
               styles.grid,
-              (width < 600 || fontScale > 1.2) && styles.gridSingleColumn,
+              fontScale > 1.2 && styles.gridSingleColumn,
             ]}>
             {/* Left column */}
             <View style={styles.column}>

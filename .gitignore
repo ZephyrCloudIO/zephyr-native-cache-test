@@ -45,6 +45,7 @@ tarballs/*.tgz
 e2e-fixtures/
 
 # Misc
+/.individual-docs/
 .DS_Store
 *.log
 
