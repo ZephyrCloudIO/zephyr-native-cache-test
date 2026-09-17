@@ -21,7 +21,7 @@ export default function CalorieCard({
   return (
     <View style={styles.card} testID={testID}>
       <View style={styles.labelRow}>
-        <Text style={styles.label}>Nutrition</Text>
+        <Text style={styles.label}>Sample Nutrition</Text>
         <Text testID="calorie-card-version" style={styles.version}>{VERSION}</Text>
       </View>
       <View style={styles.header}>

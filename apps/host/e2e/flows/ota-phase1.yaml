@@ -1,4 +1,4 @@
-appId: com.mf.example.host
+appId: ${APP_ID}
 ---
 # Phase 1: v1 baseline — launch fresh, verify all components loaded
 
@@ -12,16 +12,31 @@ appId: com.mf.example.host
 - assertVisible:
     id: 'stats-card-version'
     text: 'v1'
+# Nested-mini remote components
+- scrollUntilVisible:
+    element:
+      id: 'cache-info'
+    direction: DOWN
+- assertVisible:
+    id: 'cache-info'
+- scrollUntilVisible:
+    element:
+      id: 'activity-feed'
+    direction: DOWN
+- assertVisible:
+    id: 'activity-feed'
+- scrollUntilVisible:
+    element:
+      id: 'deploy-card'
+    direction: DOWN
 - assertVisible:
     id: 'deploy-card'
 
-# Nested-mini remote components
-- assertVisible:
-    id: 'activity-feed'
-- assertVisible:
-    id: 'cache-info'
-
 # Host component
+- scrollUntilVisible:
+    element:
+      id: 'host-info'
+    direction: DOWN
 - assertVisible:
     id: 'host-info'
 

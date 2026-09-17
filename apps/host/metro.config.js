@@ -2,7 +2,7 @@ const path = require('node:path');
 const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
 const {withModuleFederation} = require('@module-federation/metro');
 
-const ZEPHYR_E2E = process.env.ZEPHYR_E2E === '1';
+const {getZephyrMode, isZephyrBuild} = require('../../scripts/lib/zephyr-distribution.cjs');
 
 const config = {
   resolver: {
@@ -67,10 +67,11 @@ async function buildZephyrConfig() {
     name: mfConfig.name,
     remotes: mfConfig.remotes,
     target: process.env.ZEPHYR_TARGET === 'android' ? 'android' : 'ios',
+    failOnManifestError: getZephyrMode() === 'testflight',
   })(baseConfig);
   return withModuleFederation(enhanced, mfConfig, mfFlags);
 }
 
-module.exports = ZEPHYR_E2E
+module.exports = isZephyrBuild()
   ? buildZephyrConfig()
   : withModuleFederation(mergeConfig(getDefaultConfig(__dirname), config), mfConfig, mfFlags);

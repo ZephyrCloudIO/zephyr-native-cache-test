@@ -19,7 +19,7 @@ export default function CacheInfo({
   return (
     <View style={styles.card} testID={testID}>
       <View style={styles.labelRow}>
-        <Text style={styles.label}>Sleep</Text>
+        <Text style={styles.label}>Sample Sleep</Text>
         <Text testID="cache-info-version" style={styles.version}>{VERSION}</Text>
       </View>
       <View style={styles.durationRow}>

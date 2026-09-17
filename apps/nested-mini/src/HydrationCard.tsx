@@ -15,7 +15,7 @@ export default function HydrationCard({
   return (
     <View style={styles.card} testID={testID}>
       <View style={styles.labelRow}>
-        <Text style={styles.label}>Hydration</Text>
+        <Text style={styles.label}>Sample Hydration</Text>
         <Text testID="hydration-card-version" style={styles.version}>{VERSION}</Text>
       </View>
       <View style={styles.header}>
@@ -31,7 +31,7 @@ export default function HydrationCard({
         ))}
       </View>
       <Text style={styles.hint}>
-        {GOAL - GLASSES} more to reach your daily goal
+        Fictional progress: {GOAL - GLASSES} remaining
       </Text>
     </View>
   );

@@ -4,7 +4,7 @@ export default function (): ModuleFederationRuntimePlugin {
   return {
     name: 'custom-plugin-build',
     beforeLoadShare(args) {
-      console.log('[build time inject] beforeLoadShare', args.pkgName);
+      if (__DEV__) console.log('[build time inject] beforeLoadShare', args.pkgName);
       return args;
     },
   };

@@ -1,0 +1,21 @@
+appId: ${APP_ID}
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: 'app-shell'
+    timeout: 15000
+- assertVisible:
+    id: 'demo-notice'
+- extendedWaitUntil:
+    visible:
+      id: 'error-StatsCard'
+    timeout: 30000
+- scrollUntilVisible:
+    element:
+      id: 'host-info'
+    direction: DOWN
+    timeout: 20000
+- assertVisible:
+    id: 'host-info'

@@ -1,4 +1,4 @@
-appId: com.mf.example.host
+appId: ${APP_ID}
 ---
 # Phase 2: v2 deployed (both remotes)
 # Mini: improved components. Nested-mini: CacheInfo crashes.
@@ -20,9 +20,10 @@ appId: com.mf.example.host
 
 # Wait for JS context reload
 - waitForAnimationToEnd
-- extendedWaitUntil:
-    visible:
+- scrollUntilVisible:
+    element:
       id: 'stats-card'
+    direction: UP
     timeout: 20000
 
 # Mini v2 loaded
@@ -30,13 +31,21 @@ appId: com.mf.example.host
     id: 'stats-card-version'
     text: 'v2'
 
+# CacheInfo CRASHED — error boundary visible
+- scrollUntilVisible:
+    element:
+      id: 'error-CacheInfo'
+    direction: DOWN
+- assertVisible:
+    id: 'error-CacheInfo'
+
 # Nested-mini: ActivityFeed v2 works
+- scrollUntilVisible:
+    element:
+      id: 'activity-feed'
+    direction: DOWN
 - assertVisible:
     id: 'activity-feed'
 - assertVisible:
     id: 'activity-feed-version'
     text: 'v2'
-
-# CacheInfo CRASHED — error boundary visible
-- assertVisible:
-    id: 'error-CacheInfo'
