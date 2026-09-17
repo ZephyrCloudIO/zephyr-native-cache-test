@@ -13,7 +13,10 @@ import {
 } from 'react-native';
 
 import {Button} from './components/Button';
-import {DevToolsPanel} from './components/DevToolsPanel';
+import {
+  DevToolsPanel,
+  DEV_TOOLS_COLLAPSED_HEIGHT,
+} from './components/DevToolsPanel';
 import {ErrorBoundary} from './components/ErrorBoundary';
 import {Header} from './components/Header';
 import {WeeklyGoals, MoodCard} from './components/HostCards';
@@ -382,7 +385,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 20,
+    paddingBottom: DEV_TOOLS_COLLAPSED_HEIGHT + 20,
   },
   grid: {
     flexDirection: 'row',

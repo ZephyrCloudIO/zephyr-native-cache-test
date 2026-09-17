@@ -26,7 +26,10 @@ interface DevToolsPanelProps {
   hiddenByModal: boolean;
 }
 
-const COLLAPSED_HEIGHT = 46;
+const POLL_PROGRESS_HEIGHT = 2;
+const HANDLE_HEIGHT = 46;
+export const DEV_TOOLS_COLLAPSED_HEIGHT =
+  POLL_PROGRESS_HEIGHT + HANDLE_HEIGHT;
 const EXPANDED_HEIGHT = 360;
 
 const STATUS_COLORS: Record<string, string> = {
@@ -96,7 +99,11 @@ function PollProgressBar({
 }
 
 const pollBarStyles = StyleSheet.create({
-  track: {height: 2, backgroundColor: 'rgba(139, 92, 246, 0.1)', overflow: 'hidden'},
+  track: {
+    height: POLL_PROGRESS_HEIGHT,
+    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+    overflow: 'hidden',
+  },
   fill: {height: '100%', width: '100%', backgroundColor: 'rgba(139, 92, 246, 0.4)', borderRadius: 1},
   fillActive: {backgroundColor: '#8b5cf6'},
 });
@@ -137,7 +144,7 @@ export function DevToolsPanel({
       accessibilityElementsHidden={hiddenByModal}
       style={[
         styles.container,
-        {height: expanded ? EXPANDED_HEIGHT : COLLAPSED_HEIGHT},
+        {height: expanded ? EXPANDED_HEIGHT : DEV_TOOLS_COLLAPSED_HEIGHT},
       ]}>
       <PollProgressBar
         pollingEnabled={status.pollingEnabled}
@@ -337,7 +344,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   handle: {
-    height: COLLAPSED_HEIGHT,
+    height: HANDLE_HEIGHT,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 12,

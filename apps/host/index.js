@@ -6,8 +6,7 @@ import {name as appName} from './app.json';
 import {ErrorBoundary} from './src/components/ErrorBoundary';
 import Fallback from './src/Fallback';
 
-const pollIntervalMs = process.env.ZEPHYR_E2E === '1' ? 15_000 : 300_000;
-ZephyrNativeCache.register({forceCacheInDev: true, pollIntervalMs});
+ZephyrNativeCache.register({forceCacheInDev: true, pollIntervalMs: 5_000});
 
 const AsyncApp = withAsyncStartup(
   () => require('./src/App'),

@@ -1,7 +1,16 @@
 import React from 'react';
-import {Image, Platform, StyleSheet, Text, View} from 'react-native';
+import {
+  Image,
+  Linking,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
 const logo = require('../assets/zephyr-logo.png');
+const ZEPHYR_WEBSITE_URL = 'https://zephyr-cloud.io';
 
 interface HeaderProps {}
 
@@ -25,9 +34,24 @@ export function Header(_props: HeaderProps) {
         accessible={false}
       />
       <View style={styles.content}>
-        <Text style={styles.title}>
-          Zephyr <Text style={styles.titleAccent}>Health</Text>
-        </Text>
+        <View style={styles.titleRow}>
+          <Text style={styles.title}>
+            Zephyr <Text style={styles.titleAccent}>Health</Text>
+          </Text>
+          <Pressable
+            accessibilityLabel="Get started with Zephyr"
+            accessibilityRole="link"
+            hitSlop={8}
+            onPress={() => {
+              Linking.openURL(ZEPHYR_WEBSITE_URL).catch(error => {
+                if (__DEV__) console.warn('[link] Unable to open Zephyr website', error);
+              });
+            }}
+            style={styles.websiteLink}
+            testID="zephyr-website-link">
+            <Text style={styles.websiteLinkText}>Get started</Text>
+          </Pressable>
+        </View>
         <Text style={styles.greeting}>
           Demo dashboard - <Text style={styles.date}>{dateStr}</Text>
         </Text>
@@ -55,6 +79,11 @@ const styles = StyleSheet.create({
     paddingTop: 54,
     paddingBottom: 12,
   },
+  titleRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
   title: {
     color: '#ffffff',
     fontSize: 22,
@@ -63,6 +92,20 @@ const styles = StyleSheet.create({
   },
   titleAccent: {
     color: '#8b5cf6',
+  },
+  websiteLink: {
+    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+    borderColor: 'rgba(139, 92, 246, 0.35)',
+    borderRadius: 8,
+    borderWidth: 1,
+    minHeight: 36,
+    justifyContent: 'center',
+    paddingHorizontal: 12,
+  },
+  websiteLinkText: {
+    color: '#c4b5fd',
+    fontSize: 11,
+    fontWeight: '700',
   },
   greeting: {
     color: '#4b5563',

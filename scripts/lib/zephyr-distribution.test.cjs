@@ -63,19 +63,25 @@ test('inlines only the public E2E flag into application bundles', () => {
   assert.match(release, /\["0", process\.env\.ZE_SECRET_TOKEN\]/);
 });
 
-test('host Babel config emits the E2E polling interval without runtime env access', () => {
+test('host Babel config emits the constant polling interval', () => {
   const path = require('node:path');
   const appRoot = path.resolve(__dirname, '../../apps/host');
   const babel = require(require.resolve('@babel/core', {paths: [appRoot]}));
+  const transformHost = () =>
+    babel.transformFileSync(path.join(appRoot, 'index.js'), {
+      babelrc: false,
+      configFile: path.join(appRoot, 'babel.config.js'),
+      envName: 'production',
+    }).code;
 
+  delete process.env.ZEPHYR_E2E;
+  const regular = transformHost();
   process.env.ZEPHYR_E2E = '1';
-  const output = babel.transformFileSync(path.join(appRoot, 'index.js'), {
-    babelrc: false,
-    configFile: path.join(appRoot, 'babel.config.js'),
-    envName: 'production',
-  }).code;
+  const e2e = transformHost();
   delete process.env.ZEPHYR_E2E;
 
-  assert.doesNotMatch(output, /process\.env\.ZEPHYR_E2E/);
-  assert.match(output, /pollIntervalMs="1"==='1'\?15000:300000/);
+  for (const output of [regular, e2e]) {
+    assert.doesNotMatch(output, /process\.env\.ZEPHYR_E2E/);
+    assert.match(output, /pollIntervalMs:5000/);
+  }
 });
