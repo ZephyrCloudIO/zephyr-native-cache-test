@@ -85,6 +85,41 @@ function parsePlistText(source, message) {
   );
 }
 
+function extractPlistText(source, key, message, {optional = false} = {}) {
+  const result = spawnSync(
+    'plutil',
+    ['-extract', key, 'raw', '-o', '-', '-'],
+    {
+      cwd: ROOT,
+      encoding: 'utf8',
+      env: environmentWithoutSecret(),
+      input: source,
+      stdio: 'pipe',
+    },
+  );
+  if (result.status === 0) return result.stdout.trim();
+  if (optional) return undefined;
+  fail(message);
+}
+
+function parseProvisioningProfile(source, message) {
+  const extract = (key, options) =>
+    extractPlistText(source, key, `${message}: ${key}`, options);
+  return {
+    TeamIdentifier: [extract('TeamIdentifier.0')],
+    ExpirationDate: extract('ExpirationDate'),
+    Entitlements: {
+      'application-identifier': extract('Entitlements.application-identifier'),
+      'beta-reports-active':
+        extract('Entitlements.beta-reports-active') === 'true',
+      'get-task-allow': extract('Entitlements.get-task-allow') === 'true',
+    },
+    ProvisionedDevices: extract('ProvisionedDevices', {optional: true}),
+    ProvisionsAllDevices:
+      extract('ProvisionsAllDevices', {optional: true}) === 'true',
+  };
+}
+
 function parsePlistKey(path, key, message) {
   const source = run(
     'plutil',
@@ -876,7 +911,10 @@ async function verifyArchive({releaseTrack = 'external'} = {}) {
     capture: true,
     message: 'Unable to decode archive provisioning profile',
   });
-  const profile = parsePlistText(profileSource, 'Unable to parse provisioning profile');
+  const profile = parseProvisioningProfile(
+    profileSource,
+    'Unable to parse provisioning profile',
+  );
   if (!profile.TeamIdentifier?.includes(process.env.APPLE_TEAM_ID)) {
     fail('Provisioning profile team mismatch');
   }
@@ -1114,19 +1152,21 @@ function verifyIpa({releaseTrack = 'external'} = {}) {
       entitlements['application-identifier'] !==
         `${process.env.APPLE_TEAM_ID}.${process.env.IOS_BUNDLE_ID}` ||
       entitlements['beta-reports-active'] !== true ||
-      JSON.stringify(entitlements['keychain-access-groups'] ?? []) !==
-        JSON.stringify([
-          `${process.env.APPLE_TEAM_ID}.${process.env.IOS_BUNDLE_ID}`,
-        ])
+      (entitlements['keychain-access-groups'] !== undefined &&
+        JSON.stringify(entitlements['keychain-access-groups']) !==
+          JSON.stringify([
+            `${process.env.APPLE_TEAM_ID}.${process.env.IOS_BUNDLE_ID}`,
+          ]))
     ) {
       fail('Exported IPA does not have TestFlight distribution entitlements');
     }
-    const profile = parsePlistText(
-      run(
-        'security',
-        ['cms', '-D', '-i', join(appPath, 'embedded.mobileprovision')],
-        {capture: true},
-      ),
+    const profileSource = run(
+      'security',
+      ['cms', '-D', '-i', join(appPath, 'embedded.mobileprovision')],
+      {capture: true},
+    );
+    const profile = parseProvisioningProfile(
+      profileSource,
       'Unable to parse exported IPA provisioning profile',
     );
     const expectedApplicationIdentifier =
@@ -1144,7 +1184,17 @@ function verifyIpa({releaseTrack = 'external'} = {}) {
     ) {
       fail('Exported IPA does not use an App Store distribution profile');
     }
-    const text = walk(appPath)
+    const appFiles = walk(appPath);
+    const text = appFiles
+      .map(file => readFileSync(file).toString('latin1'))
+      .join('\n');
+    const runtimeText = appFiles
+      .filter(
+        path =>
+          path === join(appPath, 'main.jsbundle') ||
+          path.endsWith('zephyr-manifest.json') ||
+          path === join(appPath, 'Info.plist'),
+      )
       .map(file => readFileSync(file).toString('latin1'))
       .join('\n');
     if (releaseTrack === 'external') {
@@ -1158,8 +1208,8 @@ function verifyIpa({releaseTrack = 'external'} = {}) {
       }
     }
     if (
-      /(?:https?:\/\/(?:localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\]|10\.0\.2\.2|host\.docker\.internal)(?::\d+)?|@demo\b|https?:\/\/demo[-.])/i.test(text) ||
-      [...text.matchAll(/http:\/\/[^\0\s"'<>]+/g)].some(
+      /(?:https?:\/\/(?:localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\]|10\.0\.2\.2|host\.docker\.internal)(?::\d+)?|@demo\b|https?:\/\/demo[-.])/i.test(runtimeText) ||
+      [...runtimeText.matchAll(/http:\/\/[^\0\s"'<>]+/g)].some(
         match => !match[0].startsWith('http://www.apple.com/DTDs/'),
       ) ||
       text.includes('ZE_SECRET_TOKEN') ||
