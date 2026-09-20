@@ -19,7 +19,7 @@ export default function ActivityFeed({
   return (
     <View style={styles.card} testID={testID}>
       <View style={styles.labelRow}>
-        <Text style={styles.label}>Today's Workouts</Text>
+        <Text style={styles.label}>Sample Workouts</Text>
         <Text testID="activity-feed-version" style={styles.version}>{VERSION}</Text>
       </View>
       {WORKOUTS.map((w, i) => (

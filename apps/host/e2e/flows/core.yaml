@@ -1,24 +1,65 @@
-appId: com.mf.example.host
+appId: ${APP_ID}
 ---
 - launchApp:
     clearState: true
 - waitForAnimationToEnd
 
-# Check mini remote components
-- assertVisible:
-    id: 'stats-card'
-- assertVisible:
-    id: 'deploy-card'
+# Check the first remote component
+- extendedWaitUntil:
+    visible:
+      id: 'stats-card'
+    timeout: 30000
 
-# Check nestedMini remote components
-- assertVisible:
-    id: 'activity-feed'
+# Continue in visual order for the single-column iPhone layout
+- scrollUntilVisible:
+    element:
+      id: 'cache-info'
+    direction: DOWN
 - assertVisible:
     id: 'cache-info'
 
-# Check host component
+- scrollUntilVisible:
+    element:
+      id: 'load-nutrition'
+    direction: DOWN
+- tapOn:
+    id: 'load-nutrition'
+- extendedWaitUntil:
+    visible:
+      id: 'calorie-card'
+    timeout: 30000
+
+- scrollUntilVisible:
+    element:
+      id: 'activity-feed'
+    direction: DOWN
+- assertVisible:
+    id: 'activity-feed'
+
+- scrollUntilVisible:
+    element:
+      id: 'deploy-card'
+    direction: DOWN
+- assertVisible:
+    id: 'deploy-card'
+
+- scrollUntilVisible:
+    element:
+      id: 'host-info'
+    direction: DOWN
 - assertVisible:
     id: 'host-info'
+
+- scrollUntilVisible:
+    element:
+      id: 'load-hydration'
+    direction: DOWN
+- tapOn:
+    id: 'load-hydration'
+- extendedWaitUntil:
+    visible:
+      id: 'hydration-card'
+    timeout: 30000
 
 # Verify DevTools panel
 - assertVisible:

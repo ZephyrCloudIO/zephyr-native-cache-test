@@ -1,4 +1,4 @@
-appId: com.mf.example.host
+appId: ${APP_ID}
 ---
 # Phase 3: Rollback nested-mini to v1 (mini stays at v2)
 # Only nested-mini CDN changed. App is running from phase 2.
@@ -19,9 +19,10 @@ appId: com.mf.example.host
 
 # Wait for JS context reload
 - waitForAnimationToEnd
-- extendedWaitUntil:
-    visible:
+- scrollUntilVisible:
+    element:
       id: 'stats-card'
+    direction: UP
     timeout: 20000
 
 # Mini stays at v2
@@ -30,9 +31,17 @@ appId: com.mf.example.host
     text: 'v2'
 
 # Nested-mini rolled back to v1 — CacheInfo works again
+- scrollUntilVisible:
+    element:
+      id: 'cache-info'
+    direction: DOWN
 - assertVisible:
     id: 'cache-info'
 - assertNotVisible:
     id: 'error-CacheInfo'
+- scrollUntilVisible:
+    element:
+      id: 'activity-feed'
+    direction: DOWN
 - assertVisible:
     id: 'activity-feed'

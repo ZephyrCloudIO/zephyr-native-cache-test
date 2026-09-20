@@ -270,6 +270,8 @@ export function hostPaths(platform: string): string[] {
     'apps/host/src/',
     nativeDir,
     'apps/host/index.js',
+    'apps/host/babel.config.js',
+    'apps/host/babel-plugin-inline-zephyr-e2e.js',
     'apps/host/metro.config.js',
     'apps/host/runtime-plugin.ts',
     'apps/host/package.json',

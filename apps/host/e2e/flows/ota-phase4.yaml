@@ -1,4 +1,4 @@
-appId: com.mf.example.host
+appId: ${APP_ID}
 ---
 # Phase 4: Partial fix — nested-mini v3 (improvements kept, crash reverted)
 # Tests the alternative UI path: dismiss toast → update bar → restart from bar.
@@ -29,9 +29,10 @@ appId: com.mf.example.host
 
 # Wait for JS context reload
 - waitForAnimationToEnd
-- extendedWaitUntil:
-    visible:
+- scrollUntilVisible:
+    element:
       id: 'stats-card'
+    direction: UP
     timeout: 20000
 
 # Mini still v2
@@ -40,11 +41,10 @@ appId: com.mf.example.host
     text: 'v2'
 
 # Nested-mini v3: improved ActivityFeed kept, CacheInfo reverted (labeled v3 to mark the release)
-- assertVisible:
-    id: 'activity-feed'
-- assertVisible:
-    id: 'activity-feed-version'
-    text: 'v2'
+- scrollUntilVisible:
+    element:
+      id: 'cache-info'
+    direction: DOWN
 - assertVisible:
     id: 'cache-info'
 - assertVisible:
@@ -52,3 +52,12 @@ appId: com.mf.example.host
     text: 'v3'
 - assertNotVisible:
     id: 'error-CacheInfo'
+- scrollUntilVisible:
+    element:
+      id: 'activity-feed'
+    direction: DOWN
+- assertVisible:
+    id: 'activity-feed'
+- assertVisible:
+    id: 'activity-feed-version'
+    text: 'v3'
