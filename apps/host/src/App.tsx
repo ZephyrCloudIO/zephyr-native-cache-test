@@ -42,6 +42,10 @@ const DeployCard = React.lazy(() =>
 const CalorieCard = React.lazy(() =>
   loadRemote('Sample nutrition', () => import('mini/CalorieCard')),
 );
+// @ts-ignore
+const NativeCapabilityCard = React.lazy(() =>
+  loadRemote('Native persistence', () => import('mini/NativeCapabilityCard')),
+);
 
 // @ts-ignore
 const ActivityFeed = React.lazy(() =>
@@ -163,6 +167,7 @@ function App(): React.JSX.Element {
   const triggerOnDemandLoad = (setter: (v: boolean) => void) => () => setter(true);
 
   const statsEntry = findEntry(status.remotes, 'StatsCard');
+  const nativeEntry = findEntry(status.remotes, 'NativeCapabilityCard');
   const deployEntry = findEntry(status.remotes, 'DeployCard');
   const calorieEntry = findEntry(status.remotes, 'CalorieCard');
   const feedEntry = findEntry(status.remotes, 'ActivityFeed');
@@ -210,6 +215,23 @@ function App(): React.JSX.Element {
             ]}>
             {/* Left column */}
             <View style={styles.column}>
+              {process.env.ZEPHYR_BUILD_ONCE_DEMO === '1' && (
+                <View style={styles.cardSlot}>
+                  <ErrorBoundary name="NativeCapabilityCard" onRetry={handleRestart}>
+                    <React.Suspense fallback={<Placeholder height={220} />}>
+                      <NativeCapabilityCard />
+                    </React.Suspense>
+                  </ErrorBoundary>
+                  {showSources && (
+                    <SourceOverlay
+                      name="NativeCapabilityCard"
+                      origin="mini"
+                      entry={nativeEntry}
+                      loading="lazy"
+                    />
+                  )}
+                </View>
+              )}
               <View style={styles.cardSlot}>
                 <ErrorBoundary name="StatsCard" onRetry={handleRestart}>
                   <React.Suspense fallback={<Placeholder height={150} />}>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useSyncExternalStore} from 'react';
 import {
   Platform,
   ScrollView,
@@ -11,6 +11,12 @@ import type {
   CacheStatusSnapshot,
 } from 'zephyr-native-cache';
 import {Button} from './Button';
+import {getBuildOnceInfo} from '../lib/buildOnceInfo';
+import {
+  getDemoManifestSnapshot,
+  probeDemoNetwork,
+  subscribeDemoManifests,
+} from '../lib/buildOnceDiagnostics';
 
 interface DevToolsPanelProps {
   status: CacheStatusSnapshot;
@@ -136,6 +142,20 @@ export function DevToolsPanel({
   hiddenByModal,
 }: DevToolsPanelProps) {
   const secondsLeft = useCountdown(lastPollAt, pollIntervalMs);
+  const buildOnceInfo = getBuildOnceInfo();
+  const manifests = useSyncExternalStore(
+    subscribeDemoManifests,
+    getDemoManifestSnapshot,
+    getDemoManifestSnapshot,
+  );
+  const [networkState, setNetworkState] = useState('pending');
+  const runNetworkProbe = async () => {
+    try {
+      setNetworkState(await probeDemoNetwork());
+    } catch (error) {
+      setNetworkState(error instanceof Error ? error.message : 'unreachable');
+    }
+  };
 
   const remoteEntries = Object.values(status.remotes);
 
@@ -249,42 +269,83 @@ export function DevToolsPanel({
           {remoteEntries.length === 0 ? (
             <Text style={styles.emptyText}>No bundles loaded yet</Text>
           ) : (
-            remoteEntries.map(entry => (
-              <View key={entry.remoteName} style={styles.remoteRow}>
-                <Text style={[styles.remoteName, styles.mono]} numberOfLines={1}>
-                  {displayName(entry)}
-                </Text>
-                <View
-                  style={[
-                    styles.statusBadge,
-                    {
-                      backgroundColor: `${STATUS_COLORS[entry.status] ?? '#6b7280'}20`,
-                    },
-                  ]}>
-                  <View
-                    style={[
-                      styles.statusDot,
-                      {
-                        backgroundColor:
-                          STATUS_COLORS[entry.status] ?? '#6b7280',
-                      },
-                    ]}
-                  />
-                  <Text
-                    style={[
-                      styles.statusText,
-                      {color: STATUS_COLORS[entry.status] ?? '#6b7280'},
-                    ]}>
-                    {STATUS_LABELS[entry.status] ?? entry.status}
+            remoteEntries.map(entry => {
+              const suffix = entry.remoteName.replace(/\//g, '-');
+              const verifiedLabel =
+                entry.status === 'downloaded'
+                  ? 'download digest checked'
+                  : entry.status === 'cache-hit'
+                    ? 'cached metadata from verified download'
+                    : 'not verified';
+              return (
+                <View key={entry.remoteName} style={styles.bundleRow}>
+                  <View style={styles.remoteRow}>
+                    <Text style={[styles.remoteName, styles.mono]} numberOfLines={1}>
+                      {displayName(entry)}
+                    </Text>
+                    <View
+                      style={[
+                        styles.statusBadge,
+                        {backgroundColor: `${STATUS_COLORS[entry.status] ?? '#6b7280'}20`},
+                      ]}>
+                      <View
+                        style={[
+                          styles.statusDot,
+                          {backgroundColor: STATUS_COLORS[entry.status] ?? '#6b7280'},
+                        ]}
+                      />
+                      <Text
+                        testID={`bundle-status-${suffix}`}
+                        style={[
+                          styles.statusText,
+                          {color: STATUS_COLORS[entry.status] ?? '#6b7280'},
+                        ]}>
+                        {STATUS_LABELS[entry.status] ?? entry.status}
+                      </Text>
+                    </View>
+                  </View>
+                  <Text testID={`bundle-hash-${suffix}`} selectable style={[styles.fullHash, styles.mono]}>
+                    {entry.hash ?? 'pending'} · {verifiedLabel}
                   </Text>
+                  <Text style={[styles.bundleUrl, styles.mono]} selectable>{entry.bundleUrl}</Text>
                 </View>
-                <Text style={[styles.hash, styles.mono]}>
-                  {entry.hash ? `#${entry.hash}` : '—'}
-                </Text>
-              </View>
-            ))
+              );
+            })
           )}
 
+          {buildOnceInfo.enabled && (
+            <>
+              <View style={styles.divider} />
+              <Text style={styles.sectionTitle}>BUILD-ONCE EVIDENCE</Text>
+              <View style={styles.statusRow}>
+                <Text style={styles.statusKey}>Host build ID</Text>
+                <Text testID="build-once-host-id" style={[styles.statusValue, styles.mono]} selectable>
+                  {buildOnceInfo.hostBuildId}
+                </Text>
+              </View>
+              {(['mini', 'nestedMini'] as const).map(remoteName => {
+                const record = manifests[remoteName];
+                return (
+                  <View key={remoteName} style={styles.manifestRecord}>
+                    <Text style={styles.statusKey}>{remoteName}</Text>
+                    <Text testID={`build-once-manifest-${remoteName}`} style={[styles.statusValue, styles.mono]} selectable>
+                      {record?.manifestUrl ?? 'pending'}
+                    </Text>
+                    <Text testID={`build-once-source-${remoteName}`} style={styles.statusValue}>
+                      {record?.source ?? 'pending'}
+                    </Text>
+                    <Text testID={`build-once-artifacts-${remoteName}`} style={[styles.statusValue, styles.mono]} selectable>
+                      {record?.executableArtifactSetId ?? 'pending'}
+                    </Text>
+                  </View>
+                );
+              })}
+              <Button onPress={() => void runNetworkProbe()} style={styles.controlButton} testID="build-once-probe-network">
+                <Text style={styles.controlText}>Probe network</Text>
+              </Button>
+              <Text testID="build-once-network-state" style={styles.statusValue}>{networkState}</Text>
+            </>
+          )}
           {/* Controls */}
           <View style={styles.divider} />
           <View style={styles.controls}>
@@ -429,6 +490,24 @@ const styles = StyleSheet.create({
     color: '#4b5563',
     fontSize: 12,
     fontStyle: 'italic',
+  },
+  bundleRow: {
+    marginBottom: 8,
+  },
+  fullHash: {
+    color: '#a1a1aa',
+    fontSize: 9,
+    flexShrink: 1,
+    flexWrap: 'wrap',
+  },
+  bundleUrl: {
+    color: '#6b7280',
+    fontSize: 9,
+    flexWrap: 'wrap',
+  },
+  manifestRecord: {
+    marginBottom: 8,
+    gap: 2,
   },
   remoteRow: {
     flexDirection: 'row',

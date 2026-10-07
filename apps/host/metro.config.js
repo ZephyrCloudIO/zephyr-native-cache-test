@@ -13,6 +13,7 @@ const config = {
   },
   watchFolders: [
     path.resolve(__dirname, '../../node_modules'),
+    path.resolve(__dirname, '../../packages/demo-host-capabilities'),
   ],
 };
 
@@ -45,9 +46,21 @@ const mfConfig = {
   shareStrategy: 'loaded-first',
   runtimePlugins: [
     path.resolve(__dirname, './runtime-plugin.ts'),
+    ...(process.env.ZEPHYR_BUILD_ONCE_DEMO === '1'
+      ? [path.resolve(__dirname, './build-once-runtime-plugin.ts')]
+      : []),
     require.resolve('zephyr-native-cache/runtime-plugin'),
   ],
 };
+
+if (process.env.ZEPHYR_BUILD_ONCE_DEMO === '1') {
+  mfConfig.shared['@zephyr-demo/host-capabilities'] = {
+    singleton: true,
+    eager: true,
+    version: '1.0.0',
+    requiredVersion: '1.0.0',
+  };
+}
 
 const mfFlags = {
   flags: {

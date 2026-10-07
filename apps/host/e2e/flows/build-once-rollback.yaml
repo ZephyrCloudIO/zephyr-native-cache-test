@@ -1,0 +1,41 @@
+appId: ${APP_ID}
+---
+- extendedWaitUntil:
+    visible:
+      id: update-toast
+    timeout: 60000
+- tapOn:
+    id: update-toast-restart
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: stats-card-version
+      text: ${MINI_VERSION}
+    timeout: 60000
+- assertVisible:
+    id: activity-feed-version
+    text: ${NESTED_MINI_VERSION}
+- runFlow:
+    file: build-once-load-on-demand.yaml
+- tapOn:
+    id: devtools-panel-handle
+- scrollUntilVisible:
+    element:
+      id: build-once-host-id
+    direction: DOWN
+    timeout: 30000
+- assertVisible:
+    id: build-once-host-id
+    text: '${RUN_ID}:${PLATFORM}'
+- assertVisible:
+    id: build-once-artifacts-mini
+    text: ${MINI_ARTIFACT_ID}
+- assertVisible:
+    id: build-once-artifacts-nestedMini
+    text: ${NESTED_MINI_ARTIFACT_ID}
+- runFlow:
+    file: build-once-artifact-assertions.yaml
+- tapOn:
+    id: devtools-panel-handle
+- runFlow:
+    file: build-once-native-assertions.yaml

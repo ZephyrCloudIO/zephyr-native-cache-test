@@ -1,6 +1,7 @@
 node_modules/
 dist/
 /build/testflight/
+/build/build-once/
 
 # iOS
 **/ios/Pods/

@@ -1,0 +1,13 @@
+{
+  "name": "@zephyr-demo/host-capabilities",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": { "types": "./src/index.ts", "default": "./src/index.ts" },
+    "./native": { "types": "./src/native.ts", "default": "./src/native.ts" }
+  },
+  "dependencies": { "@babel/runtime": "^7.25.0" },
+  "peerDependencies": { "react-native": "0.80.0" }
+}
