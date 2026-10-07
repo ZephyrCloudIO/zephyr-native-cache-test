@@ -1,0 +1,22 @@
+appId: ${APP_ID}
+---
+- scrollUntilVisible:
+    element:
+      id: native-card
+    direction: UP
+    timeout: 30000
+- assertVisible:
+    id: native-state
+    text: ${NATIVE_STATE}
+- assertVisible:
+    id: native-card-version
+    text: ${MINI_VERSION}
+- assertVisible:
+    id: native-message-result
+    text: ${MESSAGE}
+- assertVisible:
+    id: native-sha256
+    text: ${SHA256}
+- assertNotVisible:
+    id: native-error
+- takeScreenshot: native-card

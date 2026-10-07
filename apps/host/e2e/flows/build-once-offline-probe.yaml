@@ -1,0 +1,17 @@
+appId: ${APP_ID}
+---
+- tapOn:
+    id: devtools-panel-handle
+- scrollUntilVisible:
+    element:
+      id: build-once-probe-network
+    direction: DOWN
+    timeout: 30000
+- tapOn:
+    id: build-once-probe-network
+- extendedWaitUntil:
+    visible:
+      id: build-once-network-state
+      text: unreachable
+    timeout: 30000
+- takeScreenshot: network-probe

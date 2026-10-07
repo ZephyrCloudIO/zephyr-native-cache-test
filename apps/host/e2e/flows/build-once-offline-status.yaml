@@ -1,0 +1,74 @@
+appId: ${APP_ID}
+---
+- scrollUntilVisible:
+    element:
+      id: bundle-status-mini
+    direction: UP
+    timeout: 30000
+- assertVisible:
+    id: bundle-status-mini
+    text: cache
+- scrollUntilVisible:
+    element:
+      id: bundle-status-exposed-StatsCard
+    direction: DOWN
+    timeout: 30000
+- assertVisible:
+    id: bundle-status-exposed-StatsCard
+    text: cache
+- scrollUntilVisible:
+    element:
+      id: bundle-status-exposed-NativeCapabilityCard
+    direction: DOWN
+    timeout: 30000
+- assertVisible:
+    id: bundle-status-exposed-NativeCapabilityCard
+    text: cache
+- scrollUntilVisible:
+    element:
+      id: bundle-status-exposed-DeployCard
+    direction: DOWN
+    timeout: 30000
+- assertVisible:
+    id: bundle-status-exposed-DeployCard
+    text: cache
+- scrollUntilVisible:
+    element:
+      id: bundle-status-exposed-CalorieCard
+    direction: DOWN
+    timeout: 30000
+- assertVisible:
+    id: bundle-status-exposed-CalorieCard
+    text: cache
+- scrollUntilVisible:
+    element:
+      id: bundle-status-nestedMini
+    direction: DOWN
+    timeout: 30000
+- assertVisible:
+    id: bundle-status-nestedMini
+    text: cache
+- scrollUntilVisible:
+    element:
+      id: bundle-status-exposed-ActivityFeed
+    direction: DOWN
+    timeout: 30000
+- assertVisible:
+    id: bundle-status-exposed-ActivityFeed
+    text: cache
+- scrollUntilVisible:
+    element:
+      id: bundle-status-exposed-CacheInfo
+    direction: DOWN
+    timeout: 30000
+- assertVisible:
+    id: bundle-status-exposed-CacheInfo
+    text: cache
+- scrollUntilVisible:
+    element:
+      id: bundle-status-exposed-HydrationCard
+    direction: DOWN
+    timeout: 30000
+- assertVisible:
+    id: bundle-status-exposed-HydrationCard
+    text: cache

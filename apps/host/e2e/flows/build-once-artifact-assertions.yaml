@@ -1,0 +1,75 @@
+appId: ${APP_ID}
+---
+- scrollUntilVisible:
+    element:
+      id: bundle-hash-mini
+    direction: UP
+    timeout: 30000
+- assertVisible:
+    id: bundle-hash-mini
+    text: "${EXPECTED_MINI_BUNDLE_HASH}.*"
+- scrollUntilVisible:
+    element:
+      id: bundle-hash-exposed-StatsCard
+    direction: DOWN
+    timeout: 30000
+- assertVisible:
+    id: bundle-hash-exposed-StatsCard
+    text: "${EXPECTED_STATS_HASH}.*"
+- scrollUntilVisible:
+    element:
+      id: bundle-hash-exposed-NativeCapabilityCard
+    direction: DOWN
+    timeout: 30000
+- assertVisible:
+    id: bundle-hash-exposed-NativeCapabilityCard
+    text: "${EXPECTED_NATIVE_HASH}.*"
+- scrollUntilVisible:
+    element:
+      id: bundle-hash-exposed-DeployCard
+    direction: DOWN
+    timeout: 30000
+- assertVisible:
+    id: bundle-hash-exposed-DeployCard
+    text: "${EXPECTED_DEPLOY_HASH}.*"
+- scrollUntilVisible:
+    element:
+      id: bundle-hash-exposed-CalorieCard
+    direction: DOWN
+    timeout: 30000
+- assertVisible:
+    id: bundle-hash-exposed-CalorieCard
+    text: "${EXPECTED_CALORIE_HASH}.*"
+- scrollUntilVisible:
+    element:
+      id: bundle-hash-nestedMini
+    direction: DOWN
+    timeout: 30000
+- assertVisible:
+    id: bundle-hash-nestedMini
+    text: "${EXPECTED_NESTED_MINI_BUNDLE_HASH}.*"
+- scrollUntilVisible:
+    element:
+      id: bundle-hash-exposed-ActivityFeed
+    direction: DOWN
+    timeout: 30000
+- assertVisible:
+    id: bundle-hash-exposed-ActivityFeed
+    text: "${EXPECTED_ACTIVITY_HASH}.*"
+- scrollUntilVisible:
+    element:
+      id: bundle-hash-exposed-CacheInfo
+    direction: DOWN
+    timeout: 30000
+- assertVisible:
+    id: bundle-hash-exposed-CacheInfo
+    text: "${EXPECTED_CACHE_INFO_HASH}.*"
+- scrollUntilVisible:
+    element:
+      id: bundle-hash-exposed-HydrationCard
+    direction: DOWN
+    timeout: 30000
+- assertVisible:
+    id: bundle-hash-exposed-HydrationCard
+    text: "${EXPECTED_HYDRATION_HASH}.*"
+- takeScreenshot: diagnostics

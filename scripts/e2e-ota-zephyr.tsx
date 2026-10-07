@@ -1,5 +1,5 @@
 import { execa, execaCommand } from 'execa';
-import { existsSync, readdirSync, statSync } from 'node:fs';
+import {existsSync} from 'node:fs';
 import { resolve, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -16,6 +16,7 @@ import {
   runTaskPipeline,
   sleep,
 } from './lib/e2e-runtime.js';
+import {androidApkPath, findIosAppPath} from './lib/e2e-devices.js';
 
 // ── Paths & Config ─────────────────────────────────────────────────────────
 
@@ -296,27 +297,6 @@ async function pauseForUpdateToast(log: (m: string) => void, label: string): Pro
   );
 }
 
-// Locate the most recently built iOS simulator `.app` under DerivedData so the
-// Install step can drop it onto the booted sim without re-running the build.
-function findIosAppPath(): string {
-  const dd = join(process.env.HOME ?? '', 'Library/Developer/Xcode/DerivedData');
-  if (!existsSync(dd)) throw new Error(`DerivedData not found at ${dd}`);
-  const candidates = readdirSync(dd)
-    .filter((d) => d.startsWith('MFExampleHost-'))
-    .map((d) => ({ path: join(dd, d), mtime: statSync(join(dd, d)).mtimeMs }))
-    .sort((a, b) => b.mtime - a.mtime);
-  for (const { path } of candidates) {
-    const productsDir = join(path, 'Build/Products/Release-iphonesimulator');
-    if (!existsSync(productsDir)) continue;
-    const app = readdirSync(productsDir).find((f) => f.endsWith('.app'));
-    if (app) return join(productsDir, app);
-  }
-  throw new Error('No built MFExampleHost.app found under DerivedData — run the Build step first');
-}
-
-function androidApkPath(): string {
-  return join(HOST, 'android/app/build/outputs/apk/release/app-release.apk');
-}
 
 // ── Task definitions ───────────────────────────────────────────────────────
 
@@ -425,7 +405,7 @@ const taskDefs: TaskDef[] = [
         return;
       }
       if (PLATFORM === 'android') {
-        const apk = androidApkPath();
+        const apk = androidApkPath(HOST);
         if (!existsSync(apk)) throw new Error(`APK missing: ${apk} — did Build host succeed?`);
         log(`Installing ${apk}`);
         await execArgs('adb', ['install', '-r', apk], log, { cwd: ROOT });

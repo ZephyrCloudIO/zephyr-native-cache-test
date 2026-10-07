@@ -1,0 +1,64 @@
+appId: ${APP_ID}
+---
+- launchApp
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: stats-card
+    timeout: 90000
+- assertVisible:
+    id: stats-card-version
+    text: ${MINI_VERSION}
+- scrollUntilVisible:
+    element:
+      id: activity-feed
+    direction: DOWN
+    timeout: 30000
+- assertVisible:
+    id: activity-feed-version
+    text: ${NESTED_MINI_VERSION}
+- runFlow:
+    file: build-once-load-on-demand.yaml
+- tapOn:
+    id: devtools-panel-handle
+- scrollUntilVisible:
+    element:
+      id: build-once-host-id
+    direction: DOWN
+    timeout: 30000
+- assertVisible:
+    id: build-once-host-id
+    text: '${RUN_ID}:${PLATFORM}'
+- assertVisible:
+    id: build-once-source-mini
+    text: network
+- assertVisible:
+    id: build-once-source-nestedMini
+    text: network
+- assertVisible:
+    id: build-once-artifacts-mini
+    text: ${MINI_ARTIFACT_ID}
+- assertVisible:
+    id: build-once-artifacts-nestedMini
+    text: ${NESTED_MINI_ARTIFACT_ID}
+- runFlow:
+    file: build-once-artifact-assertions.yaml
+- tapOn:
+    id: devtools-panel-handle
+- scrollUntilVisible:
+    element:
+      id: native-card
+    direction: UP
+    timeout: 30000
+- tapOn:
+    id: native-message-input
+- inputText: ${MESSAGE}
+- tapOn:
+    id: native-save
+- extendedWaitUntil:
+    visible:
+      id: native-state
+      text: saved
+    timeout: 30000
+- runFlow:
+    file: build-once-native-assertions.yaml

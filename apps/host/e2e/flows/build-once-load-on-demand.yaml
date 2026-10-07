@@ -1,0 +1,26 @@
+appId: ${APP_ID}
+---
+- scrollUntilVisible:
+    element:
+      id: load-nutrition
+    direction: DOWN
+    timeout: 30000
+- tapOn:
+    id: load-nutrition
+- extendedWaitUntil:
+    visible:
+      id: calorie-card-version
+      text: ${MINI_VERSION}
+    timeout: 90000
+- scrollUntilVisible:
+    element:
+      id: load-hydration
+    direction: DOWN
+    timeout: 30000
+- tapOn:
+    id: load-hydration
+- extendedWaitUntil:
+    visible:
+      id: hydration-card-version
+      text: ${NESTED_MINI_VERSION}
+    timeout: 90000

@@ -47,41 +47,36 @@ test('keeps DEMO aliases isolated to the existing E2E mode', async () => {
   );
 });
 
-test('inlines only the public E2E flag into application bundles', () => {
-  const appRoot = require('node:path').resolve(__dirname, '../../apps/host');
-  const babel = require(require.resolve('@babel/core', {paths: [appRoot]}));
-  const plugin = require('../../apps/host/babel-plugin-inline-zephyr-e2e');
-  const source =
-    'const values = [process.env.ZEPHYR_E2E, process.env.ZE_SECRET_TOKEN];';
-
-  process.env.ZEPHYR_E2E = '1';
-  const e2e = babel.transformSync(source, {plugins: [plugin]}).code;
-  assert.match(e2e, /\["1", process\.env\.ZE_SECRET_TOKEN\]/);
-
-  delete process.env.ZEPHYR_E2E;
-  const release = babel.transformSync(source, {plugins: [plugin]}).code;
-  assert.match(release, /\["0", process\.env\.ZE_SECRET_TOKEN\]/);
-});
-
-test('host Babel config emits the constant polling interval', () => {
-  const path = require('node:path');
-  const appRoot = path.resolve(__dirname, '../../apps/host');
-  const babel = require(require.resolve('@babel/core', {paths: [appRoot]}));
-  const transformHost = () =>
-    babel.transformFileSync(path.join(appRoot, 'index.js'), {
-      babelrc: false,
-      configFile: path.join(appRoot, 'babel.config.js'),
-      envName: 'production',
-    }).code;
-
-  delete process.env.ZEPHYR_E2E;
-  const regular = transformHost();
-  process.env.ZEPHYR_E2E = '1';
-  const e2e = transformHost();
-  delete process.env.ZEPHYR_E2E;
-
-  for (const output of [regular, e2e]) {
-    assert.doesNotMatch(output, /process\.env\.ZEPHYR_E2E/);
-    assert.match(output, /pollIntervalMs:5000/);
+test('requires showcase mode and selects the platform-specific build-once pins', async () => {
+  const original = {
+    ZEPHYR_E2E: process.env.ZEPHYR_E2E,
+    ZEPHYR_BUILD_ONCE_DEMO: process.env.ZEPHYR_BUILD_ONCE_DEMO,
+    ZEPHYR_TARGET: process.env.ZEPHYR_TARGET,
+  };
+  try {
+    process.env.ZEPHYR_E2E = '1';
+    process.env.ZEPHYR_BUILD_ONCE_DEMO = '1';
+    process.env.ZEPHYR_TARGET = 'ios';
+    const ios = await import('../../apps/host/zephyr.config.mjs?build-once-ios');
+    assert.deepEqual(ios.default.remoteDependencies, {
+      mini: 'zephyr:cache-test-mini@BUILD_ONCE_DEMO_IOS',
+      nestedMini: 'zephyr:cache-test-nested-mini@BUILD_ONCE_DEMO_IOS',
+    });
+    process.env.ZEPHYR_TARGET = 'android';
+    const android = await import('../../apps/host/zephyr.config.mjs?build-once-android');
+    assert.equal(android.default.remoteDependencies.mini, 'zephyr:cache-test-mini@BUILD_ONCE_DEMO_ANDROID');
+    assert.equal(android.default.remoteDependencies.nestedMini, 'zephyr:cache-test-nested-mini@BUILD_ONCE_DEMO_ANDROID');
+    delete process.env.ZEPHYR_E2E;
+    await assert.rejects(import('../../apps/host/zephyr.config.mjs?build-once-not-e2e'), /Build-once host requires ZEPHYR_E2E=1/);
+    process.env.ZEPHYR_E2E = '1';
+    delete process.env.ZEPHYR_TARGET;
+    await assert.rejects(import('../../apps/host/zephyr.config.mjs?build-once-missing-target'), /Build-once host requires ZEPHYR_TARGET=ios\\|android/);
+    process.env.ZEPHYR_TARGET = 'web';
+    await assert.rejects(import('../../apps/host/zephyr.config.mjs?build-once-invalid-target'), /Build-once host requires ZEPHYR_TARGET=ios\\|android/);
+  } finally {
+    for (const [key, value] of Object.entries(original)) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
   }
 });

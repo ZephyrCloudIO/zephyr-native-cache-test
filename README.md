@@ -29,7 +29,11 @@ Three React Native apps using Module Federation over Metro (RN 0.80, new-arch / 
 | `mini`       | 8082 | Remote. Exposes `StatsCard`, `DeployCard`, `CalorieCard`. Source lives under `src/` (v1), `src/v2/` (v2). No v3 — falls back to v2 for v3 demos. |
 | `nested-mini`| 8083 | Remote. Exposes `ActivityFeed`, `CacheInfo`, `HydrationCard`. Source under `src/`, `src/v2/`, and `src/v3/`. |
 
-Version switching is driven by `REMOTE_VERSION=v1|v2|v3` — each remote's `metro.config.js` maps that to the source prefix that gets exposed at build/serve time. See [Development](#development) for the `dev:v*` scripts.
+Version switching is driven by `REMOTE_VERSION=v1|v2|v3`. Federation config lives
+in `apps/mini/federation.config.cjs` and
+`apps/nested-mini/federation.config.cjs`; each exports
+`createFederationConfig({version})` so normal Metro builds and the build-once
+runner use the same expose/shared-module definitions.
 
 **Cache layer wiring** — `apps/host/index.js` calls `ZephyrNativeCache.register()` before `AppRegistry.registerComponent`, using a five-second polling interval in every environment. It installs:
 
@@ -132,6 +136,69 @@ If any Metro ports (8081-8083) are already in use, the dev script will show whic
 ### End-to-end OTA demo
 
 For the full Zephyr-backed OTA demo (publish → pin in dashboard → verify with Maestro), see [`ZEPHYR_OTA_DEMO.md`](./ZEPHYR_OTA_DEMO.md). Kick it off with `pnpm e2e:zephyr ios` or `pnpm e2e:zephyr android`.
+
+### Build-once cross-platform showcase
+
+`pnpm e2e:build-once` runs the isolated mini/nested-mini showcase on one booted
+iOS simulator and one booted Android emulator. It compiles the three logical
+remote releases once on iOS, publishes those same artifact bytes to both
+platform targets, then builds each host once. The runner records hashes,
+registration identities, host binary digests, install/termination commands,
+and Maestro evidence under `build/build-once/<run-id>/`.
+
+Build the sibling publisher API once before running this flow:
+
+```bash
+cd ../zephyr-packages
+pnpm --filter zephyr-metro-plugin build
+cd ../zephyr-native-cache-test
+```
+
+The sibling package build requires Node.js `24.20.0` and pnpm `11.25.0`,
+independent of this harness's root toolchain. The demonstration imports the
+publisher from the sibling source build: the currently pinned
+`zephyr-metro-plugin@1.2.4` npm package does not provide
+`publishPrebuiltMetroArtifacts`.
+
+Use disposable test devices. This flow uninstalls and reinstalls the host,
+changes Zephyr environment pins, and asks the operator to disable workstation
+network access temporarily. Do not run it against a device or environment with
+state that must be preserved; restore network access if the runner is
+interrupted.
+
+
+Copy `.env.e2e.example` to `.env.e2e` and set `ZE_SECRET_TOKEN`. Boot the two
+devices first; optionally pass `--ios-device <udid>` and
+`--android-device <serial>` to choose them explicitly. Check prerequisites
+without creating builds, Zephyr engines, or installs:
+
+```bash
+pnpm e2e:build-once -- --preflight
+```
+
+Then run the interactive flow:
+
+```bash
+pnpm e2e:build-once
+```
+
+The runner pauses for the operator to create and pin version-based
+`BUILD_ONCE_DEMO_IOS` / `BUILD_ONCE_DEMO_ANDROID` environments, promote only
+mini to v2, roll mini back to v1, and manually disable/restore network access
+for the offline cold-launch check. It never changes device or workstation
+network settings. Do not use `DEMO`, tag/latest, or TestFlight selectors for
+this showcase; SDK-created tagged versions can move matching tags. The
+build-once host manifest cache is persisted natively at
+`zephyr-build-once-demo/manifests/<run-id>/` and is used only when a manifest
+request fails at the network layer.
+
+The host-owned native capability module is not a sandbox: federated modules
+execute with the host application's privileges. Changing the native capability
+contract requires a new host binary, and a remote is not automatically
+platform-neutral merely because its bundle was published to both targets.
+Production use still requires explicit trust, release-governance, and
+distribution-policy review. Live iOS/Android acceptance is pending until the
+full two-device smoke completes.
 
 ### TestFlight
 
