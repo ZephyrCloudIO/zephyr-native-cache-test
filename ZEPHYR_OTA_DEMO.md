@@ -42,17 +42,13 @@ runtime polls the resolved manifest URL for changes.
    dashboard. Copy `.env.e2e.example` to `.env.e2e` and set
    `ZE_SECRET_TOKEN`. The flow uses production endpoints by default, so
    `ZE_API_GATE` and `ZE_API` are not required.
-2. Decide on an **environment name** to use for the demo (suggest:
-   `development` — often auto-created). Note it; you'll reuse it.
-3. Add a `zephyr:dependencies` block to `apps/host/package.json` pointing the
-   host at that env:
-   ```json
-   "zephyr:dependencies": {
-     "mini": "zephyr:mini@development",
-     "nestedMini": "zephyr:nested-mini@development"
-   }
-   ```
-   (Replace `development` with your chosen env name.)
+2. The host resolves the remotes' **`DEMO` environment** in E2E mode
+   (`ZEPHYR_E2E=1`, see `apps/host/zephyr.config.mjs`). Create `DEMO` on both
+   remotes, pointing at a version, **before** the host build. If `DEMO` does
+   not exist, the resolver silently falls back to each remote's default
+   environment and the pins below never reach the app.
+3. Using another environment? Change `apps/host/zephyr.config.mjs` and set
+   `ZE_E2E_ENV=<name>` for the automated mode below.
 4. **Have a device/simulator ready** (or don't — see below). Preflight will
    verify that at least one Android emulator / iOS simulator is booted. If
    nothing is booted, it pauses and offers to boot one for you:
@@ -67,6 +63,24 @@ runtime polls the resolved manifest URL for changes.
 > *first* publish so the apps exist and you can see their exact names in the
 > dashboard. If the e2e flow fails at the "Build host" step because the
 > resolve returns nothing, this is almost certainly the cause.
+
+### Automated mode (`ZE_E2E_AUTO=1`)
+
+`CI=1 ZE_E2E_AUTO=1 pnpm e2e:zephyr <ios|android>` runs the whole flow without
+a person at the keyboard:
+
+- Each **Manual** step pins `DEMO` (or `ZE_E2E_ENV`) to the version the
+  previous publish created, through the Zephyr API
+  (`POST /v2/application/{org}/{project}/{app}/environment[/{env}]` with
+  `applicationVersionId` and a `version` condition). It then waits until the
+  environment hostname serves that version's `mf-manifest.json`, and another
+  30 s so no edge server still holds the previous manifest.
+- The "press SPACE" gates continue on their own; the update-toast gates run
+  `ota-wait-update-toast.yaml` (waits up to 240 s).
+- Needs `ZE_API` and `ZE_SECRET_TOKEN` (and `ZE_API_GATE` off production) in
+  `.env.e2e`. Boot the device first; the boot prompt still waits for a key.
+- For Android, set `ZEPHYR_TARGET=android` so the publishes and the host
+  resolve the Android versions.
 
 ---
 

@@ -52,3 +52,5 @@ e2e-fixtures/
 # zephyr manifests
 **/zephyr-manifest.json
 .bundle
+
+.worktrees/
