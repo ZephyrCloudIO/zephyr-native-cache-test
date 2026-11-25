@@ -16,6 +16,7 @@ import {
   runTaskPipeline,
   sleep,
 } from './lib/e2e-runtime.js';
+import { latestVersion, pinEnvironment, type PublishedVersion } from './lib/zephyr-env-pin.js';
 
 // ── Paths & Config ─────────────────────────────────────────────────────────
 
@@ -49,7 +50,7 @@ async function checkPreflight(log: (m: string) => void): Promise<void> {
   if (!process.env.ZE_SECRET_TOKEN) {
     throw new Error('Missing required env var: ZE_SECRET_TOKEN. See .env.e2e.example.');
   }
-  log('Using Zephyr production defaults');
+  log(`ZE_API=${process.env.ZE_API ?? '<production default>'}`);
   log('ZE_SECRET_TOKEN=<set>');
   await ensureDevice(log);
 }
@@ -253,6 +254,11 @@ async function publishRemote(
   if (appUid && versionNumber) {
     publishedVersions.set(`${filter}:${version}`, { appUid, versionNumber, url });
     log(`→ captured: ${appUid}#${versionNumber}`);
+    if (AUTO) {
+      const published = await latestVersion(appUid);
+      apiVersions.set(`${filter}:${version}`, published);
+      log(`→ version ${published.versionName} (${published.versionId}) at ${published.remoteHost}`);
+    }
   } else {
     log(`⚠ could not parse deployment identifier for ${filter} ${version}`);
   }
@@ -262,6 +268,40 @@ function describeVersion(filter: string, version: string): string {
   const entry = publishedVersions.get(`${filter}:${version}`);
   if (!entry) return `${filter} ${version} — identifier not captured; pick manually`;
   return `**${filter}** ${version} → pin to version **#${entry.versionNumber}** (${entry.appUid})`;
+}
+
+// ZE_E2E_AUTO=1: the dashboard steps run through the Zephyr API and the
+// operator gates continue on their own.
+const AUTO = process.env.ZE_E2E_AUTO === '1';
+// apps/host/zephyr.config.mjs resolves the remotes' `DEMO` environment in E2E mode.
+const PIN_ENV = process.env.ZE_E2E_ENV ?? 'DEMO';
+const apiVersions = new Map<string, PublishedVersion>();
+
+// The edge keeps environment manifests for s-maxage=30. The pin check sees one edge server;
+// the device may hit another that still holds the old manifest, so wait the lifetime out
+// before the phase relies on every remote having moved.
+const EDGE_MANIFEST_LIFETIME_MS = 30_000;
+
+async function autoPin(pins: Array<[filter: string, version: string]>, log: (m: string) => void): Promise<void> {
+  const pinnedAt = Date.now();
+  for (const [filter, version] of pins) {
+    const published = apiVersions.get(`${filter}:${version}`);
+    if (!published) throw new Error(`No published version recorded for ${filter} ${version}`);
+    await pinEnvironment(published, PIN_ENV, log);
+  }
+  const remaining = EDGE_MANIFEST_LIFETIME_MS - (Date.now() - pinnedAt);
+  if (remaining > 0) {
+    log(`Waiting ${Math.ceil(remaining / 1000)}s for edge manifest copies to expire`);
+    await sleep(remaining);
+  }
+}
+
+async function gate(message: string, log: (m: string) => void, options?: Parameters<typeof pause>[2]): Promise<void> {
+  if (AUTO) {
+    log(`auto: ${message.split('\n')[0]}`);
+    return;
+  }
+  await pause(message, log, options);
 }
 
 // Zephyr edge CDN propagation can take up to ~60s after a new deployment
@@ -286,6 +326,12 @@ async function waitForEdgeSettle(log: (m: string) => void): Promise<void> {
 }
 
 async function pauseForUpdateToast(log: (m: string) => void, label: string): Promise<void> {
+  if (AUTO) {
+    const started = Date.now();
+    await exec(`maestro --platform ${PLATFORM} test -e APP_ID=${APP_ID} ${join(FLOWS, 'ota-wait-update-toast.yaml')}`, log, { cwd: ROOT });
+    log(`update-toast for ${label} visible after ${((Date.now() - started) / 1000).toFixed(1)}s`);
+    return;
+  }
   await pause(
     [
       `Wait for OTA propagation/polling to surface the **update-toast** for **${label}**.`,
@@ -388,6 +434,10 @@ const taskDefs: TaskDef[] = [
   {
     title: 'Manual: pin v1',
     run: async (log) => {
+      if (AUTO) {
+        await autoPin([['cache-test-mini', 'v1'], ['cache-test-nested-mini', 'v1']], log);
+        return;
+      }
       await pause(
         [
           'In the Zephyr dashboard, pin the **DEMO** environment to **v1** for both remotes:',
@@ -444,14 +494,14 @@ const taskDefs: TaskDef[] = [
     // so the cold launch doesn't race an in-flight CDN propagation.
     title: 'Phase 1 — baseline',
     run: async (log) => {
-      await pause('Ready to launch the app', log);
+      await gate('Ready to launch the app', log);
       await exec(`maestro --platform ${PLATFORM} test -e APP_ID=${APP_ID} ${join(FLOWS, 'ota-phase1-zephyr.yaml')}`, log, { cwd: ROOT });
     },
   },
   {
     title: 'Publish v2',
     run: async (log) => {
-      await pause('Ready to publish v2 of mini + nested-mini to Zephyr.', log);
+      await gate('Ready to publish v2 of mini + nested-mini to Zephyr.', log);
       await publishRemote('cache-test-mini', 'v2', log);
       await publishRemote('cache-test-nested-mini', 'v2', log);
       lastPublishAt = Date.now();
@@ -460,6 +510,10 @@ const taskDefs: TaskDef[] = [
   {
     title: 'Manual: pin v2',
     run: async (log) => {
+      if (AUTO) {
+        await autoPin([['cache-test-mini', 'v2'], ['cache-test-nested-mini', 'v2']], log);
+        return;
+      }
       await pause(
         [
           'In the Zephyr dashboard, pin the **DEMO** environment to **v2** for both remotes:',
@@ -483,6 +537,10 @@ const taskDefs: TaskDef[] = [
   {
     title: 'Manual: rollback nested-mini',
     run: async (log) => {
+      if (AUTO) {
+        await autoPin([['cache-test-nested-mini', 'v1']], log);
+        return;
+      }
       await pause(
         [
           'In the Zephyr dashboard, rollback **nested-mini**\'s **DEMO** env to **v1**:',
@@ -504,7 +562,7 @@ const taskDefs: TaskDef[] = [
   {
     title: 'Publish nested-mini v3',
     run: async (log) => {
-      await pause('Ready to publish v3 of nested-mini to Zephyr.', log);
+      await gate('Ready to publish v3 of nested-mini to Zephyr.', log);
       await publishRemote('cache-test-nested-mini', 'v3', log);
       lastPublishAt = Date.now();
     },
@@ -512,6 +570,10 @@ const taskDefs: TaskDef[] = [
   {
     title: 'Manual: pin nested-mini v3',
     run: async (log) => {
+      if (AUTO) {
+        await autoPin([['cache-test-nested-mini', 'v3']], log);
+        return;
+      }
       await pause(
         [
           'In the Zephyr dashboard, pin **nested-mini**\'s **DEMO** env to **v3**:',
@@ -536,7 +598,7 @@ const taskDefs: TaskDef[] = [
     // finishes, killing the simulator app and taking the demo state with it.
     title: '🎉 Success',
     run: async (log) => {
-      await pause(
+      await gate(
         [
           '🎉 **DEMO COMPLETE** — every phase passed',
           '',

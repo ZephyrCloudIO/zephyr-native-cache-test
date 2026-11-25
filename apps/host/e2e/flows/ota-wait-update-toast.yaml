@@ -1,0 +1,9 @@
+appId: ${APP_ID}
+---
+# ZE_E2E_AUTO gate: waits for the runtime's polling loop to surface the
+# update toast, in place of the operator pressing SPACE.
+
+- extendedWaitUntil:
+    visible:
+      id: 'update-toast'
+    timeout: 240000
